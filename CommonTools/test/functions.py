@@ -2,7 +2,7 @@ import os
 
 def makeNtupleMaker(sampledir,samplelist, outputdir, job):
 
-    ntuplemaker=open("run_ntupleMaker_cfg.py","r")
+    ntuplemaker=open("run_ntupleMaker_snu_cfg.py","r")
     config=""
 
     fread = open(samplelist, 'r')
@@ -12,7 +12,7 @@ def makeNtupleMaker(sampledir,samplelist, outputdir, job):
     fread.close()    
         
     for line in ntuplemaker:
-        if "file:" in line:
+        if "root://cms-xrd" in line:
             config+=makeConfigFile(sampledir,samplelist, samplecounter) +"\n"
         elif  "fileName = cms.string" in line:
                 config+='fileName = cms.string("' + outputdir + 'ntuple' + str(job) +'.root"),'
@@ -196,9 +196,11 @@ def makeConfigFile(sampledir,samplelist, count):
 
     for line in fr:
         counter+=1
-        fileline="'file:" + sampledir +  line.strip()+"'"
+        if not "/failed" in line:
+            fileline="'root://cms-xrdr.sdfarm.kr:1094//" +  line.strip()+"'"
         if not counter ==  count :
-            fileline+=","
+            if not "/failed" in line:
+                fileline+=","
             
         config+=fileline
         
