@@ -13,24 +13,26 @@ if "results_merged" not in os.listdir(os.getcwd()):
     os.system("mkdir results_merged")
     print "'results_merged' has been created."
 
+pwd = os.getcwd()+'/'
 if user_input == "all":
     dir_list = [x for x in os.listdir(os.getcwd()) if (os.path.isdir(x) and x != "results_merged")]
-else: dir_list = [user_input]
+else: dir_list = os.listdir(pwd+user_input)
 
 failed_list = []
 for d in dir_list:
-
-    root_list = [x for x in os.listdir(d) if x.endswith(".root")]
+    print pwd+user_input+d
+    root_list = [x for x in os.listdir(pwd+user_input+d) if (("h2mu" in x) and x.endswith(".root"))]
     file_names = ""
     for x in root_list:
-        file_names += " %s/%s"%(d,x)
-
+        file_names += " %s/%s"%(pwd+user_input+d,x)
     if len(root_list) == 0:
         failed_list.append(d)
-    else: os.system("hadd results_merged/%s.root"%d+file_names)
+    else: os.system("hadd -f results_merged/%s.root"%d+file_names)
 
 if len(failed_list) > 0:
     print
     print " ** What failed:    ", failed_list
     print
+
+
 
