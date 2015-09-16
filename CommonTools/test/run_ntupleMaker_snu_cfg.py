@@ -26,7 +26,9 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
     int = cms.PSet(
         nGoodPV           =  cms.InputTag("catVertex"   , "nGoodPV"),
         nPV               =  cms.InputTag("catVertex"   , "nPV"    ),
-
+        
+        genweight    =   cms.PSet(src = cms.InputTag("genWeight")),
+        lheweight    =   cms.PSet(src = cms.InputTag("lheWeight")),
         pdfWeightId1 =   cms.PSet(src = cms.InputTag("pdfWeight", "id1" )),
         pdfWeightId2 =   cms.PSet(src = cms.InputTag("pdfWeight", "id2" )),
         

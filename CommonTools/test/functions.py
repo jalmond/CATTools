@@ -15,7 +15,7 @@ def makeNtupleMaker(sampledir,samplelist, outputdir, job):
         if "root://cms-xrd" in line:
             config+=makeConfigFile(sampledir,samplelist, samplecounter) +"\n"
         elif  "fileName = cms.string" in line:
-                config+='fileName = cms.string("' + outputdir + 'ntuple' + str(job) +'.root"),'
+                config+='fileName = cms.string("' + outputdir + '/ntuple' + str(job) +'.root"),'
 
 
         else:
@@ -185,14 +185,10 @@ def MakeFullNtupleMaker(sampledir,samplelist, count):
 
 def makeConfigFile(sampledir,samplelist, count):
     
-    
     fr = open(samplelist, 'r')
 
-    print "In makeConfigFile "
     config=''
     counter=0
-
-    print "Number of files in sample list = " + str(count)
 
     for line in fr:
         counter+=1
@@ -203,5 +199,5 @@ def makeConfigFile(sampledir,samplelist, count):
                 fileline+=","
             
         config+=fileline
-        
+    fr.close()     
     return config
