@@ -21,112 +21,189 @@ process.nEventsTotal = cms.EDProducer("EventCountProducer")
 process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
     failureMode = cms.untracked.string("keep"), # choose one among keep/skip/error
     eventCounters = cms.vstring("nEventsTotal"), #"nEventsTotal", "nEventsClean", "nEventsPAT"),
+    genLabel      = cms.InputTag("prunedGenParticles"),
+    trigLabel     = cms.InputTag("catTrigger"),                                
 
-
+                                # Fill direct from Cattuple                                
+                                
     int = cms.PSet(
         nGoodPV           =  cms.InputTag("catVertex"   , "nGoodPV"),
         nPV               =  cms.InputTag("catVertex"   , "nPV"    ),
+        nTrueInteraction  =  cms.InputTag("pileupWeight", "nTrueInteraction" ),
         
-        genweight    =   cms.PSet(src = cms.InputTag("genWeight")),
-        lheweight    =   cms.PSet(src = cms.InputTag("lheWeight")),
-        pdfWeightId1 =   cms.PSet(src = cms.InputTag("pdfWeight", "id1" )),
-        pdfWeightId2 =   cms.PSet(src = cms.InputTag("pdfWeight", "id2" )),
+        GenTTCat =  cms.InputTag("GenTtbarCatergories" , "genTtbarId"),
+
+        genWeight_id1   = cms.InputTag("genWeight" , "id1"),
+        genWeight_id2   = cms.InputTag("genWeight" , "id2"),
         
-        nTrueInteraction  =   cms.PSet(src = cms.InputTag("pileupWeight", "nTrueInteraction" )),
-
-        # HLT to be added below in the same file.
-    ),
-    float = cms.PSet(
-        puWeight   = cms.InputTag("pileupWeight"),
-        puWeightUp = cms.InputTag("pileupWeight", "up"),
-        puWeightDn = cms.InputTag("pileupWeight", "dn"),
-
-        pdfWeightQ  = cms.InputTag("pdfWeight", "Q" ),
-        pdfWeightX1 = cms.InputTag("pdfWeight", "x1"),
-        pdfWeightX2 = cms.InputTag("pdfWeight", "x2"),
-    ),
-    bool = cms.PSet(
-        csctighthalofilter= cms.InputTag("catTrigger", "CSCTightHaloFilter"),
-        ecalDCTRF   = cms.InputTag("catTrigger", "EcalDeatCellTriggerPrimitiveFilter"),
-        eeBadScF     = cms.InputTag("catTrigger", "eeBadScFilter"),
-        HNHENF = cms.InputTag("catTrigger", "HBHENoiseFilter"),
-        
-
+        ##triggers
         hlt_el17_el12 =  cms.InputTag("catTrigger",  "HLTEle17Ele12CaloIdLTrackIdLIsoVLDZ"),
         hlt_el23_el12 =  cms.InputTag("catTrigger",  "HLTEle23Ele12CaloIdLTrackIdLIsoVL"),
         hlt_el23_el12dz =  cms.InputTag("catTrigger",  "HLTEle23Ele12CaloIdLTrackIdLIsoVLDZ"),
         hlt_ele27eta2p1 =  cms.InputTag("catTrigger",  "HLTEle27eta2p1WPLooseGsfTriCentralPFJet30"),
-        hlt_el12 =  cms.InputTag("catTrigger", "HLTEle12CaloIdTrackIdIsoVL"),
-        hlt_el17 =  cms.InputTag("catTrigger", "HLTEle17CaloIdTrackIdIsoVL"),
-        hlt_el16_el12_8 =  cms.InputTag("catTrigger",  "HLT_Ele16_Ele12_Ele8_CaloIdLTrackIdL"),
-        hlt_2el33 =  cms.InputTag("catTrigger", "HLTDoubleEle33CaloIdGsfTrkIdVL"),
-        
+        hlt_el12 =  cms.InputTag("catTrigger", "HLTEle12CaloIdLTrackIdLIsoVL"),
+        hlt_el17 =  cms.InputTag("catTrigger", "HLTEle17CaloIdLTrackIdLIsoVL"),
+        hlt_el16_el12_8 =  cms.InputTag("catTrigger",  "HLTEle16Ele12Ele8CaloIdLTrackIdL"),
+        hlt_2el33 =  cms.InputTag("catTrigger", "HLTDoubleEle33CaloIdLGsfTrkIdVL"),
+
         hlt_mu17_mu8 =  cms.InputTag("catTrigger",    "HLTMu17TrkIsoVVLMu8TrkIsoVVLDZ"),
-        hlt_mu17_tkmu8 =  cms.InputTag("catTrigger",    "HLTMu17TrkIsoVVLTkMu8TrkIsoVVLDZ"),
-        
+        hlt_mu17_tkmu8 =  cms.InputTag("catTrigger",    "HLTMu17TrkIsoVVLTkMu8TrkIsoVVL"),
+
         hlt_mu17_el12  =  cms.InputTag("catTrigger", "HLTMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVL"),
         hlt_mu8_el17 = cms.InputTag("catTrigger", "HLTMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVL"),
-       
+
+
+    ),
+    float = cms.PSet(
+        genWeightQ   = cms.InputTag("genWeight" , "Q"),
+        genWeight   = cms.InputTag("genWeight", "genWeight"),
+        lheWeight   = cms.InputTag("genWeight", "lheWeight"),
+        genWeightX1   = cms.InputTag("genWeight" , "x2"),
+        genWeightX2   = cms.InputTag("genWeight" , "x1"),
+
+        puWeight   = cms.InputTag("pileupWeight"),
+        puWeightUp = cms.InputTag("pileupWeight", "up"),
+        puWeightDn = cms.InputTag("pileupWeight", "dn"),
+    ),
+    bool = cms.PSet(
+        csctighthaloFilter= cms.InputTag("catTrigger", "CSCTightHaloFilter"),
+        ecalDCTRFilter   = cms.InputTag("catTrigger", "EcalDeadCellTriggerPrimitiveFilter"),
+        eeBadScFilter     = cms.InputTag("catTrigger", "eeBadScFilter"),
+        HNHENoiseFilter = cms.InputTag("catTrigger", "HBHENoiseFilter"),
+        goodVertices = cms.InputTag("catTrigger", "goodVertices"),
         ),        
         
                                 
 
     floats = cms.PSet(
-        pdfWeight = cms.InputTag("pdfWeight"),
+        pdfWeight = cms.InputTag("genWeight", "pdfWeight"),
     ),
-    cands = cms.PSet(
-        muon = cms.PSet(
+
+    cands_bool = cms.PSet(
+        muon = cms.PSet(                                
             src = cms.InputTag("catMuons"),
-            #index = cms.untracked.int32(0),
-            exprs = cms.untracked.PSet(
-                pt  = cms.string("pt"),
-                eta = cms.string("eta"),
-                phi = cms.string("phi"),
-                m   = cms.string("mass"),
-                energy   = cms.string("energy"),
-                #relIso = cms.string("relIso"),
-                ispf = cms.string("isPFMuon"),
-                relIso03 = cms.string("relIso(0.3)"),
-                relIso04 = cms.string("relIso(0.4)"),
+             exprs = cms.untracked.PSet(
                 isTracker = cms.string("isTrackerMuon"),
                 isGlobal = cms.string("isGlobalMuon"),
                 isLoose = cms.string("isLooseMuon"),
+                isMedium = cms.string("isMediumMuon"),
                 isTight = cms.string("isTightMuon"),
-                dxy = cms.string("dxy"),
-                normchi = cms.string("normalizedChi2"),
+                isSoft = cms.string("isSoftMuon"),
+                matched = cms.string("mcMatched"),
+                isPF = cms.string("isPFMuon"),
+                ),
+            selections = cms.untracked.PSet(),
+            ),
+        
+        electrons = cms.PSet(
+            src = cms.InputTag("catElectrons"),
+            exprs = cms.untracked.PSet(
+                electronID_loose   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-loose')"),
+                electronID_medium   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-medium')"),
+                electronID_tight   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-tight')"),
+                electronID_veto   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-veto')"),
+                mcMatched = cms.string("mcMatched"),
+                isPF = cms.string("isPF"),
+                passConversionVeto = cms.string("passConversionVeto"),
+                ),
+            selections = cms.untracked.PSet(),
+            ),
+        jets = cms.PSet(
+            src = cms.InputTag("catJets"),
+            exprs = cms.untracked.PSet(
+                isLoose = cms.string("looseJetID"),
+                isTight = cms.string("tightJetID"),
+                isTightLepVetoJetID   = cms.string("tightLepVetoJetID"),
+            ),
+            selections = cms.untracked.PSet(
+                ),
+            ),
+        ),
+                                
+   cands_int = cms.PSet(
+        muon = cms.PSet(
+            src = cms.InputTag("catMuons"),
+             exprs = cms.untracked.PSet(
                 validhits = cms.string("numberOfValidHits"),
                 validmuonhits = cms.string("numberOfValidMuonHits"),
                 matchedstations = cms.string("numberOfMatchedStations"),
                 validpixhits = cms.string("numberOfValidPixelHits"),
                 trackerlayers= cms.string("trackerLayersWithMeasurement"),
-                dz = cms.string("dz"),
-                q = cms.string("charge"),
-                matched = cms.string("mcMatched"),
-                shiftedEup = cms.string("shiftedEnUp"),
-                shiftedEdown = cms.string("shiftedEnDown"),
-            ),
+                ),
             selections = cms.untracked.PSet(),
-        ),
+            ),
         electrons = cms.PSet(
             src = cms.InputTag("catElectrons"),
-            #index = cms.untracked.int32(0),
             exprs = cms.untracked.PSet(
+                electronID_snu   = cms.string("snuID"),                
+                ),
+            selections = cms.untracked.PSet(),
+            ),
+        jets = cms.PSet(
+            src = cms.InputTag("catJets"),
+            exprs = cms.untracked.PSet(
+                partonFlavour = cms.string("partonFlavour"),
+                hadronFlavour = cms.string("hadronFlavour"),
+                partonPdgId = cms.string("partonPdgId"),
+                vtxNtracks = cms.string("vtxNtracks"),
+                ),
+            selections = cms.untracked.PSet(
+                ),
+            ),
+        slimmedGenJets = cms.PSet(
+            src = cms.InputTag("slimmedGenJets",""),
+            exprs = cms.untracked.PSet(
+                #partonpdgId = cms.string("partonPdgId"),
+                #partonFlavour  = cms.string("partonFlavour"),
+                ),
+            selections = cms.untracked.PSet(),
+            ),
+        ),
+                                
+
+                    
+    cands = cms.PSet(
+        muon = cms.PSet(
+            src = cms.InputTag("catMuons"),
+            exprs = cms.untracked.PSet(
+                x  = cms.string("vx"),
+                y  = cms.string("vy"),
+                z  = cms.string("vz"),
                 pt  = cms.string("pt"),
                 eta = cms.string("eta"),
                 phi = cms.string("phi"),
                 m   = cms.string("mass"),
                 energy   = cms.string("energy"),
-                electronID_loose   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-loose')"),
-                electronID_medium   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-medium')"),
-                electronID_tight   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-tight')"),
-                electronID_veto   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-veto')"),
-                electronID_snu   = cms.string("snuID"),
-                shiftedEnDown = cms.string("shiftedEnDown"),
-                shiftedEnUp = cms.string("shiftedEnUp"),
-                mcMatched = cms.string("mcMatched"),
-                isPF = cms.string("isPF"),
                 relIso03 = cms.string("relIso(0.3)"),
                 relIso04 = cms.string("relIso(0.4)"),
+                dxy = cms.string("dxy"),
+                normchi = cms.string("normalizedChi2"),
+                dz = cms.string("dz"),
+                q = cms.string("charge"),
+                shiftedEup = cms.string("shiftedEnUp"),
+                shiftedEdown = cms.string("shiftedEnDown"),
+            ),
+            selections = cms.untracked.PSet(),
+        ),
+
+        electrons = cms.PSet(
+            src = cms.InputTag("catElectrons"),
+            #index = cms.untracked.int32(0),
+            exprs = cms.untracked.PSet(
+                x  = cms.string("vx"),
+                y  = cms.string("vy"),
+                z  = cms.string("vz"),
+                pt  = cms.string("pt"),
+                eta = cms.string("eta"),
+                phi = cms.string("phi"),
+                m   = cms.string("mass"),
+                energy   = cms.string("energy"),
+                shiftedEnDown = cms.string("shiftedEnDown"),
+                shiftedEnUp = cms.string("shiftedEnUp"),
+                relIso03 = cms.string("relIso(0.3)"),
+                relIso04 = cms.string("relIso(0.4)"),
+                absIso03 = cms.string("absIso(0.3)"),
+                absIso04 = cms.string("absIso(0.4)"),
                 chIso03 = cms.string("chargedHadronIso(0.3)"),
                 nhIso03 = cms.string("neutralHadronIso(0.3)"),
                 phIso03 = cms.string("photonIso(0.3)"),
@@ -138,12 +215,10 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
                 scEta = cms.string("scEta"),
                 dxy = cms.string("dxy"),
                 dz = cms.string("dz"),
-                passConversionVeto = cms.string("passConversionVeto"),
                 q = cms.string("charge"),
-#                isGsfCtfScPixChargeConsistent = cms.string("isGsfCtfScPixChargeConsistent"),
+                isGsfCtfScPixChargeConsistent = cms.string("isGsfCtfScPixChargeConsistent"),
             ),
             selections = cms.untracked.PSet(
-                isPassBaseId = cms.string("passConversionVeto && isPF && gsfTrack.hitPattern.numberOfLostHits('MISSING_INNER_HITS') <= 0"),
             ),
         ),
         jets = cms.PSet(
@@ -155,25 +230,17 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
                 m   = cms.string("mass"),
                 energy   = cms.string("energy"),
                 vtxMass = cms.string("vtxMass"),
-                CSVInclV2 = cms.string("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')"),
+                vtx3DVal = cms.string("vtx3DVal"),
+                vtx3DSig = cms.string("vtx3DSig"),
+                CVSInclV2 = cms.string("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')"),
 
-                partonFlavour = cms.string("partonFlavour"),
-                hadronFlavour = cms.string("hadronFlavour"),
-                partonPdgId = cms.string("partonPdgId"),
                 shiftedEnDown = cms.string("shiftedEnDown"),
                 shiftedEnUp = cms.string("shiftedEnUp"),
                 smearedRes = cms.string("smearedRes"),
                 smearedResDown = cms.string("smearedResDown"),
                 smearedResUp = cms.string("smearedResUp"),
-                isLoose = cms.string("LooseId"),
-                isTight = cms.string("TightId"),
                 isPFId = cms.string("pileupJetId"),
                 
-            ),
-            selections = cms.untracked.PSet(
-                isLoose = cms.string("LooseId"),
-                isTight = cms.string("TightId"),
-                isPFId = cms.string("pileupJetId"),
             ),
         ),
 
@@ -186,13 +253,13 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
                 phi = cms.string("phi"),
                 m   = cms.string("mass"),
                 vtxMass = cms.string("vtxMass"),
-                CSVInclV2 = cms.string("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')"),
+                vtx3DVal = cms.string("vtx3DVal"),
+                vtx3DSig = cms.string("vtx3DSig"),
+                CVSInclV2 = cms.string("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')"),
                 partonFlavour = cms.string("partonFlavour"),
                 hadronFlavour = cms.string("hadronFlavour"),
             ),
             selections = cms.untracked.PSet(
-                isLoose = cms.string("LooseId"),
-                isPFId = cms.string("pileupJetId"),
             ),
         ),
 
@@ -201,6 +268,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
             exprs = cms.untracked.PSet(
                 pt  = cms.string("pt"),
                 phi = cms.string("phi"),
+                sumet = cms.string("sumEt"),
             ),
             selections = cms.untracked.PSet(),
         ),
@@ -209,6 +277,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
             exprs = cms.untracked.PSet(
                 pt  = cms.string("pt"),
                 phi = cms.string("phi"),
+                sumet = cms.string("sumEt"),
             ),
             selections = cms.untracked.PSet(),
         ),
@@ -217,6 +286,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
             exprs = cms.untracked.PSet(
                 pt  = cms.string("pt"),
                 phi = cms.string("phi"),
+                sumet = cms.string("sumEt"),
             ),
             selections = cms.untracked.PSet(),
         ),
@@ -225,6 +295,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
             exprs = cms.untracked.PSet(
                 pt  = cms.string("pt"),
                 phi = cms.string("phi"),
+                sumet = cms.string("sumEt"),
             ),
             selections = cms.untracked.PSet(),
         ),
@@ -238,14 +309,22 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
                 phi = cms.string("phi"),
                 m   = cms.string("mass"),
                 energy   = cms.string("energy"),
-                #pdgId = cms.string("pdgId"),
-                #q = cms.string("charge"),
-                #status = cms.string("status"),
-            ),
+                ),
             selections = cms.untracked.PSet(),
+            ),
+        
+        vertices = cms.PSet(
+            src = cms.InputTag("catVertex"),
+            exprs = cms.untracked.PSet(
+                ndof  = cms.string("ndof"),
+                x  = cms.string("vx"),
+                y  = cms.string("vy"),
+                z  = cms.string("vz"),
+                ),
+            selections = cms.untracked.PSet(),
+             ),
+        
         ),
-
-    ),
 )
 
 process.TFileService = cms.Service("TFileService",

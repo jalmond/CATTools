@@ -2,13 +2,56 @@ import os, getpass, sys
 import time
 from functions import *
 
-sampledir = ["TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8", "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8"]
-sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8", "WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8", "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8", "ZZ_TuneCUETP8M1_13TeV-pythia8", "WW_TuneCUETP8M1_13TeV-pythia8", "DoubleMuon", "DoubleEG" , "SingleMuon"]
+
+sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8", 
+             "WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
+             "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+             "ZZ_TuneCUETP8M1_13TeV-pythia8",
+             "WW_TuneCUETP8M1_13TeV-pythia8",
+             "DoubleMuon",
+             "DoubleEG" ,
+             "SingleMuon",
+             "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8", 
+             "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8", 
+             "VBF_HToMuMu_M125_13TeV_powheg_pythia8",
+             "GluGlu_HToMuMu_M125_13TeV_powheg_pythia8", 
+             "QCD_Pt-300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8", 
+             "QCD_Pt-600to800_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8", 
+             "ttHTobb_M125_13TeV_powheg_pythia8", 
+             "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8", 
+             "QCD_Pt-120to170_EMEnriched_TuneCUETP8M1_13TeV_pythia8", 
+             "QCD_Pt-1000toInf_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8", 
+             "ttHToNonbb_M125_13TeV_powheg_pythia8", 
+             "QCD_Pt-170to300_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-470to600_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-80to120_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-30to50_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-50to80_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-20to30_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-800to1000_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8",
+             "QCD_Pt-20to30_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-170to300_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-30to50_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-300to470_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-50to80_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-80to120_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             "ST_t-channel_top_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
+             "ST_t-channel_antitop_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
+             "ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
+             "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
+             "TT_TuneCUETP8M1_13TeV-powheg-pythi8",
+             "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"]
+             
+sampledir = ["QCD_Pt-300to470_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8"]
+
 
 version = "v7-4-1"
 
 # njob set to 30: if n root files < 30 njobs = #rootfiles
-njob=30
+njob=40
     
 for i in sampledir:
     output=i
@@ -42,11 +85,44 @@ for i in sampledir:
     fr_end = open(output+ "/"+output+"_end.txt",'r')
     tagpath =""
     iline=0
+    newest_check = 0
+    check_date=0
+    check_yr=0
+    check_m=0
+    check_d=0
+    check_tag=0
+    sample_exists=0
     for linerp in fr_end:
-        if iline < 1:
-            tagpath = linerp.strip()
-            iline= iline+1
+        tag=linerp.strip()
+        if "_" in tag:
+            sample_exists=1
+            rmstr = len(tag) - 7
+            split_tag_date = tag[:rmstr]
+            split_tag_tag = tag[7:]
+            split_tag_date_yr = split_tag_date[:4]
+            split_tag_date_m = split_tag_date[2:2]
+            split_tag_date_d = split_tag_date[4:]
+            if split_tag_date_yr >= check_yr:
+                if split_tag_date_yr > check_yr:
+                    check_tag=0
+                if split_tag_date_m >= check_m:
+                    if split_tag_date_m >= check_m:
+                        check_tag=0
+                    if split_tag_date_d >= check_d:
+                        if split_tag_date_d > check_d:
+                            check_tag=0
+                        if split_tag_tag > check_tag:
+                            tagpath = linerp.strip()
+                            check_yr=split_tag_date_yr
+                            check_m=split_tag_date_m
+                            check_d=split_tag_date_d
+                            check_tag=split_tag_tag
     fr_end.close()
+    print "tagpath = " + tagpath
+
+
+    if sample_exists == 0:
+        continue
 
     os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output  + "/" + versionpath + "/" + tagpath + "/0000/ > " + output+ "/"+output + "_tmpfull.txt")
     os.system("sed -r 's/^.{43}//' " +  output+ "/"+output  + "_tmpfull.txt  > " +output+ "/"+output  + "_full.txt")
@@ -86,15 +162,32 @@ for i in sampledir:
             
                 if j == njob:
                     if counter > (j-1)*nfilesperjob:
-                        wfr.write(line)
-                        counter_written+=1
+                        if counter <= (j)*nfilesperjob:
+                            wfr.write(line)
+                            counter_written+=1
+                        
                 else:
                     if counter > (j-1)*nfilesperjob:
                         if counter <= j*nfilesperjob:
                             wfr.write(line)
                             counter_written+=1
+
+
         wfr.close()
         rfr.close()    
+
+    for j in range(1,remainder+1):
+         wfr = open(output+ "/"+output + "_" +str(j) + "_full.txt",'a')
+         rfr  = open(output+ "/"+output + "_full.txt",'r')
+         counter = 0
+         for line in rfr:             
+             if ".root" in line:
+                  counter+=1
+                  if counter == njob*nfilesperjob + j:
+                      wfr.write(line)           
+
+         wfr.close()
+         rfr.close()
 
     for j in range(1,njob+1):
         runscript=output + "_flatntupleMaker_"+str(j) +".py"
@@ -104,7 +197,7 @@ for i in sampledir:
     
         log = output + "/Job_" + str(j) + ".log"
         runcommand="cmsRun " + output + "/" + runscript + "&>" + log + "&"
-        os.system(runcommand)
+#        os.system(runcommand)
         
         
     import platform
@@ -132,4 +225,4 @@ for i in sampledir:
         time.sleep(30.) 
         
         
-    os.system("rm -r " + output)
+#    os.system("rm -r " + output)

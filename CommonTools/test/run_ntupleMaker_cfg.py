@@ -374,11 +374,11 @@ process.load("CATTools.CatProducer.pseudoTop_cff")
 process.p = cms.Path(
     process.nEventsTotal*
     process.partonTop*
-    process.catHLTMu17TrkIsoVVLMu8TrkIsoVVLDZ*
-    process.catHLTMu17TrkIsoVVLTkMu8TrkIsoVVLDZ*
-    process.catHLTEle17Ele12CaloIdLTrackIdLIsoVLDZ*
-    process.catHLTMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoV*
-    process.catHLTMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoV*
+#    process.catHLTMu17TrkIsoVVLMu8TrkIsoVVLDZ*
+#    process.catHLTMu17TrkIsoVVLTkMu8TrkIsoVVLDZ*
+#    process.catHLTEle17Ele12CaloIdLTrackIdLIsoVLDZ*
+#    process.catHLTMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoV*
+#    process.catHLTMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoV*
     process.ntuple
 )
 
