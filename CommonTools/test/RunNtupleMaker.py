@@ -3,25 +3,32 @@ import time
 from functions import *
 
 
+## SET the production version  to process
+version = "v7-4-1"
+
+## Make a list of samples to process
+
 sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8", 
              "WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
              "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
              "ZZ_TuneCUETP8M1_13TeV-pythia8",
              "WW_TuneCUETP8M1_13TeV-pythia8",
+             "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
              "DoubleMuon",
              "DoubleEG" ,
              "SingleMuon",
              "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8", 
              "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8", 
+              "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8",
+             "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8", 
+             "ttHTobb_M125_13TeV_powheg_pythia8", 
+             "ttHToNonbb_M125_13TeV_powheg_pythia8", 
              "VBF_HToMuMu_M125_13TeV_powheg_pythia8",
              "GluGlu_HToMuMu_M125_13TeV_powheg_pythia8", 
              "QCD_Pt-300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8", 
              "QCD_Pt-600to800_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8", 
-             "ttHTobb_M125_13TeV_powheg_pythia8", 
-             "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8", 
              "QCD_Pt-120to170_EMEnriched_TuneCUETP8M1_13TeV_pythia8", 
              "QCD_Pt-1000toInf_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8", 
-             "ttHToNonbb_M125_13TeV_powheg_pythia8", 
              "QCD_Pt-170to300_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
              "QCD_Pt-470to600_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
              "QCD_Pt-80to120_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
@@ -29,7 +36,6 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "QCD_Pt-50to80_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
              "QCD_Pt-20to30_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
              "QCD_Pt-800to1000_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8",
              "QCD_Pt-20to30_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
              "QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8",
              "QCD_Pt-170to300_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
@@ -42,18 +48,19 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "ST_t-channel_antitop_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
              "ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
              "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
-             "TT_TuneCUETP8M1_13TeV-powheg-pythi8",
-             "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"]
-             
-sampledir = ["QCD_Pt-300to470_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8"]
+             "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
 
-
-version = "v7-4-1"
-
-# njob set to 30: if n root files < 30 njobs = #rootfiles
+# njob set to 40: if n root files < 40 njobs = #rootfiles
 njob=40
     
+skip_first=10
+samples_processed=0
 for i in sampledir:
+    samples_processed=samples_processed+1 
+    if samples_processed < skip_first+1:
+        continue
+
+    njob=40
     output=i
     print "Making dir: " + output
 
@@ -82,6 +89,9 @@ for i in sampledir:
     os.system("sed -r 's/^.{43}//' " +  output+ "/"+output + ".txt  > " +output+ "/"+output + "_skim.txt") 
     os.system("cut -d/ -f 8 " + output+ "/"+output  + "_skim.txt  > " + output+ "/"+output + "_end.txt")
     
+
+
+    ## Get the tag of the production: using the newest tag of version, it is automatic
     fr_end = open(output+ "/"+output+"_end.txt",'r')
     tagpath =""
     iline=0
@@ -127,7 +137,7 @@ for i in sampledir:
     os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output  + "/" + versionpath + "/" + tagpath + "/0000/ > " + output+ "/"+output + "_tmpfull.txt")
     os.system("sed -r 's/^.{43}//' " +  output+ "/"+output  + "_tmpfull.txt  > " +output+ "/"+output  + "_full.txt")
 
-
+    ## Set the number of jobs and files per job
     fr = open(output+ "/"+output +"_full.txt",'r')
     count=0
     nfilesperjob=0
@@ -136,14 +146,13 @@ for i in sampledir:
             count+=1
     fr.close()
 
-
-
     if njob > count:
         njob=count
     for j in range(1,count+1):
         if not j%njob:
             nfilesperjob+=1
-
+            
+    print "Number of jobs to process is " + str(njob)            
 
     files_torun= nfilesperjob*njob
     remainder= count - files_torun
@@ -197,7 +206,7 @@ for i in sampledir:
     
         log = output + "/Job_" + str(j) + ".log"
         runcommand="cmsRun " + output + "/" + runscript + "&>" + log + "&"
-#        os.system(runcommand)
+        os.system(runcommand)
         
         
     import platform
@@ -217,6 +226,7 @@ for i in sampledir:
         else:
             check_job_finished=1
             print "ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + i 
+            os.system("ssh jalmond@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/MC/" + i )
             os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + i )
             print "scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/" +i
             os.system("scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/" +i) 
@@ -225,4 +235,4 @@ for i in sampledir:
         time.sleep(30.) 
         
         
-#    os.system("rm -r " + output)
+    os.system("rm -r " + output)
