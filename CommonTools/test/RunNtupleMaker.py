@@ -50,10 +50,12 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
              "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
 
+sampledir = ["DoubleMuon"]
+
 # njob set to 40: if n root files < 40 njobs = #rootfiles
 njob=40
     
-skip_first=10
+skip_first=0
 samples_processed=0
 for i in sampledir:
     samples_processed=samples_processed+1 

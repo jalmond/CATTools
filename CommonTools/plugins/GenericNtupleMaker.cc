@@ -329,7 +329,6 @@ GenericNtupleMaker::GenericNtupleMaker(const edm::ParameterSet& pset)
   mcLabel_   = consumes<reco::GenParticleCollection>(pset.getParameter<edm::InputTag>("genLabel"));
   triggers_      = consumes<vector<pair<string, int> > >(pset.getParameter<edm::InputTag>("trigLabel"));
 
-
   // Output histograms and tree
   edm::Service<TFileService> fs;
   tree_ = fs->make<TTree>("event", "event");
@@ -341,6 +340,7 @@ GenericNtupleMaker::GenericNtupleMaker(const edm::ParameterSet& pset)
 
   tree_->Branch("vtrignames", &vtrignames);
   tree_->Branch("vtrigps", &vtrigps);
+
   tree_->Branch("gen_pt", &gen_pt_);
   tree_->Branch("gen_eta", &gen_eta_);
   tree_->Branch("gen_phi", &gen_phi_);
@@ -537,37 +537,38 @@ void GenericNtupleMaker::analyze(const edm::Event& event, const edm::EventSetup&
   }
   /// Store truth information
   
-  //edm::Handle<edm::View<reco::GenParticle> > genParticles;
-  //  event.getByToken(genToken_, genParticles);
-  edm::Handle<reco::GenParticleCollection> genParticles;
-  event.getByToken(mcLabel_,genParticles);
-
-
-  int counter = 0; 
-  for( reco::GenParticleCollection::const_iterator it = genParticles->begin(); it != genParticles->end(); ++it , ++counter) {
+  if(!event.isRealData()){
+    //edm::Handle<edm::View<reco::GenParticle> > genParticles;
+    //  event.getByToken(genToken_, genParticles);
+    edm::Handle<reco::GenParticleCollection> genParticles;
+    event.getByToken(mcLabel_,genParticles);
     
-    if(counter > 30) continue;
-    gen_eta_.push_back( it->eta() );
-    gen_phi_.push_back( it->phi() );
-    gen_pt_.push_back( it->pt() );
-    gen_energy_.push_back( it->energy() );
-    gen_pdgid_.push_back( it->pdgId() );
-    //gen_vx_.push_back( it->vx() );
-    //vy->push_back( it->vy() );
-    //vz->push_back( it->vz() );
-    gen_status_.push_back( it->status() );
-
-    int idx = -1;
-    for( reco::GenParticleCollection::const_iterator mit = genParticles->begin(); mit != genParticles->end(); ++mit ) {
-      if( it->mother()==&(*mit) ) {
-	idx = std::distance(genParticles->begin(),mit);
-	break;
+    
+    int counter = 0; 
+    for( reco::GenParticleCollection::const_iterator it = genParticles->begin(); it != genParticles->end(); ++it , ++counter) {
+      
+      if(counter > 30) continue;
+      gen_eta_.push_back( it->eta() );
+      gen_phi_.push_back( it->phi() );
+      gen_pt_.push_back( it->pt() );
+      gen_energy_.push_back( it->energy() );
+      gen_pdgid_.push_back( it->pdgId() );
+      //gen_vx_.push_back( it->vx() );
+      //vy->push_back( it->vy() );
+      //vz->push_back( it->vz() );
+      gen_status_.push_back( it->status() );
+      
+      int idx = -1;
+      for( reco::GenParticleCollection::const_iterator mit = genParticles->begin(); mit != genParticles->end(); ++mit ) {
+	if( it->mother()==&(*mit) ) {
+	  idx = std::distance(genParticles->begin(),mit);
+	  break;
+	}
       }
+      gen_motherindex_.push_back( idx );
     }
-    gen_motherindex_.push_back( idx );
   }
-  
-
+    
   runNumber_   = event.run();
   lumiNumber_  = event.luminosityBlock();
   eventNumber_ = event.id().event();

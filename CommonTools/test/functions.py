@@ -1,8 +1,31 @@
 import os
 
+def makeNtupleMakerData(sampledir,samplelist, outputdir, job):
+
+    ntuplemaker=open("run_ntupleMaker_snu_data_cfg.py","r")
+    config=""
+
+    fread = open(samplelist, 'r')
+    samplecounter=0
+    for samples in fread:
+        samplecounter+=1
+    fread.close()
+
+    for line in ntuplemaker:
+        if "root://cms-xrd" in line:
+            config+=makeConfigFile(sampledir,samplelist, samplecounter) +"\n"
+        elif  "fileName = cms.string" in line:
+                config+='fileName = cms.string("' + outputdir + '/ntuple' + str(job) +'.root"),'
+
+
+        else:
+            config+=line.strip() +"\n"
+
+    return config
+
 def makeNtupleMaker(sampledir,samplelist, outputdir, job):
 
-    ntuplemaker=open("run_ntupleMaker_snu_cfg.py","r")
+    ntuplemaker=open("run_ntupleMaker_snu_mc_cfg.py","r")
     config=""
 
     fread = open(samplelist, 'r')
