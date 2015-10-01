@@ -17,13 +17,35 @@ fileNames = cms.untracked.vstring(
       )
 )
 
+lumiFile = 'Cert_246908-255031_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
+
+from FWCore.PythonUtilities.LumiList import LumiList
+lumiList = LumiList(os.environ["CMSSW_BASE"]+'/src/CATTools/CatProducer/prod/LumiMask/'+lumiFile)
+process.source.lumisToProcess = lumiList.getVLuminosityBlockRange()
+
+
 process.nEventsTotal = cms.EDProducer("EventCountProducer")
-process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
+process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     failureMode = cms.untracked.string("keep"), # choose one among keep/skip/error
     eventCounters = cms.vstring("nEventsTotal"), #"nEventsTotal", "nEventsClean", "nEventsPAT"),
     genLabel      = cms.InputTag("prunedGenParticles"),
-    trigLabel     = cms.InputTag("catTrigger"),                                
+    triggerBits = cms.InputTag("TriggerResults","","HLT"),
+    triggerObjects = cms.InputTag("catTrigger"),
+    triggerPrescales = cms.InputTag("patTrigger"),
+    muons = cms.InputTag("catMuons"),
+    electrons = cms.InputTag("catElectrons"),
+    vertices = cms.InputTag("catVertex"),
 
+    metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                 
+    metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),                                                                                
+               metFilterNames = cms.vstring(
+    "HBHENoiseFilter",
+    "CSCTightHaloFilter",
+    "goodVertices",
+    "eeBadScFilter",
+    "EcalDeadCellTriggerPrimitiveFilter",
+),
+                                
                                 # Fill direct from Cattuple                                
                                 
     int = cms.PSet(
@@ -36,23 +58,6 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
         genWeight_id1   = cms.InputTag("genWeight" , "id1"),
         genWeight_id2   = cms.InputTag("genWeight" , "id2"),
         
-        ##triggers
-        hlt_el17_el12 =  cms.InputTag("catTrigger",  "HLTEle17Ele12CaloIdLTrackIdLIsoVLDZ"),
-        hlt_el23_el12 =  cms.InputTag("catTrigger",  "HLTEle23Ele12CaloIdLTrackIdLIsoVL"),
-        hlt_el23_el12dz =  cms.InputTag("catTrigger",  "HLTEle23Ele12CaloIdLTrackIdLIsoVLDZ"),
-        hlt_ele27eta2p1 =  cms.InputTag("catTrigger",  "HLTEle27eta2p1WPLooseGsfTriCentralPFJet30"),
-        hlt_el12 =  cms.InputTag("catTrigger", "HLTEle12CaloIdLTrackIdLIsoVL"),
-        hlt_el17 =  cms.InputTag("catTrigger", "HLTEle17CaloIdLTrackIdLIsoVL"),
-        hlt_el16_el12_8 =  cms.InputTag("catTrigger",  "HLTEle16Ele12Ele8CaloIdLTrackIdL"),
-        hlt_2el33 =  cms.InputTag("catTrigger", "HLTDoubleEle33CaloIdLGsfTrkIdVL"),
-
-        hlt_mu17_mu8 =  cms.InputTag("catTrigger",    "HLTMu17TrkIsoVVLMu8TrkIsoVVLDZ"),
-        hlt_mu17_tkmu8 =  cms.InputTag("catTrigger",    "HLTMu17TrkIsoVVLTkMu8TrkIsoVVL"),
-
-        hlt_mu17_el12  =  cms.InputTag("catTrigger", "HLTMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVL"),
-        hlt_mu8_el17 = cms.InputTag("catTrigger", "HLTMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVL"),
-
-
     ),
     float = cms.PSet(
         genWeightQ   = cms.InputTag("genWeight" , "Q"),
@@ -66,11 +71,6 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
         puWeightDn = cms.InputTag("pileupWeight", "dn"),
     ),
     bool = cms.PSet(
-        csctighthaloFilter= cms.InputTag("catTrigger", "CSCTightHaloFilter"),
-        ecalDCTRFilter   = cms.InputTag("catTrigger", "EcalDeadCellTriggerPrimitiveFilter"),
-        eeBadScFilter     = cms.InputTag("catTrigger", "eeBadScFilter"),
-        HNHENoiseFilter = cms.InputTag("catTrigger", "HBHENoiseFilter"),
-        goodVertices = cms.InputTag("catTrigger", "goodVertices"),
         ),        
         
                                 
@@ -233,7 +233,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
                 vtx3DVal = cms.string("vtx3DVal"),
                 vtx3DSig = cms.string("vtx3DSig"),
                 CVSInclV2 = cms.string("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')"),
-
+                chargedEmEnergyFraction = cms.string("chargedEmEnergyFraction"),
                 shiftedEnDown = cms.string("shiftedEnDown"),
                 shiftedEnUp = cms.string("shiftedEnUp"),
                 smearedRes = cms.string("smearedRes"),
@@ -313,17 +313,6 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMaker",
             selections = cms.untracked.PSet(),
             ),
         
-        vertices = cms.PSet(
-            src = cms.InputTag("catVertex"),
-            exprs = cms.untracked.PSet(
-                ndof  = cms.string("ndof"),
-                x  = cms.string("vx"),
-                y  = cms.string("vy"),
-                z  = cms.string("vz"),
-                ),
-            selections = cms.untracked.PSet(),
-             ),
-        
         ),
 )
 
@@ -331,7 +320,7 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string("ntuple.root"),
 )
 
-process.load("CATTools.CatProducer.pseudoTop_cff")
+#process.load("CATTools.CatProducer.pseudoTop_cff")
 process.p = cms.Path(
     process.nEventsTotal*
     process.ntuple

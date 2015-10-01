@@ -70,6 +70,7 @@ CATTriggerProducer::CATTriggerProducer(const edm::ParameterSet& pset):
     std::cout << " " << hltPath << std::endl;
     produces<int >( hltSavedAs );
     hltNames_.push_back(std::make_pair(hltPath, hltSavedAs));
+    std::cout << "HLT: " << hltPath << " hltSavedAs " << hltSavedAs << std::endl;
   }
   for ( auto& hltPath : pset.getParameter<strings>("metFilterNames") ){
     std::cout << " " << hltPath << std::endl;

@@ -4,7 +4,7 @@ from functions import *
 
 
 ## SET the production version  to process
-version = "v7-4-1"
+version = "v7-4-2"
 
 ## Make a list of samples to process
 
@@ -14,9 +14,7 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "ZZ_TuneCUETP8M1_13TeV-pythia8",
              "WW_TuneCUETP8M1_13TeV-pythia8",
              "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
-             "DoubleMuon",
-             "DoubleEG" ,
-             "SingleMuon",
+             "DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
              "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8", 
              "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8", 
               "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8",
@@ -24,7 +22,6 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "ttHTobb_M125_13TeV_powheg_pythia8", 
              "ttHToNonbb_M125_13TeV_powheg_pythia8", 
              "VBF_HToMuMu_M125_13TeV_powheg_pythia8",
-             "GluGlu_HToMuMu_M125_13TeV_powheg_pythia8", 
              "QCD_Pt-300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8", 
              "QCD_Pt-600to800_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8", 
              "QCD_Pt-120to170_EMEnriched_TuneCUETP8M1_13TeV_pythia8", 
@@ -50,7 +47,8 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
              "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
 
-sampledir = ["DoubleMuon"]
+
+
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
 njob=40
@@ -227,11 +225,13 @@ for i in sampledir:
             check_job_finished=0
         else:
             check_job_finished=1
-            print "ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + i 
-            os.system("ssh jalmond@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/MC/" + i )
-            os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + i )
-            print "scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/" +i
-            os.system("scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/" +i) 
+            print "ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version + "/" + i 
+            os.system("ssh jalmond@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/MC/" + version +"/" + i )
+            os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version)
+            os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version + "/" + i )
+
+            print "scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/" + version + "/"  +i
+            os.system("scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/"  + version + "/" +i) 
 
         os.system("rm " + output + "/pslog")        
         time.sleep(30.) 

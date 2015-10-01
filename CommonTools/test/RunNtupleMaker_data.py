@@ -4,15 +4,17 @@ from functions import *
 
 
 ## SET the production version  to process
-version = "v7-4-1"
+version = "v7-4-2"
 
 ## Make a list of samples to process
 
-sampledir = [             "DoubleMuon",
+sampledir = ["DoubleMuon",
              "DoubleEG" ,
+             "MuonEG",
              "SingleMuon"]
 
-
+sampledir = ["DoubleEG"]
+period = "C"
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
 njob=40
@@ -189,11 +191,15 @@ for i in sampledir:
             check_job_finished=0
         else:
             check_job_finished=1
-            print "ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + i 
-            os.system("ssh jalmond@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/MC/" + i )
-            os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + i )
-            print "scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/" +i
-            os.system("scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/" +i) 
+            print "ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(i)
+            os.system("ssh jalmond@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i )
+            os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version))
+            os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i )
+            os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i + "/period" + str(period) )
+
+
+            print "scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/" + str(version) + "/"  + str(i) + "/period" + period
+            os.system("scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(version) + "/" +i  +"/period" + period +"/")
 
         os.system("rm " + output + "/pslog")        
         time.sleep(30.) 
