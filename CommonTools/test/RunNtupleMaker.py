@@ -47,7 +47,7 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
              "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
 
-
+sampledir= [             "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"]
 
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
