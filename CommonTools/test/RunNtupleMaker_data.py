@@ -13,9 +13,9 @@ sampledir = ["DoubleMuon",
              "MuonEG",
              "SingleMuon"]
 
-sampledir = ["DoubleEG"]
 
 periods = ["C", "D"]
+periods = ["C"]
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
 njob=40
@@ -194,9 +194,9 @@ for i in sampledir:
             else:
                 check_job_finished=1
                 print "ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(i)
-                os.system("ssh jalmond@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i )
                 os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version))
                 os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i )
+                os.system("ssh jalmond@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i + "/period" + str(period) )
                 os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i + "/period" + str(period) )
                 
                 
