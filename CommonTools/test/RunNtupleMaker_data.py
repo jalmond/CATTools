@@ -13,9 +13,9 @@ sampledir = ["DoubleMuon",
              "MuonEG",
              "SingleMuon"]
 
+sampledir = ["DoubleEG" ]
+periods = ["D"]
 
-periods = ["C", "D"]
-periods = ["C"]
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
 njob=40
@@ -24,6 +24,7 @@ skip_first=0
 samples_processed=0
 for i in sampledir:
     for period in periods:
+        print "period = " + period
         samples_processed=samples_processed+1 
         if samples_processed < skip_first+1:
             continue
@@ -43,17 +44,19 @@ for i in sampledir:
         fr_1end = open(output+ "/"+output+"_getversion_skim.txt",'r')
         versionpath =""
         iline_version=0
+        period_tag = "2015" + period
         for linerp in fr_1end:
             if version in linerp:
-                if iline_version < 1:
-                    s = linerp.replace("/", " ")
-                    splitline  = s.split()
-                    versionpath = splitline[5]
-                iline_version= iline_version+1
+                if period_tag in linerp:
+                    if iline_version < 1:
+                        s = linerp.replace("/", " ")
+                        splitline  = s.split()
+                        versionpath = splitline[5]
+                    iline_version= iline_version+1
         fr_1end.close()
 
         os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output + "/" + versionpath + " > " + output+ "/"+ output + ".txt")
-
+        print "xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output + "/" + versionpath + " > " + output+ "/"+ output + ".txt"
         os.system("sed -r 's/^.{43}//' " +  output+ "/"+output + ".txt  > " +output+ "/"+output + "_skim.txt") 
         os.system("cut -d/ -f 8 " + output+ "/"+output  + "_skim.txt  > " + output+ "/"+output + "_end.txt")
     
