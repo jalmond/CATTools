@@ -11,10 +11,11 @@ version = "v7-4-2"
 sampledir = ["DoubleMuon",
              "DoubleEG" ,
              "MuonEG",
-             "SingleMuon"]
+             "SingleMuon",
+             "SingleElectron"]
+sampledir = ["SingleElectron"]
 
-sampledir = ["DoubleEG" ]
-periods = ["D"]
+periods = ["C" , "D"]
 
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
