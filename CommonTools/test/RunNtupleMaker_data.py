@@ -4,7 +4,7 @@ from functions import *
 
 
 ## SET the production version  to process
-version = "v7-4-2"
+version = "v7-4-3"
 
 ## Make a list of samples to process
 
@@ -13,7 +13,7 @@ sampledir = ["DoubleMuon",
              "MuonEG",
              "SingleMuon",
              "SingleElectron"]
-sampledir = ["SingleElectron"]
+
 
 periods = ["C" , "D"]
 

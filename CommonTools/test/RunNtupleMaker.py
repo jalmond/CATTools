@@ -4,7 +4,7 @@ from functions import *
 
 
 ## SET the production version  to process
-version = "v7-4-2"
+version = "v7-4-3"
 
 ## Make a list of samples to process
 
@@ -46,8 +46,6 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
              "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
              "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
-
-sampledir= [ "ST_t-channel_top_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1"]
 
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles

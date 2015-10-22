@@ -1,4 +1,4 @@
-import FWCore.ParameterSet.Config as cms
+B1;95;0cimport FWCore.ParameterSet.Config as cms
 import os
 
 process = cms.Process("Ana")
@@ -48,6 +48,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     muons = cms.InputTag("catMuons"),
     electrons = cms.InputTag("catElectrons"),                                
     vertices = cms.InputTag("catVertex"),
+    mets = cms.InputTag("slimmedMETs"),
 
     metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                                     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),                                                                                                   metFilterNames = cms.vstring(                                               
     "HBHENoiseFilter",

@@ -24,6 +24,7 @@
 
 #include "CATTools/DataFormats/interface/Muon.h"
 #include "CATTools/DataFormats/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -226,7 +227,8 @@ public:
 
 private:
   edm::EDGetTokenT<reco::GenParticleCollection> mcLabel_;
-  
+  edm::EDGetTokenT<pat::METCollection> metToken_;
+
   
   vector<cat::Muon> selectMuons(const edm::View<cat::Muon>* muons );
   vector<cat::Electron> selectElecs(const edm::View<cat::Electron>* elecs );
@@ -369,6 +371,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   metFilterBitsPAT_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("metFilterBitsPAT"));
   metFilterBitsRECO_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("metFilterBitsRECO"));
   vtxToken_  = consumes<reco::VertexCollection >(pset.getParameter<edm::InputTag>("vertices"));
+  metToken_ = consumes<pat::METCollection>(pset.getParameter<edm::InputTag>("mets"));
 
 
   // Output histograms and tree
@@ -733,6 +736,18 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
       }
     }
   }
+
+  edm::Handle<pat::METCollection> mets;
+  event.getByToken(metToken_, mets);
+  const pat::MET &met = mets->front();
+  printf("MET: pt %5.1f, phi %+4.2f, sumEt (%.1f). genMET %.1f. MET with JES up/down: %.1f/%.1f\n",
+	 met.pt(), met.phi(), met.sumEt(),
+	 met.genMET()->pt(),
+	 met.shiftedPt(0), met.shiftedPt(0));
+	 //	 met.shiftedPt(pat::MET::JetEnUp), met.shiftedPt(pat::MET::JetEnDown));
+
+
+
 
   if(!event.isRealData()){
     edm::Handle<reco::GenParticleCollection> genParticles;
