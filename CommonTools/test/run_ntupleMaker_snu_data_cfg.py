@@ -17,7 +17,7 @@ fileNames = cms.untracked.vstring(
       )
 )
 
-lumiFile = 'Cert_246908-257599_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
+lumiFile = 'Cert_246908-258750_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
 
 from FWCore.PythonUtilities.LumiList import LumiList
 lumiList = LumiList(os.environ["CMSSW_BASE"]+'/src/CATTools/CatProducer/prod/LumiMask/'+lumiFile)
@@ -35,6 +35,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     muons = cms.InputTag("catMuons"),
     electrons = cms.InputTag("catElectrons"),
     vertices = cms.InputTag("catVertex"),
+    mets = cms.InputTag("slimmedMETs"),
 
     metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                 
     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),                                                                                

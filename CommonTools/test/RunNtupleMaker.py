@@ -4,7 +4,7 @@ from functions import *
 
 
 ## SET the production version  to process
-version = "v7-4-3"
+version = "v7-4-4"
 
 ## Make a list of samples to process
 
@@ -21,6 +21,7 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8", 
              "ttHTobb_M125_13TeV_powheg_pythia8", 
              "ttHToNonbb_M125_13TeV_powheg_pythia8", 
+             "GluGlu_HToMuMu_M125_13TeV_powheg_pythia8",
              "VBF_HToMuMu_M125_13TeV_powheg_pythia8",
              "QCD_Pt-300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8", 
              "QCD_Pt-600to800_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8", 
@@ -45,6 +46,9 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "ST_t-channel_antitop_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
              "ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
              "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
+             "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
+             "TT_TuneCUETP8M1_13TeV-powheg-scaleup-pythia8",
+             "TT_TuneCUETP8M1_13TeV-powheg-scaledown-pythia8",
              "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
 
 

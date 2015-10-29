@@ -4,7 +4,7 @@ from functions import *
 
 
 ## SET the production version  to process
-version = "v7-4-3"
+version = "v7-4-4"
 
 ## Make a list of samples to process
 
@@ -14,9 +14,14 @@ sampledir = ["DoubleMuon",
              "SingleMuon",
              "SingleElectron"]
 
-
 periods = ["C" , "D"]
 
+rereco=False
+rereco_tag = "05Oct2015"
+
+
+if rereco:
+    print "Running on rereco samples"
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
 njob=40
@@ -24,6 +29,8 @@ njob=40
 skip_first=0
 samples_processed=0
 for i in sampledir:
+    
+    
     for period in periods:
         print "period = " + period
         samples_processed=samples_processed+1 
@@ -46,14 +53,25 @@ for i in sampledir:
         versionpath =""
         iline_version=0
         period_tag = "2015" + period
+
         for linerp in fr_1end:
             if version in linerp:
                 if period_tag in linerp:
-                    if iline_version < 1:
-                        s = linerp.replace("/", " ")
-                        splitline  = s.split()
-                        versionpath = splitline[5]
-                    iline_version= iline_version+1
+                    if rereco:
+                        if rereco_tag in linerp:
+                            if iline_version < 1:
+                                s = linerp.replace("/", " ")
+                                splitline  = s.split()
+                                versionpath = splitline[5]
+                            iline_version= iline_version+1    
+                    else:
+                        if not rereco_tag in linerp:
+                            if iline_version < 1:
+                                s = linerp.replace("/", " ")
+                                splitline  = s.split()
+                                versionpath = splitline[5]
+
+                            iline_version= iline_version+1
         fr_1end.close()
 
         os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output + "/" + versionpath + " > " + output+ "/"+ output + ".txt")
@@ -198,14 +216,25 @@ for i in sampledir:
             else:
                 check_job_finished=1
                 print "ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(i)
+                if rereco:
+                    os.system("ssh jalmond@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i + "/period" + str(period) +"_rereco/" )
+                    os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i + "/period" + str(period) +"_rereco/" )
+                else:
+                    os.system("ssh jalmond@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i + "/period" + str(period)  )
+                    os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i + "/period" + str(period)  )
+
+
                 os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version))
                 os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i )
                 os.system("ssh jalmond@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i + "/period" + str(period) )
                 os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i + "/period" + str(period) )
-                
-                
+                                
+
                 print "scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/" + str(version) + "/"  + str(i) + "/period" + period
-                os.system("scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(version) + "/" +i  +"/period" + period +"/")
+                if rereco:
+                    os.system("scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(version) + "/" +i  +"/period" + period +"_rereco/")
+                else:
+                    os.system("scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(version) + "/" +i  +"/period" + period +"/")
 
             os.system("rm " + output + "/pslog")        
             time.sleep(30.) 
