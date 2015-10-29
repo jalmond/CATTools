@@ -746,7 +746,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   if(testMET){
     
     edm::Handle<cat::JetCollection> jets;            event.getByToken(jetToken_, jets);
-    cout << "\n " << endl;
+    if((*muons).size() == 1) cout << "\n " << endl;
     float sumpt_muon=0.;
     float sumpt_muon_up=0.;
     float sumpt_muon_down=0.;
@@ -767,7 +767,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
       // cout << "muon pt / up / down = " << mu.pt() << " / " << mu.pt()* (mu.shiftedEnUp()-1.) << " / " << mu.pt()*(mu.shiftedEnDown()-1.) << endl;
       // cout << "mu.shiftedEnUp() = " << mu.shiftedEnUp() << " mu.shiftedEnDown()=" << mu.shiftedEnDown() << endl;
       //cout << "muon eta = " << mu.eta() << std::endl;
-      if((*muons).size() == 1) cout << "muon phi = " << mu.phi() <<  " pt = " <<  mu.pt() << "shifted pt up= " <<  mu.pt()*( mu.shiftedEnUp()-1.) << " down = " <<  mu.pt()*(mu.shiftedEnDown()-1.) <<std::endl;  
+      if((*muons).size() == 1) cout << "muon eta/phi = "  << mu.eta() << "/" <<  mu.phi() <<  " pt = " <<  mu.pt() << "shifted pt up= " <<  mu.pt()*( mu.shiftedEnUp()-1.) << " down = " <<  mu.pt()*(mu.shiftedEnDown()-1.) <<std::endl;  
     }
     if((*muons).size() != 1) return;
     
