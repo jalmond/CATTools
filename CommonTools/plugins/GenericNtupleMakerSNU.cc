@@ -747,27 +747,21 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     
     edm::Handle<cat::JetCollection> jets;            event.getByToken(jetToken_, jets);
     if((*muons).size() == 1) cout << "\n " << endl;
-    float sumpt_muon=0.;
-    float sumpt_muon_up=0.;
-    float sumpt_muon_down=0.;
+
     for (auto mu : *muons) {
       //      if (mu.pt() < 10.) continue;
       //if (std::abs(mu.eta()) > 2.4) continue;
 
-      if(mu.phi() > Geom::pi() / 2.) {
-	sumpt_muon +=  mu.pt();
-	sumpt_muon_up += mu.shiftedEnUp() ;
-	sumpt_muon_down += mu.shiftedEnDown();
-      }
-      else{
-	sumpt_muon -=  mu.pt();
-	sumpt_muon_up -= mu.shiftedEnUp();
-        sumpt_muon_down -= mu.shiftedEnDown();
-      }
+      float mu_px = mu.px();
+      float mu_py = mu.py();
+      float shifted_x_up = mu_px * ( mu.shiftedEnUp()-1.);
+      float shifted_y_up = mu_py * ( mu.shiftedEnUp()-1.);
+      
       // cout << "muon pt / up / down = " << mu.pt() << " / " << mu.pt()* (mu.shiftedEnUp()-1.) << " / " << mu.pt()*(mu.shiftedEnDown()-1.) << endl;
       // cout << "mu.shiftedEnUp() = " << mu.shiftedEnUp() << " mu.shiftedEnDown()=" << mu.shiftedEnDown() << endl;
       //cout << "muon eta = " << mu.eta() << std::endl;
       if((*muons).size() == 1) cout << "muon eta/phi = "  << mu.eta() << "/" <<  mu.phi() <<  " pt = " <<  mu.pt() << "shifted pt up= " <<  mu.pt()*( mu.shiftedEnUp()-1.) << " down = " <<  mu.pt()*(mu.shiftedEnDown()-1.) <<std::endl;  
+      if((*muons).size() == 1) cout << "muon px/py   =   " << mu_px << "/" << mu_py << "  shifted py/py = " << shifted_x_up << "/" << shifted_y_up << endl;
     }
     if((*muons).size() != 1) return;
     
@@ -775,6 +769,10 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     event.getByToken(metToken_, mets);
     const pat::MET &met = mets->front();
     
+    std::cout << "met.shiftedPx(pat::MET::MuonEnUp = " << met.shiftedPx(pat::MET::MuonEnUp) << " met.px()=" << met.px()  << " difference = " << met.shiftedPx(pat::MET::MuonEnUp) - met.px()<< std::endl;
+    std::cout << "met.shiftedPy(pat::MET::MuonEnUp = " << met.shiftedPy(pat::MET::MuonEnUp) << " met.py()=" << met.py()  << " difference = " << met.shiftedPy(pat::MET::MuonEnUp) - met.py()<< std::endl;
+
+
     std::cout << "met.shiftedPt(pat::MET::MuonEnUp = " << met.shiftedPt(pat::MET::MuonEnUp) << " met.pt()=" << met.pt()  << " difference = " << met.shiftedPt(pat::MET::MuonEnUp) - met.pt()<< std::endl;
     std::cout << "met.shiftedPt(pat::MET::MuonEnDown=  " << met.shiftedPt(pat::MET::MuonEnDown) << " met.pt()=" << met.pt() << " difference = " << met.shiftedPt(pat::MET::MuonEnDown) - met.pt() << std::endl;
     
