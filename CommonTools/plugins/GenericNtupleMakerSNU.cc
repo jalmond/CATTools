@@ -24,8 +24,6 @@
 
 #include "CATTools/DataFormats/interface/Muon.h"
 #include "CATTools/DataFormats/interface/Electron.h"
-#include "CATTools/DataFormats/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -228,7 +226,6 @@ public:
 
 private:
   edm::EDGetTokenT<reco::GenParticleCollection> mcLabel_;
-  edm::EDGetTokenT<pat::METCollection> metToken_;
 
   
   vector<cat::Muon> selectMuons(const edm::View<cat::Muon>* muons );
@@ -256,7 +253,6 @@ private:
   edm::EDGetTokenT<reco::VertexCollection >   vtxToken_;
 
   /// Testing MET
-  edm::EDGetTokenT<cat::JetCollection>      jetToken_;
   
   std::vector< std::pair < std::string, std::string> >metFilterNames_;
 
@@ -375,9 +371,6 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   metFilterBitsRECO_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("metFilterBitsRECO"));
   vtxToken_  = consumes<reco::VertexCollection >(pset.getParameter<edm::InputTag>("vertices"));
   //// Test MET
-  metToken_ = consumes<pat::METCollection>(pset.getParameter<edm::InputTag>("mets"));
-  jetToken_  = consumes<cat::JetCollection>(pset.getParameter<edm::InputTag>("jets"));
-
 
   // Output histograms and tree
   edm::Service<TFileService> fs;
@@ -741,45 +734,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
       }
     }
   }
-
-  bool testMET(true);
-  if(testMET){
-    
-    edm::Handle<cat::JetCollection> jets;            event.getByToken(jetToken_, jets);
-    cout << "\n " << endl;
-    float sumpt_muon=0.;
-    float sumpt_muon_up=0.;
-    float sumpt_muon_down=0.;
-    for (auto mu : *muons) {
-      //      if (mu.pt() < 10.) continue;
-      //if (std::abs(mu.eta()) > 2.4) continue;
-
-      if(mu.phi() > Geom::pi() / 2.) {
-	sumpt_muon +=  mu.pt();
-	sumpt_muon_up += mu.shiftedEnUp() ;
-	sumpt_muon_down += mu.shiftedEnDown();
-      }
-      else{
-	sumpt_muon -=  mu.pt();
-	sumpt_muon_up -= mu.shiftedEnUp();
-        sumpt_muon_down -= mu.shiftedEnDown();
-      }
-      // cout << "muon pt / up / down = " << mu.pt() << " / " << mu.pt()* (mu.shiftedEnUp()-1.) << " / " << mu.pt()*(mu.shiftedEnDown()-1.) << endl;
-      // cout << "mu.shiftedEnUp() = " << mu.shiftedEnUp() << " mu.shiftedEnDown()=" << mu.shiftedEnDown() << endl;
-      //cout << "muon eta = " << mu.eta() << std::endl;
-      if((*muons).size() == 1) cout << "muon phi = " << mu.phi() <<  " pt = " <<  mu.pt() << "shifted pt up= " <<  mu.pt()*( mu.shiftedEnUp()-1.) << " down = " <<  mu.pt()*(mu.shiftedEnDown()-1.) <<std::endl;  
-    }
-    if((*muons).size() != 1) return;
-    
-    edm::Handle<pat::METCollection> mets;
-    event.getByToken(metToken_, mets);
-    const pat::MET &met = mets->front();
-    
-    std::cout << "met.shiftedPt(pat::MET::MuonEnUp = " << met.shiftedPt(pat::MET::MuonEnUp) << " met.pt()=" << met.pt()  << " difference = " << met.shiftedPt(pat::MET::MuonEnUp) - met.pt()<< std::endl;
-    std::cout << "met.shiftedPt(pat::MET::MuonEnDown=  " << met.shiftedPt(pat::MET::MuonEnDown) << " met.pt()=" << met.pt() << " difference = " << met.shiftedPt(pat::MET::MuonEnDown) - met.pt() << std::endl;
-    
-
-  }
+  
   if(!event.isRealData()){
     edm::Handle<reco::GenParticleCollection> genParticles;
     event.getByToken(mcLabel_,genParticles);

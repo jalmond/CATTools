@@ -22,21 +22,6 @@ fileNames = cms.untracked.vstring(
 
 process.nEventsTotal = cms.EDProducer("EventCountProducer")
 
-### Run trigger producer
-#process.ctrigger = cms.EDProducer("CATTriggerProducer",
-#    triggerBits = cms.InputTag("TriggerResults","","HLT"),
-#    triggerObjects = cms.InputTag("catTrigger"),
-#    triggerPrescales = cms.InputTag("patTrigger"),
-#    hltPaths = cms.vstring("HLT_Ele", "HLT_DoubleEle", "HLT_Mu", "HLT_TkMu", "HLT_IsoMu", "HLT_IsoTkMu", "HLT_DoubleIsoMu"),
-#    hltPaths = cms.vstring(""),                                  
-#    metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),
-#    metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),
-#    metFilterNames = cms.vstring(
-#),
-#    hltPathNames = cms.vstring()#
-#
-#)
-
 
 process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     failureMode = cms.untracked.string("keep"), # choose one among keep/skip/error
@@ -48,7 +33,6 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     muons = cms.InputTag("catMuons"),
     electrons = cms.InputTag("catElectrons"),                                
     vertices = cms.InputTag("catVertex"),
-    mets = cms.InputTag("slimmedMETs"),
 
     metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                                     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),                                                                                                   metFilterNames = cms.vstring(                                               
     "HBHENoiseFilter",
@@ -80,15 +64,6 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
         puWeightUp = cms.InputTag("pileupWeight", "up"),
         puWeightDn = cms.InputTag("pileupWeight", "dn"),
     ),
-    bool = cms.PSet(
-        #csctighthaloFilter= cms.InputTag("catTrigger", "CSCTightHaloFilter"),
-        #ecalDCTRFilter   = cms.InputTag("catTrigger", "EcalDeadCellTriggerPrimitiveFilter"),
-        #eeBadScFilter     = cms.InputTag("catTrigger", "eeBadScFilter"),
-        #HNHENoiseFilter = cms.InputTag("catTrigger", "HBHENoiseFilter"),
-        #goodVertices = cms.InputTag("catTrigger", "goodVertices"),
-        ),        
-        
-                                
 
     floats = cms.PSet(
         pdfWeight = cms.InputTag("genWeight", "pdfWeights"),
