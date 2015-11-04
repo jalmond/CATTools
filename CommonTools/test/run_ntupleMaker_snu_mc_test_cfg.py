@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import os
 
-process = cms.Process("Ana")
+slimmedprocess = cms.Process("Ana")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #process.load("Configuration.StandardSequences.Services_cff")

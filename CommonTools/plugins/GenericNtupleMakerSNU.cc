@@ -746,35 +746,50 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   if(testMET){
     
     edm::Handle<cat::JetCollection> jets;            event.getByToken(jetToken_, jets);
-    if((*muons).size() == 1) cout << "\n " << endl;
+    //    if((*muons).size() == 1) cout << "\n " << endl;
 
-    for (auto mu : *muons) {
-      //      if (mu.pt() < 10.) continue;
+    cout << "\n " << endl;       
+    float shifted_x_up =0.;
+    float shifted_y_up = 0.;
+    float jpx(0.), jpy(0.);
+    for (auto j : *jets) {
+      // muons no cuts
+      if (j.pt() < 15.) continue;
       //if (std::abs(mu.eta()) > 2.4) continue;
 
-      float mu_px = mu.px();
-      float mu_py = mu.py();
-      float shifted_x_up = mu_px * ( mu.shiftedEnUp()-1.);
-      float shifted_y_up = mu_py * ( mu.shiftedEnUp()-1.);
-      
-      // cout << "muon pt / up / down = " << mu.pt() << " / " << mu.pt()* (mu.shiftedEnUp()-1.) << " / " << mu.pt()*(mu.shiftedEnDown()-1.) << endl;
-      // cout << "mu.shiftedEnUp() = " << mu.shiftedEnUp() << " mu.shiftedEnDown()=" << mu.shiftedEnDown() << endl;
+      shifted_x_up += j.px() * ( j.smearedResUp()-1.);
+      shifted_y_up += j.py() * ( j.smearedResUp()-1.);
+      jpx += j.px();
+      jpy += j.py();
+      //cout << "muon pt / up / down = " << mu.pt() << " / " << mu.pt()* (mu.smearedResUp()-1.) << " / " << mu.pt()*(mu.smearedResDown()-1.) << endl;
+      //cout << "mu.smearedResUp() = " << mu.smearedResUp() << " mu.smearedResDown()=" << mu.smearedResDown() << endl;
       //cout << "muon eta = " << mu.eta() << std::endl;
-      if((*muons).size() == 1) cout << "muon eta/phi = "  << mu.eta() << "/" <<  mu.phi() <<  " pt = " <<  mu.pt() << "shifted pt up= " <<  mu.pt()*( mu.shiftedEnUp()-1.) << " down = " <<  mu.pt()*(mu.shiftedEnDown()-1.) <<std::endl;  
-      if((*muons).size() == 1) cout << "muon px/py   =   " << mu_px << "/" << mu_py << "  shifted py/py = " << shifted_x_up << "/" << shifted_y_up << endl;
+      cout << " j.smearedResUp() = " << j.smearedResUp() << " j.smearedResDown() = " << j.smearedResDown() ; 
+      cout << " : jet eta/pt :  px/py  : shifted px/py [enup] = " << j.eta() << " / " << j.pt()  << ":   " << j.px() << "/" <<  j.py()  << " :   " << j.px()* (j.smearedResUp()-1.) << "/" << j.py()* (j.smearedResUp()-1.)  << endl;
+
     }
-    if((*muons).size() != 1) return;
+    
+    cout << "event sum (jet pt > 15 GeV)  px/py  : shifted px/py [enup] = " <<  jpx << "/" << jpy << " : " << shifted_x_up << "/" << shifted_y_up << endl;
+    
+
     
     edm::Handle<pat::METCollection> mets;
     event.getByToken(metToken_, mets);
     const pat::MET &met = mets->front();
     
+    std::cout << "met.shiftedPx(pat::MET::JetResUp = " << met.shiftedPx(pat::MET::JetResUp) << " met.px()=" << met.px()  << " difference = " << met.shiftedPx(pat::MET::JetResUp) - met.px()<< std::endl;
+    std::cout << "met.shiftedPx(pat::MET::JetResDown = " << met.shiftedPx(pat::MET::JetResDown) << " met.px()=" << met.px()  << " difference = " << met.shiftedPx(pat::MET::JetResDown) - met.px()<< std::endl;
+    std::cout << "met.shiftedPx(pat::MET::JetEnUp = " << met.shiftedPx(pat::MET::JetEnUp) << " met.px()=" << met.px()  << " difference = " << met.shiftedPx(pat::MET::JetEnUp) - met.px()<< std::endl;
+    std::cout << "met.shiftedPx(pat::MET::JetEnDown = " << met.shiftedPx(pat::MET::JetEnDown) << " met.px()=" << met.px()  << " difference = " << met.shiftedPx(pat::MET::JetEnDown) - met.px()<< std::endl;
     std::cout << "met.shiftedPx(pat::MET::MuonEnUp = " << met.shiftedPx(pat::MET::MuonEnUp) << " met.px()=" << met.px()  << " difference = " << met.shiftedPx(pat::MET::MuonEnUp) - met.px()<< std::endl;
-    std::cout << "met.shiftedPy(pat::MET::MuonEnUp = " << met.shiftedPy(pat::MET::MuonEnUp) << " met.py()=" << met.py()  << " difference = " << met.shiftedPy(pat::MET::MuonEnUp) - met.py()<< std::endl;
+    std::cout << "met.shiftedPx(pat::MET::MuonEnDown = " << met.shiftedPx(pat::MET::MuonEnDown) << " met.px()=" << met.px()  << " difference = " << met.shiftedPx(pat::MET::MuonEnDown) - met.px()<< std::endl;
+    std::cout << "met.shiftedPx(pat::MET::ElectronEnUp = " << met.shiftedPx(pat::MET::ElectronEnUp) << " met.px()=" << met.px()  << " difference = " << met.shiftedPx(pat::MET::ElectronEnUp) - met.px()<< std::endl;
+    std::cout << "met.shiftedPx(pat::MET::ElectronEnDown = " << met.shiftedPx(pat::MET::ElectronEnDown) << " met.px()=" << met.px()  << " difference = " << met.shiftedPx(pat::MET::ElectronEnDown) - met.px()<< std::endl;
+    
+    std::cout << "met.shiftedPx(pat::MET::JetResUpSmear = " << met.shiftedPx(pat::MET::JetResUpSmear) << " met.px()=" << met.px()  << " difference = " << met.shiftedPx(pat::MET::JetResUpSmear) - met.px()<< std::endl;
+    std::cout << "met.shiftedPx(pat::MET::JetResDownSmear = " << met.shiftedPx(pat::MET::JetResDownSmear) << " met.px()=" << met.px()  << " difference = " << met.shiftedPx(pat::MET::JetResDownSmear) - met.px()<< std::endl;
 
 
-    std::cout << "met.shiftedPt(pat::MET::MuonEnUp = " << met.shiftedPt(pat::MET::MuonEnUp) << " met.pt()=" << met.pt()  << " difference = " << met.shiftedPt(pat::MET::MuonEnUp) - met.pt()<< std::endl;
-    std::cout << "met.shiftedPt(pat::MET::MuonEnDown=  " << met.shiftedPt(pat::MET::MuonEnDown) << " met.pt()=" << met.pt() << " difference = " << met.shiftedPt(pat::MET::MuonEnDown) - met.pt() << std::endl;
     
 
   }
