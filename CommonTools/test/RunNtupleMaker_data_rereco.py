@@ -14,7 +14,7 @@ sampledir = ["DoubleMuon",
              "SingleMuon",
              "SingleElectron"]
 
-sampledir = ["DoubleMuon"]
+
 periods = ["C" , "D"]
 
 rereco=True
