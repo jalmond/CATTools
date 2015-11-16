@@ -16,6 +16,9 @@ sampledir = ["DoubleMuon",
 
 periods = ["C" , "D"]
 
+sampledir = ["SingleMuon",
+             "SingleElectron"]
+
 rereco=False
 rereco_tag = "05Oct2015"
 

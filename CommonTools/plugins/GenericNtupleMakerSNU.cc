@@ -643,6 +643,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 
   std::vector<string> vtrignames_tomatch_muon;
   vtrignames_tomatch_muon.push_back("HLT_IsoMu24_eta2p1_v");
+  vtrignames_tomatch_muon.push_back("HLT_Mu17_v");
   vtrignames_tomatch_muon.push_back("HLT_Mu17_Mu8_DZ_v");
   vtrignames_tomatch_muon.push_back("HLT_Mu17_TkMu8_DZ_v");
   vtrignames_tomatch_muon.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v");

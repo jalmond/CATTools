@@ -18,9 +18,14 @@ fileNames = cms.untracked.vstring(
 )
 
 
-
-
 process.nEventsTotal = cms.EDProducer("EventCountProducer")
+
+process.load("CATTools.CatProducer.pileupWeight_cff")
+from CATTools.CatProducer.pileupWeight_cff import pileupWeightMap
+process.pileupWeight.weightingMethod = "RedoWeight"
+process.pileupWeight.pileupRD = pileupWeightMap["Run2015_25nsV1"]
+process.pileupWeight.pileupUp = pileupWeightMap["Run2015Up_25nsV1"]
+process.pileupWeight.pileupDn = pileupWeightMap["Run2015Dn_25nsV1"]
 
 
 process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
@@ -314,7 +319,7 @@ process.TFileService = cms.Service("TFileService",
 #process.load("CATTools.CatProducer.pseudoTop_cff")
 process.p = cms.Path(
     process.nEventsTotal*
-#    process.ctrigger*
+    process.pileupWeight*
     process.ntuple
 )
 
