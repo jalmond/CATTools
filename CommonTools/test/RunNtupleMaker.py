@@ -4,7 +4,7 @@ from functions import *
 
 
 ## SET the production version  to process
-version = "v7-4-4"
+version = "v7-4-5"
 
 ## Make a list of samples to process
 
@@ -51,13 +51,7 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "TT_TuneCUETP8M1_13TeV-powheg-scaledown-pythia8",
              "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
 
-sampledir = ["DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
-             "DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
-             "WZ_TuneCUETP8M1_13TeV-pythia8",
-             "WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
-             "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-             "ZZ_TuneCUETP8M1_13TeV-pythia8",
-             "WW_TuneCUETP8M1_13TeV-pythia8"]
+sampledir = ["WW_TuneCUETP8M1_13TeV-pythia8"]
 
              
 

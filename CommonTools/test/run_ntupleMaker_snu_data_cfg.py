@@ -17,7 +17,7 @@ fileNames = cms.untracked.vstring(
       )
 )
 
-lumiFile = 'Cert_246908-258750_13TeV_PromptReco_Collisions15_25ns_JSON.txt'
+lumiFile = 'Cert_246908-259891_13TeV_PromptReco_Collisions15_25ns_JSON_Silver.txt'
 
 from FWCore.PythonUtilities.LumiList import LumiList
 lumiList = LumiList(os.environ["CMSSW_BASE"]+'/src/CATTools/CatProducer/prod/LumiMask/'+lumiFile)
@@ -35,6 +35,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     muons = cms.InputTag("catMuons"),
     electrons = cms.InputTag("catElectrons"),
     vertices = cms.InputTag("catVertex"),
+    met = cms.InputTag("catMETs"),
 
     metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                 
     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),                                                                                
@@ -99,8 +100,11 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
                 electronID_medium   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-medium')"),
                 electronID_tight   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-tight')"),
                 electronID_veto   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-veto')"),
-                mva_medium        = cms.string("electronID('mvaEleID-Spring15-25ns-nonTrig-V1-wp90')"),
-                mva_tight        = cms.string("electronID('mvaEleID-Spring15-25ns-nonTrig-V1-wp80')"),
+                electronID_mva_medium        = cms.string("electronID('mvaEleID-Spring15-25ns-nonTrig-V1-wp90')"),
+                electronID_mva_tight        = cms.string("electronID('mvaEleID-Spring15-25ns-nonTrig-V1-wp80')"),
+                electronID_mva_trig_medium        = cms.string("electronID('mvaEleID-Spring15-25ns-Trig-V1-wp90')"),
+                electronID_mva_trig_tight        = cms.string("electronID('mvaEleID-Spring15-25ns-Trig-V1-wp80')"),
+                electronID_heep   = cms.string("electronID('heepElectronID-HEEPV60')"),
                 mcMatched = cms.string("mcMatched"),
                 isPF = cms.string("isPF"),
                 passConversionVeto = cms.string("passConversionVeto"),
@@ -151,6 +155,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
             selections = cms.untracked.PSet(
                 ),
             ),
+
         slimmedGenJets = cms.PSet(
             src = cms.InputTag("slimmedGenJets",""),
             exprs = cms.untracked.PSet(

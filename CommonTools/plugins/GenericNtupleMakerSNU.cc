@@ -21,7 +21,7 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-
+#include "CATTools/DataFormats/interface/MET.h"
 #include "CATTools/DataFormats/interface/Muon.h"
 #include "CATTools/DataFormats/interface/Electron.h"
 
@@ -251,11 +251,10 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> metFilterBitsPAT_;
   edm::EDGetTokenT<edm::TriggerResults> metFilterBitsRECO_;
   edm::EDGetTokenT<reco::VertexCollection >   vtxToken_;
-
-  /// Testing MET
   
+  /// Testing MET
   std::vector< std::pair < std::string, std::string> >metFilterNames_;
-
+  
   /// CAT objects
   std::vector<CandToken> candTokens_;
   std::vector<std::vector<VmapToken> > vmapTokens_;
@@ -292,7 +291,13 @@ private:
 
   bool Flag_HBHENoiseFilter, Flag_CSCTightHaloFilter, Flag_goodVertices, Flag_eeBadScFilter, Flag_EcalDeadCellTriggerPrimitiveFilter;
 
-  
+  double met_muonEn_Px_up, met_muonEn_Px_down, met_muonEn_Py_up, met_muonEn_Py_down;
+  double met_electronEn_Px_up, met_electronEn_Px_down, met_electronEn_Py_up, met_electronEn_Py_down;
+  double met_jetEn_Px_up, met_jetEn_Px_down, met_jetEn_Py_up, met_jetEn_Py_down;
+  double met_jetRes_Px_up, met_jetRes_Px_down, met_jetRes_Py_up, met_jetRes_Py_down;  
+  double met_unclusteredEn_Px_up, met_unclusteredEn_Px_down, met_unclusteredEn_Py_up, met_unclusteredEn_Py_down;
+  double met_unclusteredEn_SumEt_down, met_unclusteredEn_SumEt_up, met_jetEn_SumEt_up, met_jetEn_SumEt_down, met_jetRes_SumEt_up, met_jetRes_SumEt_down;
+  double met_unclusteredEn_Phi_up, met_unclusteredEn_Phi_down; 
   vector<std::string> vtrignames;
   vector<std::string> muon_trigmatch;
   vector<std::string> electron_trigmatch;
@@ -305,9 +310,10 @@ private:
   vector<float> gen_phi_;
   vector<float> gen_pt_;
 
+  edm::EDGetTokenT<cat::METCollection>      metToken_;
   edm::EDGetTokenT<edm::View<cat::Muon> >     muonToken_;
   edm::EDGetTokenT<edm::View<cat::Electron> > elecToken_;
-
+  
 
   /// bool
   std::vector<std::vector<vbool*> > cand_boolVars_;
@@ -365,6 +371,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   triggerBits_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerBits"));
   triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("triggerObjects"));
   triggerPrescales_ =consumes<pat::PackedTriggerPrescales>(pset.getParameter<edm::InputTag>("triggerPrescales"));
+  metToken_  = consumes<cat::METCollection>(pset.getParameter<edm::InputTag>("met"));
   muonToken_ = consumes<edm::View<cat::Muon> >(pset.getParameter<edm::InputTag>("muons"));
   elecToken_ = consumes<edm::View<cat::Electron> >(pset.getParameter<edm::InputTag>("electrons"));
   metFilterBitsPAT_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("metFilterBitsPAT"));
@@ -385,6 +392,33 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("vertex_Y", &vertex_Y, "vertex_Y/D");
   tree_->Branch("vertex_Z", &vertex_Z, "vertex_Z/D");
 
+  /// Set MET systematic variables
+  tree_->Branch("met_muonEn_Px_up", &met_muonEn_Px_up, "met_muonEn_Px_up/D");
+  tree_->Branch("met_muonEn_Py_up", &met_muonEn_Py_up, "met_muonEn_Py_up/D");
+  tree_->Branch("met_muonEn_Px_down", &met_muonEn_Px_down, "met_muonEn_Px_down/D");
+  tree_->Branch("met_muonEn_Py_down", &met_muonEn_Py_down, "met_muonEn_Py_down/D");
+  tree_->Branch("met_electronEn_Px_up", &met_electronEn_Px_up, "met_electronEn_Px_up/D");
+  tree_->Branch("met_electronEn_Py_up", &met_electronEn_Py_up, "met_electronEn_Py_up/D");
+  tree_->Branch("met_electronEn_Px_down", &met_electronEn_Px_down, "met_electronEn_Px_down/D");
+  tree_->Branch("met_electronEn_Py_down", &met_electronEn_Py_down, "met_electronEn_Py_down/D");
+  tree_->Branch("met_unclusteredEn_Px_up", &met_unclusteredEn_Px_up, "met_unclusteredEn_Px_up/D");
+  tree_->Branch("met_unclusteredEn_Py_up", &met_unclusteredEn_Py_up, "met_unclusteredEn_Py_up/D");
+  tree_->Branch("met_unclusteredEn_Px_down", &met_unclusteredEn_Px_down, "met_unclusteredEn_Px_down/D");
+  tree_->Branch("met_unclusteredEn_Py_down", &met_unclusteredEn_Py_down, "met_unclusteredEn_Py_down/D");
+  tree_->Branch("met_unclusteredEn_SumEt_down", &met_unclusteredEn_SumEt_down, "met_unclusteredEn_SumEt_down/D");
+  tree_->Branch("met_unclusteredEn_SumEt_up", &met_unclusteredEn_SumEt_up, "met_unclusteredEn_SumEt_up/D");
+  tree_->Branch("met_jetEn_Px_up", &met_jetEn_Px_up, "met_jetEn_Px_up/D");
+  tree_->Branch("met_jetEn_Py_up", &met_jetEn_Py_up, "met_jetEn_Py_up/D");
+  tree_->Branch("met_jetEn_Px_down", &met_jetEn_Px_down, "met_jetEn_Px_down/D");
+  tree_->Branch("met_jetEn_Py_down", &met_jetEn_Py_down, "met_jetEn_Py_down/D");
+  tree_->Branch("met_jetEn_SumEt_up", &met_jetEn_SumEt_up, "met_jetEn_SumEt_up/D");
+  tree_->Branch("met_jetEn_SumEt_down", &met_jetEn_SumEt_down, "met_jetEn_SumEt_down/D");
+  tree_->Branch("met_jetRes_Px_up", &met_jetRes_Px_up, "met_jetRes_Px_up/D");
+  tree_->Branch("met_jetRes_Py_up", &met_jetRes_Py_up, "met_jetRes_Py_up/D");
+  tree_->Branch("met_jetRes_Px_down", &met_jetRes_Px_down, "met_jetRes_Px_down/D");
+  tree_->Branch("met_jetRes_Py_down", &met_jetRes_Py_down, "met_jetRes_Py_down/D");
+  tree_->Branch("met_jetRes_SumEt_up", &met_jetRes_SumEt_up, "met_jetRes_SumEt_up/D");
+  tree_->Branch("met_jetRes_SumEt_down", &met_jetRes_SumEt_down, "met_jetRes_SumEt_down/D");
 
   tree_->Branch("IsData", &IsData_ , "IsData/O");
   tree_->Branch("HBHENoiseFilter", &Flag_HBHENoiseFilter , "HBHENoiseFilter/O");
@@ -629,6 +663,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	   || tname.Contains("PF") 
 	   || tname.Contains("dEta18") 
 	   || tname.Contains("Photon"))) {
+	cout << trigNames.triggerName(i) << endl;
 	vtrignames.push_back(trigNames.triggerName(i));
 	if(triggerBits->accept(i)){
 	  int psValue = int(triggerBits->accept(i)) * triggerPrescales->getPrescaleForIndex(i);
@@ -644,6 +679,16 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   std::vector<string> vtrignames_tomatch_muon;
   vtrignames_tomatch_muon.push_back("HLT_IsoMu24_eta2p1_v");
   vtrignames_tomatch_muon.push_back("HLT_Mu17_v");
+  vtrignames_tomatch_muon.push_back("HLT_Mu20_v");
+  vtrignames_tomatch_muon.push_back("HLT_TkMu20_v");
+  vtrignames_tomatch_muon.push_back("HLT_Mu8_v");
+  vtrignames_tomatch_muon.push_back("HLT_Mu17_v");
+  vtrignames_tomatch_muon.push_back("HLT_Mu24_v");
+  vtrignames_tomatch_muon.push_back("HLT_Mu8_TrkIsoVVL_v");
+  vtrignames_tomatch_muon.push_back("HLT_Mu17_TrkIsoVVL_v");
+  vtrignames_tomatch_muon.push_back("HLT_Mu24_TrkIsoVVL_v");
+  vtrignames_tomatch_muon.push_back("HLT_Mu27_v");
+  vtrignames_tomatch_muon.push_back("HLT_IsoMu20_v");
   vtrignames_tomatch_muon.push_back("HLT_Mu17_Mu8_DZ_v");
   vtrignames_tomatch_muon.push_back("HLT_Mu17_TkMu8_DZ_v");
   vtrignames_tomatch_muon.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v");
@@ -663,11 +708,31 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   vtrignames_tomatch_electron.push_back("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v");
   vtrignames_tomatch_electron.push_back("HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v");
   
+
+  
   edm::Handle<edm::View<cat::Muon> > muons;
   event.getByToken(muonToken_, muons);
   edm::Handle<edm::View<cat::Electron> > electrons;
   event.getByToken(elecToken_, electrons);
   
+  edm::Handle<cat::METCollection> mets;         
+  event.getByToken(metToken_, mets);
+
+  met_unclusteredEn_Px_up  =  mets->front().unclusteredEnPx(1);  met_unclusteredEn_Px_down  =  mets->front().unclusteredEnPx(-1);
+  met_unclusteredEn_Py_up  =  mets->front().unclusteredEnPy(1);  met_unclusteredEn_Py_down  =  mets->front().unclusteredEnPy(-1);
+  met_unclusteredEn_SumEt_up  =  mets->front().unclusteredEnSumEt(1);  met_unclusteredEn_SumEt_down  =  mets->front().unclusteredEnSumEt(-1);
+  met_unclusteredEn_Phi_up  =  mets->front().unclusteredEnPhi(1);  met_unclusteredEn_Phi_down  =  mets->front().unclusteredEnPhi(-1);
+
+  met_jetEn_Px_up  =  mets->front().JetEnPx(1);  met_jetEn_Px_down  =  mets->front().JetEnPx(-1); 
+  met_jetEn_Py_up  =  mets->front().JetEnPy(1);  met_jetEn_Py_down  =  mets->front().JetEnPy(-1); 
+  met_jetEn_SumEt_up  =  mets->front().JetEnSumEt(1);  met_jetEn_SumEt_down  =  mets->front().JetEnSumEt(-1);
+  
+  met_jetRes_Px_up  =  mets->front().JetEnPx(1);  met_jetRes_Px_down  =  mets->front().JetEnPx(-1);
+  met_jetRes_Py_up  =  mets->front().JetEnPy(1);  met_jetRes_Py_down  =  mets->front().JetEnPy(-1);
+  met_jetRes_SumEt_up  =  mets->front().JetResSumEt(1);  met_jetRes_SumEt_down  =  mets->front().JetResSumEt(-1);
+
+  float px_shift_muon_up(0.), px_shift_muon_down(0.), py_shift_muon_up(0.), py_shift_muon_down(0.), px_muon(0.), py_muon(0.), px_electron(0.), py_electron(0.) ;
+  float  px_shift_electron_up(0.), px_shift_electron_down(0.), py_shift_electron_up(0.), py_shift_electron_down(0.);
   for (auto mu : *muons) {
     std::string mutrig= "SKTriggerMatching[muon]:";
     for(unsigned int i =0; i< vtrignames_tomatch_muon.size(); i++){
@@ -687,7 +752,15 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
       }
     }
     muon_trigmatch.push_back(mutrig);
+    px_muon += mu.px();
+    py_muon += mu.py();
+    px_shift_muon_up += mu.shiftedEnUp() *mu.px();
+    px_shift_muon_down += mu.shiftedEnDown()*mu.px();
+    py_shift_muon_up += mu.shiftedEnUp() *mu.py();
+    py_shift_muon_down += mu.shiftedEnDown()*mu.py();
+    
   }
+  
   for (auto el : *electrons) {
     std::string eltrig= "SKTriggerMatching:";
     for(unsigned int i =0; i< vtrignames_tomatch_electron.size(); i++){
@@ -707,7 +780,23 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
       }
     }
     electron_trigmatch.push_back(eltrig);
+    px_electron += el.px();
+    py_electron += el.py();
+    px_shift_electron_up += el.shiftedEnUp() *el.px();
+    px_shift_electron_down += el.shiftedEnDown()*el.px();
+    py_shift_electron_up += el.shiftedEnUp()*el.py();
+    py_shift_electron_down += el.shiftedEnDown()*el.py();
   }
+  
+  met_muonEn_Px_up =  mets->front().px() + px_muon - px_shift_muon_up; 
+  met_muonEn_Px_down =  mets->front().px() + px_muon - px_shift_muon_down; 
+  met_muonEn_Py_up =  mets->front().py() + py_muon - py_shift_muon_up;
+  met_muonEn_Py_down =  mets->front().py() + py_muon - py_shift_muon_down;
+  met_electronEn_Px_up =  mets->front().px() + px_electron - px_shift_electron_up;
+  met_electronEn_Px_down =  mets->front().px() + px_electron - px_shift_electron_down;
+  met_electronEn_Py_up =  mets->front().py() + py_electron - py_shift_electron_up;
+  met_electronEn_Py_down =  mets->front().py() + py_electron - py_shift_electron_down;
+
 
   // save filter info
   Flag_HBHENoiseFilter=false;
