@@ -6,7 +6,54 @@ from functions import *
 ## SET the production version  to process
 version = "v7-4-5"
 
+## Check Branch for SKtrees is up to date to make skims
+os.system("ssh jalmond@cms3.snu.ac.kr cat /home/jalmond/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/bin/Branch.txt > check_snu_branch.txt")
+os.system("ssh jalmond@cms3.snu.ac.kr cat /home/jalmond/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/bin/CATVERSION.txt > check_catversion_branch.txt")
+snubranch = open("check_snu_branch.txt",'r')
+snu_br_uptodate=False
+
+for line in snubranch:
+    if version in line:
+        snu_br_uptodate=True
+
+snu_cat_uptodate=False
+snucat = open("check_catversion_branch.txt",'r')
+for line in snucat:
+    if version in line:
+        snu_cat_uptodate=True
+
+if snu_br_uptodate == False:
+    print "Branch on snu is not compatable with " + version + " please update snu branch first"
+    quit()
+
+if snu_cat_uptodate== False:
+    print "CATVERSION on snu is not compatable with " + version + " please update cat version first"
+    quit()
+
+os.system("rm check_catversion_branch.txt")
+os.system("rm check_snu_branch.txt")
+
+os.system("ls /tmp > check_snu_connection.txt")
+snu_connect = open("check_snu_connection.txt",'r')
+connected_cms3=False
+connected_cms4=False
+for line in snu_connect:
+    if "ssh-jalmond@cms3" in line:
+        connected_cms3=True
+    else:
+        print "No connection to cms3: please make connection in screen and run script again"
+        quit()
+    if "ssh-jalmond@cms4" in line:
+        connected_cms4=True
+    else:
+        print "No connection to cms3: please make connection in screen and run script again"
+        quit()
+os.system("rm check_snu_connection.txt")    
+
 ## Make a list of samples to process
+
+
+
 
 sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8", 
              "WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
@@ -51,9 +98,6 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "TT_TuneCUETP8M1_13TeV-powheg-scaledown-pythia8",
              "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
 
-sampledir = ["WW_TuneCUETP8M1_13TeV-pythia8"]
-
-             
 
 
 
@@ -245,3 +289,9 @@ for i in sampledir:
         
         
     os.system("rm -r " + output)
+
+
+os.system("source runEffLumi.sh")
+os.system("source runSkimMC.sh&")
+os.system("source runMCSKTree.sh&")
+

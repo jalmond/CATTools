@@ -1,2 +1,3 @@
-source run_data.sh
 python RunNtupleMaker.py
+source run_data.sh
+

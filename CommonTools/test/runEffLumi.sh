@@ -1,0 +1,1 @@
+ssh jalmond@cms3.snu.ac.kr 'cd /home/jalmond/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/; source setup.sh; cd bin; source runGetEffLumi.sh' &> log_efflumi.txt&
