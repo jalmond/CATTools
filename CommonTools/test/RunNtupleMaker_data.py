@@ -5,7 +5,7 @@ from functions import *
 
 ## SET the production version  to process
 version = "v7-4-5"
-
+FullRun=False
 
 ## Check Branch for SKtrees is up to date to make skims                                                                                                                                                                                                                    
 os.system("ssh jalmond@cms3.snu.ac.kr cat /home/jalmond/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/bin/Branch.txt > check_snu_branch.txt")
@@ -39,17 +39,21 @@ os.system("ls /tmp > check_snu_connection.txt")
 snu_connect = open("check_snu_connection.txt",'r')
 connected_cms3=False
 connected_cms4=False
+
 for line in snu_connect:
     if "ssh-jalmond@cms3" in line:
         connected_cms3=True
-    else:
-        print "No connection to cms3: please make connection in screen and run script again"
-        quit()
     if "ssh-jalmond@cms4" in line:
         connected_cms4=True
-    else:
-        print "No connection to cms3: please make connection in screen and run script again"
-        quit()
+
+if connected_cms3 == False:
+    print "No connection to cms3: please make connection in screen and run script again"
+    quit()
+
+if connected_cms4 == False:
+    print "No connection to cms3: please make connection in screen and run script again"
+    quit()
+
 os.system("rm check_snu_connection.txt")
 
 
@@ -61,7 +65,11 @@ sampledir = ["DoubleMuon",
              "SingleMuon",
              "SingleElectron"]
 
-periods = ["C" , "D"]
+if not FullRun == True:
+    sampledir = ["DoubleEG" ,
+                 "SingleElectron"]
+
+    periods = ["C" , "D"]
 
 rereco=False
 rereco_tag = "05Oct2015"
@@ -77,6 +85,10 @@ skip_first=0
 samples_processed=0
 for i in sampledir:
     
+    runtrig=False
+    if "DoubleEG" in i:
+        runtrig=True
+        #runtrig true means more triggers are available in catuples
     
     for period in periods:
         print "period = " + period
@@ -238,7 +250,7 @@ for i in sampledir:
         for j in range(1,njob+1):
             runscript=output + "_flatntupleMaker_"+str(j) +".py"
             configfile=open(output+ "/" + runscript,'w')
-            configfile.write(makeNtupleMakerData(output,output+ "/"+output + "_" + str(j) + "_full.txt", output,j))
+            configfile.write(makeNtupleMakerData(output,output+ "/"+output + "_" + str(j) + "_full.txt", output,j, runtrig))
             configfile.close()
             
             log = output + "/Job_" + str(j) + ".log"
@@ -289,6 +301,7 @@ for i in sampledir:
         
         os.system("rm -r " + output)
 
-os.system("source runSkimData.sh&")
-os.system("source runDataSKTree.sh&")
+if FullRun == True:
+    os.system("source runSkimData.sh&")
+    os.system("source runDataSKTree.sh&")
 

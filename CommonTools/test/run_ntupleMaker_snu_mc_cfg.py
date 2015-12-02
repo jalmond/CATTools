@@ -34,7 +34,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     electrons = cms.InputTag("catElectrons"),                                
     vertices = cms.InputTag("catVertex"),
     met = cms.InputTag("catMETs"),
-                          
+    runFullTrig= cms.bool(True),
     metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                                     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),                                                                                                   metFilterNames = cms.vstring(                                               
     "HBHENoiseFilter",
     "CSCTightHaloFilter",

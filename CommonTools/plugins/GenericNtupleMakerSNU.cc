@@ -282,12 +282,15 @@ private:
   std::vector<std::vector<CandSel> > selectors_;
 
   
+  bool runFullTrig;
+  
   TH1F* hNEvent_;
 
   TTree* tree_;
   int runNumber_, lumiNumber_, eventNumber_;
   double vertex_X, vertex_Y, vertex_Z;
   bool IsData_;
+
 
   bool Flag_HBHENoiseFilter, Flag_CSCTightHaloFilter, Flag_goodVertices, Flag_eeBadScFilter, Flag_EcalDeadCellTriggerPrimitiveFilter;
 
@@ -342,6 +345,8 @@ private:
   std::vector<CandToken> cand_intTokens_;
   std::vector<std::vector<Vmap_intToken> > vmap_intTokens_;
 
+
+
   typedef StringObjectFunction<reco::Candidate,true> Cand_intFtn;
   typedef StringCutObjectSelector<reco::Candidate,true> Cand_intSel;
 
@@ -377,6 +382,12 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   metFilterBitsPAT_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("metFilterBitsPAT"));
   metFilterBitsRECO_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("metFilterBitsRECO"));
   vtxToken_  = consumes<reco::VertexCollection >(pset.getParameter<edm::InputTag>("vertices"));
+
+  
+  runFullTrig = pset.getParameter<bool>("runFullTrig");
+  
+  if(runFullTrig) cout << "Running fulltrigger" << endl;
+  else cout << "Not running full trigger" << endl;
   //// Test MET
 
   // Output histograms and tree
@@ -656,20 +667,27 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	|| trigNames.triggerName(i).find("HLT_Mu") == 0 ){
       if(!(tname.Contains("Jpsi") 
 	   || tname.Contains("NoFilters") 
-	   || tname.Contains("WP")
 	   || tname.Contains("Upsilon")
 	   || tname.Contains("7p5")
 	   || tname.Contains("Save")
-	   || tname.Contains("PF") 
 	   || tname.Contains("dEta18") 
 	   || tname.Contains("Photon"))) {
-	cout << trigNames.triggerName(i) << endl;
-	vtrignames.push_back(trigNames.triggerName(i));
-	if(triggerBits->accept(i)){
-	  int psValue = int(triggerBits->accept(i)) * triggerPrescales->getPrescaleForIndex(i);
-	  vtrigps.push_back(psValue);
+	if(runFullTrig){
+	  vtrignames.push_back(trigNames.triggerName(i));
+          if(triggerBits->accept(i)){
+            int psValue = int(triggerBits->accept(i)) * triggerPrescales->getPrescaleForIndex(i);
+            vtrigps.push_back(psValue);
+          }
+	  else  vtrigps.push_back(0);
 	}
-	else  vtrigps.push_back(0);
+	else if(!(tname.Contains("PF")|| tname.Contains("WP"))) {
+	  vtrignames.push_back(trigNames.triggerName(i));
+	  if(triggerBits->accept(i)){
+	    int psValue = int(triggerBits->accept(i)) * triggerPrescales->getPrescaleForIndex(i);
+	    vtrigps.push_back(psValue);
+	  }
+	  else  vtrigps.push_back(0);
+	}
       }
     }
   }

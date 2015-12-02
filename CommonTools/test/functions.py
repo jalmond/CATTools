@@ -1,6 +1,6 @@
 import os
 
-def makeNtupleMakerData(sampledir,samplelist, outputdir, job):
+def makeNtupleMakerData(sampledir,samplelist, outputdir, job, runtrig):
 
     ntuplemaker=open("run_ntupleMaker_snu_data_cfg.py","r")
     config=""
@@ -17,6 +17,11 @@ def makeNtupleMakerData(sampledir,samplelist, outputdir, job):
         elif  "fileName = cms.string" in line:
                 config+='fileName = cms.string("' + outputdir + '/ntuple' + str(job) +'.root"),'
 
+        elif "runFullTrig" in line: 
+            if runtrig:
+                config+='runFullTrig= cms.bool(True),' +"\n"
+            else:
+                config+='runFullTrig= cms.bool(False),' +"\n"
 
         else:
             config+=line.strip() +"\n"

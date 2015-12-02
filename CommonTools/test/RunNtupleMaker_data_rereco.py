@@ -5,6 +5,7 @@ from functions import *
 
 ## SET the production version  to process
 version = "v7-4-5"
+FullRun = False
 
 
 ## Check Branch for SKtrees is up to date to make skims                                                                                                                                                                                                                    
@@ -41,14 +42,17 @@ connected_cms4=False
 for line in snu_connect:
     if "ssh-jalmond@cms3" in line:
         connected_cms3=True
-    else:
-        print "No connection to cms3: please make connection in screen and run script again"
-        quit()
     if "ssh-jalmond@cms4" in line:
         connected_cms4=True
-    else:
-        print "No connection to cms3: please make connection in screen and run script again"
-        quit()
+
+if connected_cms3 == False:
+    print "No connection to cms3: please make connection in screen and run script again"
+    quit()
+
+if connected_cms4 == False:
+    print "No connection to cms3: please make connection in screen and run script again"
+    quit()
+
 os.system("rm check_snu_connection.txt")
 
 
@@ -62,6 +66,9 @@ sampledir = ["DoubleMuon",
              "MuonEG",
              "SingleMuon",
              "SingleElectron"]
+
+if not FullRun == True:
+   sampledir = [ "DoubleEG" ,"SingleElectron"]
 
 
 periods = ["C" , "D"]

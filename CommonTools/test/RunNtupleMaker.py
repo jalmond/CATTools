@@ -5,6 +5,8 @@ from functions import *
 
 ## SET the production version  to process
 version = "v7-4-5"
+FullRun = False
+
 
 ## Check Branch for SKtrees is up to date to make skims
 os.system("ssh jalmond@cms3.snu.ac.kr cat /home/jalmond/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/bin/Branch.txt > check_snu_branch.txt")
@@ -33,21 +35,23 @@ if snu_cat_uptodate== False:
 os.system("rm check_catversion_branch.txt")
 os.system("rm check_snu_branch.txt")
 
-os.system("ls /tmp > check_snu_connection.txt")
+os.system("ls /tmp/ > check_snu_connection.txt")
 snu_connect = open("check_snu_connection.txt",'r')
 connected_cms3=False
 connected_cms4=False
 for line in snu_connect:
     if "ssh-jalmond@cms3" in line:
         connected_cms3=True
-    else:
-        print "No connection to cms3: please make connection in screen and run script again"
-        quit()
     if "ssh-jalmond@cms4" in line:
         connected_cms4=True
-    else:
-        print "No connection to cms3: please make connection in screen and run script again"
-        quit()
+
+if connected_cms3 == False:    
+    print "No connection to cms3: please make connection in screen and run script again"
+    quit()
+
+if connected_cms4 == False:
+    print "No connection to cms3: please make connection in screen and run script again"
+    quit()
 os.system("rm check_snu_connection.txt")    
 
 ## Make a list of samples to process
@@ -98,11 +102,13 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "TT_TuneCUETP8M1_13TeV-powheg-scaledown-pythia8",
              "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
 
+if not FullRun == True:
+    sampledir = [ "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"]
 
 
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
-njob=40
+njob=60
     
 skip_first=0
 samples_processed=0
@@ -291,7 +297,8 @@ for i in sampledir:
     os.system("rm -r " + output)
 
 
-os.system("source runEffLumi.sh")
-os.system("source runSkimMC.sh&")
-os.system("source runMCSKTree.sh&")
+if FullRun == True:
+    os.system("source runEffLumi.sh")
+    os.system("source runSkimMC.sh&")
+    os.system("source runMCSKTree.sh&")
 
