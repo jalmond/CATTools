@@ -17,7 +17,7 @@ fileNames = cms.untracked.vstring(
       )
 )
 
-lumiFile = 'Cert_246908-259891_13TeV_PromptReco_Collisions15_25ns_JSON_Silver.txt'
+lumiFile = 'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver.txt'
 
 from FWCore.PythonUtilities.LumiList import LumiList
 lumiList = LumiList(os.environ["CMSSW_BASE"]+'/src/CATTools/CatProducer/prod/LumiMask/'+lumiFile)
@@ -54,22 +54,15 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
         nPV               =  cms.InputTag("catVertex"   , "nPV"    ),
         nTrueInteraction  =  cms.InputTag("pileupWeight", "nTrueInteraction" ),
         
+        lumiMaskGold      =  cms.InputTag("lumiMask"),
+        lumiMaskSilver      =  cms.InputTag("lumiMaskSilver"),
+        
         GenTTCat =  cms.InputTag("GenTtbarCatergories" , "genTtbarId"),
 
-        genWeight_id1   = cms.InputTag("genWeight" , "id1"),
-        genWeight_id2   = cms.InputTag("genWeight" , "id2"),
         
     ),
     float = cms.PSet(
-        genWeightQ   = cms.InputTag("genWeight" , "Q"),
-        genWeight   = cms.InputTag("genWeight", "genWeight"),
-        lheWeight   = cms.InputTag("genWeight", "lheWeight"),
-        genWeightX1   = cms.InputTag("genWeight" , "x2"),
-        genWeightX2   = cms.InputTag("genWeight" , "x1"),
-
-        puWeight   = cms.InputTag("pileupWeight"),
-        puWeightUp = cms.InputTag("pileupWeight", "up"),
-        puWeightDn = cms.InputTag("pileupWeight", "dn"),
+        
     ),
                                 
 

@@ -46,6 +46,8 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
         nGoodPV           =  cms.InputTag("catVertex"   , "nGoodPV"),
         nPV               =  cms.InputTag("catVertex"   , "nPV"    ),
         nTrueInteraction  =  cms.InputTag("pileupWeight", "nTrueInteraction" ),
+        lumiMaskGold      =  cms.InputTag("lumiMask"),
+        lumiMaskSilver      =  cms.InputTag("lumiMaskSilver"),
         
         GenTTCat =  cms.InputTag("GenTtbarCatergories" , "genTtbarId"),
 
@@ -61,9 +63,13 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
         genWeightX1   = cms.InputTag("genWeight" , "x2"),
         genWeightX2   = cms.InputTag("genWeight" , "x1"),
 
-        puWeight   = cms.InputTag("pileupWeight"),
-        puWeightUp = cms.InputTag("pileupWeight", "up"),
-        puWeightDn = cms.InputTag("pileupWeight", "dn"),
+        puWeightSilver   = cms.InputTag("pileupWeightSilver"),
+        puWeightSilverUp = cms.InputTag("pileupWeightSilver", "up"),
+        puWeightSilverDn = cms.InputTag("pileupWeightSilver", "dn"),
+        puWeightGold   = cms.InputTag("pileupWeight"),
+        puWeightGoldUp = cms.InputTag("pileupWeight", "up"),
+        puWeightGoldDn = cms.InputTag("pileupWeight", "dn"),
+
     ),
 
     floats = cms.PSet(

@@ -4,7 +4,7 @@ from functions import *
 
 
 ## SET the production version  to process
-version = "v7-4-5"
+version = "v7-4-6"
 FullRun = False
 
 
@@ -103,7 +103,8 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
 
 if not FullRun == True:
-    sampledir = [ "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"]
+    sampledir = [ "WZ_TuneCUETP8M1_13TeV-pythia8"]
+
 
 
 
