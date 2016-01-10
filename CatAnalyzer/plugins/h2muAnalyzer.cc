@@ -42,7 +42,7 @@ private:
   int jetCategory(const cat::JetCollection& seljets, float MET, float ll_pt) const;
   int etaCategory(float lep1_eta, float lep2_eta) const;
 
-  edm::EDGetTokenT<int> recoFiltersToken_, nGoodVertexToken_;
+  edm::EDGetTokenT<int> recoFiltersToken_, nGoodVertexToken_, lumiSelectionToken_;
   edm::EDGetTokenT<float> genweightToken_, puweightToken_;
   edm::EDGetTokenT<cat::MuonCollection>     muonToken_;
   edm::EDGetTokenT<cat::ElectronCollection> elecToken_;
@@ -79,6 +79,7 @@ h2muAnalyzer::h2muAnalyzer(const edm::ParameterSet& iConfig)
 {
   recoFiltersToken_ = consumes<int>(iConfig.getParameter<edm::InputTag>("recoFilters"));
   nGoodVertexToken_ = consumes<int>(iConfig.getParameter<edm::InputTag>("nGoodVertex"));
+  lumiSelectionToken_ = consumes<int>(iConfig.getParameter<edm::InputTag>("lumiSelection"));
   genweightToken_ = consumes<float>(iConfig.getParameter<edm::InputTag>("genweight"));
   puweightToken_ = consumes<float>(iConfig.getParameter<edm::InputTag>("puweight"));
   muonToken_ = consumes<cat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"));
@@ -197,6 +198,12 @@ void h2muAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.getByToken(nGoodVertexToken_, nGoodVertexHandle);
   b_nvertex = *nGoodVertexHandle;
 
+  edm::Handle<int> lumiSelectionHandle;
+  iEvent.getByToken(lumiSelectionToken_, lumiSelectionHandle);
+  if (!runOnMC_){
+    if (*lumiSelectionHandle == 0) return;
+  }
+ 
   edm::Handle<int> recoFiltersHandle;
   iEvent.getByToken(recoFiltersToken_, recoFiltersHandle);
   b_filtered = *recoFiltersHandle == 0 ? false : true;
@@ -328,10 +335,10 @@ cat::MuonCollection h2muAnalyzer::selectMuons(const cat::MuonCollection& muons )
 {
   cat::MuonCollection selmuons;
   for (auto mu : muons) {
-    if (!mu.isLooseMuon()) continue;
     if (mu.pt() <= 20.) continue;
     if (std::abs(mu.eta()) >= 2.4) continue;
-    if (mu.relIso(0.4) >= 0.12) continue;
+    if (!mu.isLooseMuon()) continue;
+    if (mu.relIso(0.4) >= 0.15) continue;
     //printf("muon with pt %4.1f, POG loose id %d, tight id %d\n", mu.pt(), mu.isLooseMuon(), mu.isTightMuon());
     selmuons.push_back(mu);
   }
@@ -343,15 +350,10 @@ cat::ElectronCollection h2muAnalyzer::selectElecs(const cat::ElectronCollection&
 {
   cat::ElectronCollection selelecs;
   for (auto el : elecs) {
-    if (!el.electronID("cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium")) continue;
-    if (!el.passConversionVeto()) continue;
-    if (!el.isPF()) continue;
-    if (el.pt() <= 20.) continue;
-    if ((std::abs(el.scEta()) <= 1.4442) && (el.relIso(0.3) >= 0.1649)) continue;
-    if ((std::abs(el.scEta()) >= 1.566) && (el.relIso(0.3) >= 0.2075)) continue;
+    if (el.pt() < 20.) continue;
     if ((std::abs(el.scEta()) > 1.4442) && (std::abs(el.scEta()) < 1.566)) continue;
-    if (std::abs(el.eta()) >= 2.5) continue;
-    if (el.pt() < 5) continue;
+    if (std::abs(el.eta()) > 2.4) continue;
+    if ( !el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-medium") ) continue;
     //printf("electron with pt %4.1f\n", el.pt());
     selelecs.push_back(el);
   }
