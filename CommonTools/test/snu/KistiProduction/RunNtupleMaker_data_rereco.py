@@ -18,7 +18,8 @@ username_snu="jalmond"
 ## SET the production version  to process
 version = "v7-4-6"
 kisti_output_default="/tmp_cms/jalmond_temp/"+version+"/"
-
+if not (os.path.exists(kisti_output_default)):
+    os.system("mkdir " + kisti_output_default)
 
 ## Check Branch for SKtrees is up to date to make skims                                                                                                                                                                                                                    
 os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" +  username_snu + snu_lqpath + "/bin/Branch.txt > check_snu_branch.txt")
