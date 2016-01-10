@@ -2,15 +2,26 @@ import os, getpass, sys
 import time
 from functions import *
 
+######## FullRun = True for running all steps: makes skims etc
+FullRun = False
+
+host=os.getenv("HOSTNAME")
+username=os.getenv("USER")
+if not "ui10" in host:
+    FullRun=False
+
+### Set if you are running full production on kisti site to transfer to snu   
+snu_lqpath="/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/"
+username_snu="jalmond"
+
 
 ## SET the production version  to process
 version = "v7-4-6"
-FullRun = False
-
+kisti_output_default="/tmp_cms/jalmond_temp/"+version+"/" 
 
 ## Check Branch for SKtrees is up to date to make skims
-os.system("ssh jalmond@cms3.snu.ac.kr cat /home/jalmond/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/bin/Branch.txt > check_snu_branch.txt")
-os.system("ssh jalmond@cms3.snu.ac.kr cat /home/jalmond/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/bin/CATVERSION.txt > check_catversion_branch.txt")
+os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/Branch.txt > check_snu_branch.txt")
+os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/CATVERSION.txt > check_catversion_branch.txt")
 snubranch = open("check_snu_branch.txt",'r')
 snu_br_uptodate=False
 
@@ -120,17 +131,18 @@ for i in sampledir:
 
     njob=40
     output=i
-    print "Making dir: " + output
+    kisti_output=kisti_output_default+output+"/"
+    print "Making dir: " + kisti_output
 
-    if not (os.path.exists(output)):
-        os.system("mkdir " + output)
+    if not (os.path.exists(kisti_output)):
+        os.system("mkdir " + kisti_output)
     else:
-        os.system("rm " + output + "/*")
+        os.system("rm " + kisti_output + "/*")
     
-    os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output + " > " + output+ "/"+ output + "_getversion.txt")
-    os.system("sed -r 's/^.{43}//' " +  output+ "/"+output + "_getversion.txt  > " +output+ "/"+output + "_getversion_skim.txt")
+    os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output + " > " + kisti_output+ "/"+ output + "_getversion.txt")
+    os.system("sed -r 's/^.{43}//' " +  kisti_output+ "/"+output + "_getversion.txt  > " +kisti_output+ "/"+output + "_getversion_skim.txt")
 
-    fr_1end = open(output+ "/"+output+"_getversion_skim.txt",'r')
+    fr_1end = open(kisti_output+ "/"+output+"_getversion_skim.txt",'r')
     versionpath =""
     iline_version=0
     for linerp in fr_1end:
@@ -142,15 +154,15 @@ for i in sampledir:
             iline_version= iline_version+1
     fr_1end.close()
 
-    os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output + "/" + versionpath + " > " + output+ "/"+ output + ".txt")
+    os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output + "/" + versionpath + " > " + kisti_output+ "/"+ output + ".txt")
 
-    os.system("sed -r 's/^.{43}//' " +  output+ "/"+output + ".txt  > " +output+ "/"+output + "_skim.txt") 
-    os.system("cut -d/ -f 8 " + output+ "/"+output  + "_skim.txt  > " + output+ "/"+output + "_end.txt")
+    os.system("sed -r 's/^.{43}//' " +  kisti_output+ "/"+output + ".txt  > " + kisti_output + "/"+output + "_skim.txt") 
+    os.system("cut -d/ -f 8 " + kisti_output+ "/"+output  + "_skim.txt  > " + kisti_output + "/"+output + "_end.txt")
     
 
 
     ## Get the tag of the production: using the newest tag of version, it is automatic
-    fr_end = open(output+ "/"+output+"_end.txt",'r')
+    fr_end = open(kisti_output+ "/"+output+"_end.txt",'r')
     tagpath =""
     iline=0
     newest_check = 0
@@ -192,11 +204,11 @@ for i in sampledir:
     if sample_exists == 0:
         continue
 
-    os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output  + "/" + versionpath + "/" + tagpath + "/0000/ > " + output+ "/"+output + "_tmpfull.txt")
-    os.system("sed -r 's/^.{43}//' " +  output+ "/"+output  + "_tmpfull.txt  > " +output+ "/"+output  + "_full.txt")
+    os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output  + "/" + versionpath + "/" + tagpath + "/0000/ > " + kisti_output+ "/"+output + "_tmpfull.txt")
+    os.system("sed -r 's/^.{43}//' " +  kisti_output+ "/"+output  + "_tmpfull.txt  > " +kisti_output+ "/"+output  + "_full.txt")
 
     ## Set the number of jobs and files per job
-    fr = open(output+ "/"+output +"_full.txt",'r')
+    fr = open(kisti_output+ "/"+output +"_full.txt",'r')
     count=0
     nfilesperjob=0
     for line in fr:
@@ -220,9 +232,9 @@ for i in sampledir:
     counter_written=0
     for j in range(1,njob+1):
     
-        wfr = open(output+ "/"+output + "_" +str(j) + "_full.txt",'w')
+        wfr = open(kisti_output+ "/"+output + "_" +str(j) + "_full.txt",'w')
         counter=0
-        rfr  = open(output+ "/"+output + "_full.txt",'r')
+        rfr  = open(kisti_output+ "/"+output + "_full.txt",'r')
         for line in rfr:
             if ".root" in line:
                 counter+=1
@@ -244,8 +256,8 @@ for i in sampledir:
         rfr.close()    
 
     for j in range(1,remainder+1):
-         wfr = open(output+ "/"+output + "_" +str(j) + "_full.txt",'a')
-         rfr  = open(output+ "/"+output + "_full.txt",'r')
+         wfr = open(kisti_output+ "/"+output + "_" +str(j) + "_full.txt",'a')
+         rfr  = open(kisti_output+ "/"+output + "_full.txt",'r')
          counter = 0
          for line in rfr:             
              if ".root" in line:
@@ -258,21 +270,21 @@ for i in sampledir:
 
     for j in range(1,njob+1):
         runscript=output + "_flatntupleMaker_"+str(j) +".py"
-        configfile=open(output+ "/" + runscript,'w')
-        configfile.write(makeNtupleMaker(output,output+ "/"+output + "_" + str(j) + "_full.txt", output,j))
+        configfile=open(kisti_output+ "/" + runscript,'w')
+        configfile.write(makeNtupleMaker(output,kisti_output+ "/"+output + "_" + str(j) + "_full.txt", kisti_output,j))
         configfile.close()
     
-        log = output + "/Job_" + str(j) + ".log"
-        runcommand="cmsRun " + output + "/" + runscript + "&>" + log + "&"
+        log = kisti_output + "/Job_" + str(j) + ".log"
+        runcommand="cmsRun " + kisti_output + "/" + runscript + "&>" + log + "&"
         os.system(runcommand)
         
         
     import platform
     check_job_finished=0
     while check_job_finished == 0:        
-        os.system("ps ux  | grep 'cmsRun' &> " + output + "/pslog")
-        print "ps ux  | grep 'cmsRun' &> " + output + "/pslog"
-        filename = output +'/pslog'    
+        os.system("ps ux  | grep 'cmsRun' &> " + kisti_output + "/pslog")
+        print "ps ux  | grep 'cmsRun' &> " + kisti_output + "/pslog"
+        filename = kisti_output +'/pslog'    
         n_previous_jobs=0
         pslogfile = open(filename, 'r')
         for line in pslogfile:
@@ -283,19 +295,19 @@ for i in sampledir:
             check_job_finished=0
         else:
             check_job_finished=1
-            print "ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version + "/" + i 
-            os.system("ssh jalmond@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/MC/" + version +"/" + i )
-            os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version)
-            os.system("ssh jalmond@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version + "/" + i )
+            print "ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version + "/" + i 
+            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/MC/" + version +"/" + i )
+            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version)
+            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version + "/" + i )
 
-            print "scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/" + version + "/"  +i
-            os.system("scp " +output + "/*.root " + " jalmond@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/"  + version + "/" +i) 
+            print "scp " +kisti_output + "/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/" + version + "/"  +i
+            os.system("scp " +kisti_output + "/*.root " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/"  + version + "/" +i) 
 
-        os.system("rm " + output + "/pslog")        
+        os.system("rm " + kisti_output + "/pslog")        
         time.sleep(30.) 
         
         
-    os.system("rm -r " + output)
+    os.system("rm -r " + kisti_output)
 
 
 if FullRun == True:

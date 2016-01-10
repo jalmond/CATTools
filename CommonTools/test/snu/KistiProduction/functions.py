@@ -2,7 +2,7 @@ import os
 
 def makeNtupleMakerData(sampledir,samplelist, outputdir, job, runtrig):
 
-    ntuplemaker=open("run_ntupleMaker_snu_data_cfg.py","r")
+    ntuplemaker=open("../run_ntupleMaker_snu_data_cfg.py","r")
     config=""
 
     fread = open(samplelist, 'r')
@@ -30,7 +30,7 @@ def makeNtupleMakerData(sampledir,samplelist, outputdir, job, runtrig):
 
 def makeNtupleMaker(sampledir,samplelist, outputdir, job):
 
-    ntuplemaker=open("run_ntupleMaker_snu_mc_cfg.py","r")
+    ntuplemaker=open("../run_ntupleMaker_snu_mc_cfg.py","r")
     config=""
 
     fread = open(samplelist, 'r')
