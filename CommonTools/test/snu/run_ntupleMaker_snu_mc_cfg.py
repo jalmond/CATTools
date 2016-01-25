@@ -35,7 +35,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     vertices = cms.InputTag("catVertex"),
     met = cms.InputTag("catMETs"),
     runFullTrig= cms.bool(True),
-    metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                                     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),                                                                                                   metFilterNames = cms.vstring(                                               
+    metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                                     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),               metFilterNames = cms.vstring(                                               
     "HBHENoiseFilter",
     "CSCTightHaloFilter",
     "goodVertices",
@@ -110,6 +110,19 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
                 ),
             selections = cms.untracked.PSet(),
             ),
+      photons = cms.PSet(
+            src = cms.InputTag("catPhotons"),
+            exprs = cms.untracked.PSet(
+                photonID_loose   = cms.string("photonID('cutBasedPhotonID-Spring15-25ns-V1-standalone-loose')"), 
+                photonID_medium   = cms.string("photonID('cutBasedPhotonID-Spring15-25ns-V1-standalone-medium')"),
+                photonID_tight   = cms.string("photonID('cutBasedPhotonID-Spring15-25ns-V1-standalone-tight')"),
+                photonID_mva        = cms.string("mvaPhoID-Spring15-25ns-nonTrig-V2-wp90')"),
+                mcMatched = cms.string("mcMatched"),
+                haspixseed = cms.string("HasPixelSeed"),
+                passelectronveto = cms.string("PassElectronVeto"),
+                ),
+            selections = cms.untracked.PSet(),
+            ),
         jets = cms.PSet(
             src = cms.InputTag("catJets"),
             exprs = cms.untracked.PSet(
@@ -121,6 +134,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
                 ),
             ),
         ),
+
                                 
    cands_int = cms.PSet(
         muon = cms.PSet(
@@ -143,6 +157,8 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
                 ),
             selections = cms.untracked.PSet(),
             ),
+
+
         jets = cms.PSet(
             src = cms.InputTag("catJets"),
             exprs = cms.untracked.PSet(
@@ -223,6 +239,39 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
             selections = cms.untracked.PSet(
             ),
         ),
+
+
+        
+        photons = cms.PSet(
+            src = cms.InputTag("catPhotons"),
+            #index = cms.untracked.int32(0),                                                                                                                                                                                                 
+            exprs = cms.untracked.PSet(
+                 pt  = cms.string("pt"),
+                 eta = cms.string("eta"),
+                 phi = cms.string("phi"),
+                 energy   = cms.string("energy"),
+                 chargedHadIso = cms.string("chargedHadronIso"),
+                 puChargedHadronIso  = cms.string("puChargedHadronIso"),
+                 neutralHadronIso  = cms.string("neutralHadronIso"),
+                 photonIso = cms.string("photonIso"),
+                 rhoIso = cms.string("rhoIso"),
+                 chargedHadronIsoWithEA = cms.string("chargedHadronIsoWithEA"),
+                 neutralHadronIsoWithEA  = cms.string("neutralHadronIsoWithEA"),
+                 photonIsoWithEA = cms.string("photonIsoWithEA"),
+                 sigmaietaieta = cms.string("SigmaiEtaiEta"),
+                 r9 = cms.string("r9"),
+                 hovere = cms.string("HoverE"),
+                 sceta = cms.string("SCEta"),
+                 scphi = cms.string("SCPhi"),
+                 scrawenergy = cms.string("SCRawEnergy"),
+                 scpreshowerenergy = cms.string("SCPreShowerEnergy"),
+                 effArea = cms.string("getEffArea"),
+                 ),
+            selections = cms.untracked.PSet(
+            ),
+        ),
+
+
         jets = cms.PSet(
             src = cms.InputTag("catJets"),
             exprs = cms.untracked.PSet(

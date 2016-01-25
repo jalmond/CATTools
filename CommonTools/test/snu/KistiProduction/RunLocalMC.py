@@ -2,131 +2,17 @@ import os, getpass, sys
 import time
 from functions import *
 
-######## FullRun = True for running all steps: makes skims etc
-FullRun = False
-
-######## True runs default list of all samples available
-ALLSamples= False
-
-####### make sure this file is being run at kisti                                                                                                                                                                                           
-host=os.getenv("HOSTNAME")
-if not "ui10" in host:
-    quit()
-
-### Set if you are running full production on kisti site to transfer to snu   
-snu_lqpath="/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/"
-username_snu="jalmond"
-
-
-## SET the production version to process
-version = "v7-4-6"   ### IF running FullRun=True then this MUST be the same as the branch version set in snu_lqpath
+## SET the production version  to process
+version = "v7-4-6"
 kisti_output_default="/tmp_cms/jalmond_temp/"+version+"/" 
 
 if not (os.path.exists(kisti_output_default)):
     os.system("mkdir " + kisti_output_default)
 
-if FullRun:
-## Check Branch for SKtrees is up to date to make skims
-    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/Branch.txt > check_snu_branch.txt")
-    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/CATVERSION.txt > check_catversion_branch.txt")
-    snubranch = open("check_snu_branch.txt",'r')
-    snu_br_uptodate=False
-
-    for line in snubranch:
-        if version in line:
-            snu_br_uptodate=True
-
-    snu_cat_uptodate=False
-    snucat = open("check_catversion_branch.txt",'r')
-    for line in snucat:
-        if version in line:
-            snu_cat_uptodate=True
-            
-    if snu_br_uptodate == False:
-        print "Branch on snu is not compatable with " + version + " please update snu branch first"
-        quit()
-
-    if snu_cat_uptodate== False:
-        print "CATVERSION on snu is not compatable with " + version + " please update cat version first"
-        quit()
-
-    os.system("rm check_catversion_branch.txt")
-    os.system("rm check_snu_branch.txt")
-    os.system("ls /tmp/ > check_snu_connection.txt")
-    snu_connect = open("check_snu_connection.txt",'r')
-    connected_cms4=False
-    for line in snu_connect:
-        if "ssh-jalmond@cms4" in line:
-            connected_cms4=True
-    os.system("rm check_snu_connection.txt")
-    if connected_cms4 == False:
-        print "No connection to cms3: please make connection in screen and run script again"
-        quit()
-    
-        
-        
-
-os.system("ls /tmp/ > check_snu_connection.txt")
-snu_connect = open("check_snu_connection.txt",'r')
-connected_cms3=False
-for line in snu_connect:
-    if "ssh-jalmond@cms3" in line:
-        connected_cms3=True
-            
-os.system("rm check_snu_connection.txt")    
-if connected_cms3 == False:    
-    print "No connection to cms3: please make connection in screen and run script again"
-    quit()
-
-
 
 ## Make a list of samples to process
 
-sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8", 
-             "WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
-             "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
-             "ZZ_TuneCUETP8M1_13TeV-pythia8",
-             "WW_TuneCUETP8M1_13TeV-pythia8",
-             "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
-             "DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
-             "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8", 
-             "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8", 
-              "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8",
-             "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8", 
-             "ttHTobb_M125_13TeV_powheg_pythia8", 
-             "ttHToNonbb_M125_13TeV_powheg_pythia8", 
-             "GluGlu_HToMuMu_M125_13TeV_powheg_pythia8",
-             "VBF_HToMuMu_M125_13TeV_powheg_pythia8",
-             "QCD_Pt-300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8", 
-             "QCD_Pt-600to800_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8", 
-             "QCD_Pt-120to170_EMEnriched_TuneCUETP8M1_13TeV_pythia8", 
-             "QCD_Pt-1000toInf_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8", 
-             "QCD_Pt-170to300_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-470to600_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-80to120_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-30to50_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-50to80_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-20to30_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-800to1000_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-20to30_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-170to300_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-30to50_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-300to470_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-50to80_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-80to120_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "ST_t-channel_top_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
-             "ST_t-channel_antitop_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
-             "ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
-             "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
-             "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
-             "TT_TuneCUETP8M1_13TeV-powheg-scaleup-pythia8",
-             "TT_TuneCUETP8M1_13TeV-powheg-scaledown-pythia8",
-             "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
-
-if not ALLSamples == True:
-    sampledir = [ "WZ_TuneCUETP8M1_13TeV-pythia8"]
+sampledir = [ "WZ_TuneCUETP8M1_13TeV-pythia8"]
 
 
 
@@ -312,14 +198,10 @@ for i in sampledir:
             os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version)
             os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version + "/" + i )
 
-            print "scp " +kisti_output + "/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/" + version + "/"  +i
-            os.system("scp " +kisti_output + "/*.root " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/"  + version + "/" +i) 
-
         os.system("rm " + kisti_output + "/pslog")        
         time.sleep(30.) 
         
-        
-    os.system("rm -r " + kisti_output)
+
 
 
 if FullRun == True:

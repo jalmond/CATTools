@@ -2,85 +2,14 @@ import os, getpass, sys
 import time
 from functions import *
 
-######## FullRun = True for running all steps: makes skims etc                                                                                                                
-FullRun = False
 
-######## True runs default list of all samples available                                                                                                                                                                                     
-ALLSamples= False
-
-####### make sure this file is being run at kisti
-host=os.getenv("HOSTNAME")
-if not "ui10" in host:
-    quit()
-
-
-### Set if you are running full production on kisti site to transfer to snu                                                                                                   
-snu_lqpath="/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/"
-username_snu="jalmond"
-
-
-## SET the production version to process
-version = "v7-4-6"  ### IF running FullRun=True then this MUST be the same as the branch version set in snu_lqpath   
+## SET the production version  to process
+version = "v7-4-6"
 kisti_output_default="/tmp_cms/jalmond_temp/"+version+"/"
-
 if not (os.path.exists(kisti_output_default)):
     os.system("mkdir " + kisti_output_default)
 
-
-if FullRun:
-    ## Check Branch for SKtrees is up to date to make skims                                                                                                                                                                                                                    
-    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/Branch.txt > check_snu_branch.txt")
-    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/CATVERSION.txt > check_catversion_branch.txt")
-    snubranch = open("check_snu_branch.txt",'r')
-    snu_br_uptodate=False
-    
-    for line in snubranch:
-        if version in line:
-            snu_br_uptodate=True
-            
-    snu_cat_uptodate=False
-    snucat = open("check_catversion_branch.txt",'r')
-    for line in snucat:
-        if version in line:
-            snu_cat_uptodate=True
-
-    if snu_br_uptodate == False:
-        print "Branch on snu is not compatable with " + version + " please update snu branch first"
-        quit()
-
-    if snu_cat_uptodate== False:
-        print "CATVERSION on snu is not compatable with " + version + " please update cat version first"
-        quit()
-
-
-    os.system("rm check_catversion_branch.txt")
-    os.system("rm check_snu_branch.txt")
-
-    os.system("ls /tmp > check_snu_connection.txt")
-    snu_connect = open("check_snu_connection.txt",'r')
-
-    connected_cms4=False
-    for line in snu_connect:
-        if "ssh-jalmond@cms4" in line:
-            connected_cms4=False
-    if connected_cms4 == False:
-        print "No connection to cms4: please make connection in screen and run script again"
-        quit()
-
-os.system("ls /tmp > check_snu_connection.txt")
-for line in snu_connect:
-    if "ssh-jalmond@cms3" in line:
-        connected_cms3=True
-
-os.system("rm check_snu_connection.txt")
-if connected_cms3 == False:
-    print "No connection to cms3: please make connection in screen and run script again"
-    quit()
-
-
-
-
-## Make a list of samples to process
+## Check Branch for SKtrees is up to date to make skims                                                                                                                                                                                     
 
 sampledir = ["DoubleMuon",
              "DoubleEG" ,
@@ -88,18 +17,11 @@ sampledir = ["DoubleMuon",
              "SingleMuon",
              "SingleElectron"]
 
-if not FullRun == True:
-    sampledir = ["DoubleEG" ,
-                 "SingleElectron"]
 
-    periods = ["C" , "D"]
+periods = ["C" , "D"]
 
-rereco=False
+rereco=True
 rereco_tag = "05Oct2015"
-
-
-if rereco:
-    print "Running on rereco samples"
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
 njob=40
@@ -111,7 +33,7 @@ for i in sampledir:
     runtrig=False
     if "DoubleEG" in i:
         runtrig=True
-        #runtrig true means more triggers are available in catuples
+        #runtrig true means more triggers are available in catuples      
     
     for period in periods:
         print "period = " + period
@@ -123,6 +45,7 @@ for i in sampledir:
         output=i
         kisti_output=kisti_output_default+output+"/"
         print "Making dir: " + kisti_output
+
 
         if not (os.path.exists(kisti_output)):
             os.system("mkdir " + kisti_output)
@@ -146,14 +69,13 @@ for i in sampledir:
                                 s = linerp.replace("/", " ")
                                 splitline  = s.split()
                                 versionpath = splitline[5]
-                            iline_version= iline_version+1    
+                            iline_version= iline_version+1
                     else:
                         if not rereco_tag in linerp:
                             if iline_version < 1:
                                 s = linerp.replace("/", " ")
                                 splitline  = s.split()
                                 versionpath = splitline[5]
-
                             iline_version= iline_version+1
         fr_1end.close()
 
@@ -274,7 +196,7 @@ for i in sampledir:
         for j in range(1,njob+1):
             runscript=output + "_flatntupleMaker_"+str(j) +".py"
             configfile=open(kisti_output+ "/" + runscript,'w')
-            configfile.write(makeNtupleMakerData(output,kisti_output+ "/"+output + "_" + str(j) + "_full.txt", kisti_output,j, runtrig))
+            configfile.write(makeNtupleMakerData(output,kisti_output+ "/"+output + "_" + str(j) + "_full.txt", kisti_output,j,runtrig))
             configfile.close()
             
             log = kisti_output + "/Job_" + str(j) + ".log"
@@ -298,29 +220,17 @@ for i in sampledir:
                 check_job_finished=0
             else:
                 check_job_finished=1
-                print "ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(i)
+                print "ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(i)
                 os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version))
                 os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i )
                 if rereco:
-                    os.system("ssh " + username_snu  + "@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i + "/period" + str(period) +"_rereco/" )
-                    os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i + "/period" + str(period) +"_rereco/" )
+                    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i + "/period" + str(period) +"_rereco/" )
+                    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i + "/period" + str(period) +"_rereco/" )
                 else:
-                    os.system("ssh " + username_snu  + "@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i + "/period" + str(period)  )
-                    os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i + "/period" + str(period)  )
+                    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i + "/period" + str(period)  )
+                    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i + "/period" + str(period)  )
 
-                print "scp " +kisti_output + "/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/" + str(version) + "/"  + str(i) + "/period" + period
-                if rereco:
-                    os.system("scp " +kisti_output + "/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(version) + "/" +i  +"/period" + period +"_rereco/")
-                else:
-                    os.system("scp " +kisti_output + "/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(version) + "/" +i  +"/period" + period +"/")
-
+                
             os.system("rm " + kisti_output + "/pslog")        
             time.sleep(30.) 
         
-        
-        os.system("rm -r " + kisti_output)
-
-if FullRun == True:
-    os.system("source runSkimData.sh&")
-    os.system("source runDataSKTree.sh&")
-
