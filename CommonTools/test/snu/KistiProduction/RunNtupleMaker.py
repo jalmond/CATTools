@@ -1,29 +1,29 @@
 import os, getpass, sys
 import time
 from functions import *
+from Setup import *
 
-######## FullRun = True for running all steps: makes skims etc
-FullRun = False
 
 ######## True runs default list of all samples available
 ALLSamples= False
+if len(mcsampledir) == 0:
+    ALLSamples=True
 
 ####### make sure this file is being run at kisti                                                                                                                                                                                           
 host=os.getenv("HOSTNAME")
 if not "ui10" in host:
     quit()
 
-### Set if you are running full production on kisti site to transfer to snu   
-snu_lqpath="/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/"
-username_snu="jalmond"
-
-
-## SET the production version to process
-version = "v7-4-6"   ### IF running FullRun=True then this MUST be the same as the branch version set in snu_lqpath
-kisti_output_default="/tmp_cms/jalmond_temp/"+version+"/" 
+if not user in kisti_output_default:
+    print "kisti_output_default should container username in the path. Fix this."
 
 if not (os.path.exists(kisti_output_default)):
     os.system("mkdir " + kisti_output_default)
+    if not (os.path.exists(kisti_output_default)):
+        print "Problem making directory for kisti_output_default. Process is quitting. Before running again type"
+        print "mkdir " + kisti_output_default
+        quit()
+        
 
 if FullRun:
 ## Check Branch for SKtrees is up to date to make skims
@@ -63,8 +63,6 @@ if FullRun:
         print "No connection to cms3: please make connection in screen and run script again"
         quit()
     
-        
-        
 
 os.system("ls /tmp/ > check_snu_connection.txt")
 snu_connect = open("check_snu_connection.txt",'r')
@@ -126,10 +124,7 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
 
 if not ALLSamples == True:
-    sampledir = [ "WZ_TuneCUETP8M1_13TeV-pythia8"]
-
-
-
+    sampledir = mcsampledir
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
 njob=60

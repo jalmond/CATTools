@@ -1,76 +1,89 @@
 import os, getpass, sys
 import time
 from functions import *
+from Setup import *
 
-######## FullRun = True for running all steps: makes skims etc                                                                                                                
-FullRun = False
 
-host=os.getenv("HOSTNAME")
-username=os.getenv("USER")
+######## True runs default list of all samples available                                                                                                                                                                   
+ALLSamples= False
+periods = []
+if len(datasampledir) == 0:
+    ALLSamples=True
+    periods = ["C" , "D"]
+else:
+    periods = data_periods
+    
+if len(periods) ==0:
+    print "Now data period was chosed to process. Fix this."
+    quit()
+
+####### make sure this file is being run at kisti                                                                                                                                                                                           
 if not "ui10" in host:
-    FullRun=False
+    quit()
+     
+if not "v7-4-" in version:
+    print "rereco samples only available in cat v7-4-X. No jobs are processed in v7-6-X for rereco script."
+    quit()
 
-### Set if you are running full production on kisti site to transfer to snu                                                                                                   
-snu_lqpath="/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/"
-username_snu="jalmond"
+if not user in kisti_output_default:
+    print "kisti_output_default should container username in the path. Fix this."
 
-
-## SET the production version  to process
-version = "v7-4-6"
-kisti_output_default="/tmp_cms/jalmond_temp/"+version+"/"
 if not (os.path.exists(kisti_output_default)):
     os.system("mkdir " + kisti_output_default)
+    if not (os.path.exists(kisti_output_default)):
+        print "Problem making directory for kisti_output_default. Process is quitting. Before running again type"
+        print "mkdir " + kisti_output_default
+        quit()
+        
+if FullRun:
+    ## Check Branch for SKtrees is up to date to make skims                                                                                                                                                                                                                                                                                                                                                                                                                                
+    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/Branch.txt > check_snu_branch.txt")
+    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/CATVERSION.txt > check_catversion_branch.txt")
+    snubranch = open("check_snu_branch.txt",'r')
+    snu_br_uptodate=False
 
-## Check Branch for SKtrees is up to date to make skims                                                                                                                                                                                                                    
-os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" +  username_snu + snu_lqpath + "/bin/Branch.txt > check_snu_branch.txt")
-os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" +  username_snu + snu_lqpath + "/bin/CATVERSION.txt > check_catversion_branch.txt")
-snubranch = open("check_snu_branch.txt",'r')
-snu_br_uptodate=False
+    for line in snubranch:
+        if version in line:
+            snu_br_uptodate=True
 
-for line in snubranch:
-    if version in line:
-        snu_br_uptodate=True
+    snu_cat_uptodate=False
+    snucat = open("check_catversion_branch.txt",'r')
+    for line in snucat:
+        if version in line:
+            snu_cat_uptodate=True
 
-snu_cat_uptodate=False
-snucat = open("check_catversion_branch.txt",'r')
-for line in snucat:
-    if version in line:
-        snu_cat_uptodate=True
+    if snu_br_uptodate == False:
+        print "Branch on snu is not compatable with " + version + " please update snu branch first"
+        quit()
 
-if snu_br_uptodate == False:
-    print "Branch on snu is not compatable with " + version + " please update snu branch first"
-    quit()
+    if snu_cat_uptodate== False:
+        print "CATVERSION on snu is not compatable with " + version + " please update cat version first"
+        quit()
 
-if snu_cat_uptodate== False:
-    print "CATVERSION on snu is not compatable with " + version + " please update cat version first"
-    quit()
 
-os.system("rm check_catversion_branch.txt")
-os.system("rm check_snu_branch.txt")
+    os.system("rm check_catversion_branch.txt")
+    os.system("rm check_snu_branch.txt")
+
+    os.system("ls /tmp > check_snu_connection.txt")
+    snu_connect = open("check_snu_connection.txt",'r')
+
+    connected_cms4=False
+    for line in snu_connect:
+        if "ssh-jalmond@cms4" in line:
+            connected_cms4=False
+    if connected_cms4 == False:
+        print "No connection to cms4: please make connection in screen and run script again"
+        quit()
 
 os.system("ls /tmp > check_snu_connection.txt")
-snu_connect = open("check_snu_connection.txt",'r')
-connected_cms3=False
-connected_cms4=False
 for line in snu_connect:
     if "ssh-jalmond@cms3" in line:
         connected_cms3=True
-    if "ssh-jalmond@cms4" in line:
-        connected_cms4=True
 
+os.system("rm check_snu_connection.txt")
 if connected_cms3 == False:
     print "No connection to cms3: please make connection in screen and run script again"
     quit()
-
-if connected_cms4 == False:
-    print "No connection to cms3: please make connection in screen and run script again"
-    quit()
-
-os.system("rm check_snu_connection.txt")
-
-
-## Make a list of samples to process                                                                                                                                                                                                                                       
-
 
 ## Make a list of samples to process
 
@@ -80,15 +93,12 @@ sampledir = ["DoubleMuon",
              "SingleMuon",
              "SingleElectron"]
 
-if not FullRun == True:
-   sampledir = [ "DoubleEG" ,"SingleElectron"]
+if not ALLsamples == True:
+   sampledir = datasampledir
 
-
-periods = ["C" , "D"]
 
 rereco=True
 rereco_tag = "05Oct2015"
-
 
 if rereco:
     print "Running on rereco samples"

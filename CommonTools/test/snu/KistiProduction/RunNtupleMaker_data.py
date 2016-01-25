@@ -1,31 +1,35 @@
 import os, getpass, sys
 import time
 from functions import *
-
-######## FullRun = True for running all steps: makes skims etc                                                                                                                
-FullRun = False
+from Setup import *
 
 ######## True runs default list of all samples available                                                                                                                                                                                     
 ALLSamples= False
+periods = []
+if len(datasampledir) == 0:
+    ALLSamples=True
+    periods = ["C" , "D"]
+else:
+    periods = data_periods
+
+if len(periods) ==0:
+    print "Now data period was chosed to process. Fix this."
+    quit()
 
 ####### make sure this file is being run at kisti
-host=os.getenv("HOSTNAME")
+
 if not "ui10" in host:
     quit()
 
-
-### Set if you are running full production on kisti site to transfer to snu                                                                                                   
-snu_lqpath="/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/"
-username_snu="jalmond"
-
-
-## SET the production version to process
-version = "v7-4-6"  ### IF running FullRun=True then this MUST be the same as the branch version set in snu_lqpath   
-kisti_output_default="/tmp_cms/jalmond_temp/"+version+"/"
+if not user in kisti_output_default:
+    print "kisti_output_default should container username in the path. Fix this."
 
 if not (os.path.exists(kisti_output_default)):
     os.system("mkdir " + kisti_output_default)
-
+    if not (os.path.exists(kisti_output_default)):
+        print "Problem making directory for kisti_output_default. Process is quitting. Before running again type"
+        print "mkdir " + kisti_output_default
+        quit()
 
 if FullRun:
     ## Check Branch for SKtrees is up to date to make skims                                                                                                                                                                                                                    
@@ -86,17 +90,18 @@ sampledir = ["DoubleMuon",
              "DoubleEG" ,
              "MuonEG",
              "SingleMuon",
-             "SingleElectron"]
+             "SingleElectron",
+             "SinglePhoton"]
 
-if not FullRun == True:
-    sampledir = ["DoubleEG" ,
-                 "SingleElectron"]
-
-    periods = ["C" , "D"]
+    
+if not ALLSamples == True:
+    sampledir = datasampledir
+    
 
 rereco=False
 rereco_tag = "05Oct2015"
-
+if "v7-6-" in version:
+    rereco_tag = "16Dec2015"
 
 if rereco:
     print "Running on rereco samples"
