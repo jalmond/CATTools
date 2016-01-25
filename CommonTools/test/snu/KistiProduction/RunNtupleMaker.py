@@ -23,7 +23,7 @@ if not (os.path.exists(kisti_output_default)):
         print "Problem making directory for kisti_output_default. Process is quitting. Before running again type"
         print "mkdir " + kisti_output_default
         quit()
-        
+print "Output directory is " + kisti_output_default        
 
 if FullRun:
 ## Check Branch for SKtrees is up to date to make skims
