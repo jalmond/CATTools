@@ -8,7 +8,8 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 process.options.allowUnscheduled = cms.untracked.bool(True)
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
-process.source.fileNames.append('root://cms-xrdr.sdfarm.kr:1094//xrd/store/group/CAT/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/v7-4-6_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v3/151222_133640/0000/catTuple_1.root')
+process.source.fileNames.append('root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/TT_TuneCUETP8M1_13TeV-powheg-pythia8/v7-6-1_RunIIFall15MiniAODv1-PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/160123_212836/0000/catTuple_1.root')
+#process.source.fileNames.append('root://cms-xrdr.sdfarm.kr:1094//xrd/store/group/CAT/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/v7-4-6_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v3/151222_133640/0000/catTuple_1.root')
 #process.source.fileNames.append('root://cms-xrdr.sdfarm.kr:1094//xrd/store/group/CAT/TT_TuneCUETP8M1_13TeV-powheg-pythia8/v7-4-6_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151127_200613/0000/catTuple_1.root')
 #process.source.fileNames.append('root://cms-xrdr.sdfarm.kr:1094//xrd//store/group/CAT/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/v7-4-6_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151130_231748/0000/catTuple_1.root')
 #process.source.fileNames.append('root://cms-xrdr.sdfarm.kr:1094//xrd//store/group/CAT/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/v7-4-6_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/151127_200111/0000/catTuple_1.root')
@@ -83,6 +84,7 @@ process.filterTrigMUMU = process.filterTrigMUEL.clone(
 )
 
 #process.load("CATTools.CatAnalyzer.ttll.ttbarDileptonKinSolutionAlgos_cff")
+from CATTools.CatAnalyzer.leptonSF_cff import *
 
 process.cattree = cms.EDAnalyzer("TtbarBbbarDiLeptonAnalyzer",
     recoFilters = cms.InputTag("filterRECO"),
@@ -105,6 +107,8 @@ process.cattree = cms.EDAnalyzer("TtbarBbbarDiLeptonAnalyzer",
     jets = cms.InputTag("catJets"),
     mets = cms.InputTag(catmet),
     mcLabel = cms.InputTag("prunedGenParticles"),
+
+    elecSF = electronSFWP90,
     
     partonTop_channel = cms.InputTag("partonTop","channel"),
     partonTop_modes = cms.InputTag("partonTop", "modes"),
