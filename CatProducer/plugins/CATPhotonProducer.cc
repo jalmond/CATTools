@@ -169,6 +169,8 @@ cat::CATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
       }
     }
     else {
+      for (std::vector<pat::Photon::IdPair>::const_iterator it = aPatPhoton.photonIDs().begin(), ed = aPatPhoton.photonIDs().end(); it != ed; ++it) {
+      }
       aPhoton.setPhotonIDs(aPatPhoton.photonIDs());
     }
     

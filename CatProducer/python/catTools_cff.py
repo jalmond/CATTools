@@ -134,10 +134,11 @@ def catTool(process, runOnMC=True, useMiniAOD=True):
                         'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff',
                         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff',
                         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff']
+        
         switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
         for idmod in electron_ids:
             setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-
+            
         process.catElectrons.electronIDSources = cms.PSet(
             cutBasedElectronID_Spring15_25ns_V1_standalone_loose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
             cutBasedElectronID_Spring15_25ns_V1_standalone_medium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
@@ -148,7 +149,25 @@ def catTool(process, runOnMC=True, useMiniAOD=True):
             mvaEleID_Spring15_25ns_nonTrig_V1_wp90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp90"),
             mvaEleID_Spring15_25ns_Trig_V1_wp80 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp90"),
             mvaEleID_Spring15_25ns_Trig_V1_wp90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp80"),
-        )
+            )    
+            
+        from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDPhotonIdProducer,setupVIDPhotonSelection
+
+        switchOnVIDPhotonIdProducer(process, DataFormat.MiniAOD)
+
+        # define which IDs we want to produce                                                                                                                                                                                                 
+        photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_25ns_V1_cff']
+        
+
+        #add them to the VID producer 
+        for idmod in photon_ids:
+            setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
+
+        process.catPhotons.photonIDSources = cms.PSet(
+            cutBasedPhotonID_Spring15_25ns_V1_standalone_loose = cms.InputTag("egmGsfPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose"),
+            cutBasedPhotonID_Spring15_25ns_V1_standalone_medium = cms.InputTag("egmGsfPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-medium"),
+            cutBasedPhotonID_Spring15_25ns_V1_standalone_tight = cms.InputTag("egmGsfPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-tight"),
+            )
         #######################################################################    
         # adding pfMVAMet https://twiki.cern.ch/twiki/bin/viewauth/CMS/MVAMet#Spring15_samples_with_25ns_50ns
         # https://github.com/cms-sw/cmssw/blob/CMSSW_7_4_X/RecoMET/METPUSubtraction/test/mvaMETOnMiniAOD_cfg.py
