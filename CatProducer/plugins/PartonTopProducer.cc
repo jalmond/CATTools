@@ -8,25 +8,16 @@
 #include "fastjet/ClusterSequence.hh"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 
-#include "CommonTools/Utils/interface/PtComparator.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TH1F.h"
-#include "TH2F.h"
+#include "CATTools/CommonTools/interface/TTbarModeDefs.h"
 
 using namespace std;
-using namespace edm;
-using namespace reco;
+using namespace cat;
 
 class PartonTopProducer : public edm::stream::EDProducer<>
 {
 public:
   PartonTopProducer(const edm::ParameterSet& pset);
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
-
-  enum TTbarMode { CH_NONE = -1, CH_FULLHADRON = 0, CH_SEMILEPTON, CH_FULLLEPTON };
-  enum DecayMode { CH_HADRON = 0, CH_MUON, CH_ELECTRON, CH_TAU_HADRON, CH_TAU_MUON, CH_TAU_ELECTRON };
 
 private:
   const reco::Candidate* getLast(const reco::Candidate* p) const;
@@ -58,7 +49,6 @@ PartonTopProducer::PartonTopProducer(const edm::ParameterSet& pset):
   produces<std::vector<int> >("modes");
 
   produces<reco::GenJetCollection>("qcdJets");
-  produces<float>("ptWeight");
 }
 
 void PartonTopProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
@@ -69,7 +59,7 @@ void PartonTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   std::auto_ptr<reco::GenParticleCollection> partons(new reco::GenParticleCollection);
   auto partonRefHandle = event.getRefBeforePut<reco::GenParticleCollection>();
 
-  std::auto_ptr<int> channel(new int(CH_NONE));
+  std::auto_ptr<int> channel(new int(CH_NOTT));
   std::auto_ptr<std::vector<int> > modes(new std::vector<int>());
 
   std::auto_ptr<reco::GenJetCollection> qcdJets(new reco::GenJetCollection);
@@ -273,28 +263,10 @@ void PartonTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     qcdJets->push_back(qcdJet);
   }
 
-  // Calculate pt-weights
-  double ptWeight = 1;
-  if ( tQuarks.size() == 2 and modes->size() == 2 ) {
-    const double pt1 = tQuarks.at(0)->pt();
-    const double pt2 = tQuarks.at(1)->pt();
-
-    const int mode1 = modes->at(0), mode2 = modes->at(1);
-    const bool isLep1 = (mode1 == CH_MUON or mode2 == CH_ELECTRON);
-    const bool isLep2 = (mode2 == CH_MUON or mode2 == CH_ELECTRON);
-
-    double a = 0.156, b = -0.00137;
-    if ( isLep1 and isLep2 ) { a = 0.148; b = -0.00129; }
-    else if ( isLep1 or isLep2 ) { a = 0.159; b = -0.00141; }
-
-    ptWeight = sqrt(exp(a+b*pt1)*exp(a+b*pt2));
-  }
-
   event.put(partons);
   event.put(channel, "channel");
   event.put(modes, "modes");
   event.put(qcdJets, "qcdJets");
-  event.put(std::auto_ptr<float>(new float(ptWeight)), "ptWeight");
 }
 
 const reco::Candidate* PartonTopProducer::getLast(const reco::Candidate* p) const
