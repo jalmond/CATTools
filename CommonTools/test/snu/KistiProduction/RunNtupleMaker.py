@@ -16,6 +16,7 @@ if not "ui10" in host:
 
 if not user in kisti_output_default:
     print "kisti_output_default should container username in the path. Fix this."
+    quit()
 
 if not (os.path.exists(kisti_output_default)):
     os.system("mkdir " + kisti_output_default)
@@ -23,6 +24,10 @@ if not (os.path.exists(kisti_output_default)):
         print "Problem making directory for kisti_output_default. Process is quitting. Before running again type"
         print "mkdir " + kisti_output_default
         quit()
+else:
+    os.system("rm -r " + kisti_output_default)
+    os.system("mkdir " + kisti_output_default)
+
 print "Output directory is " + kisti_output_default        
 
 if FullRun:

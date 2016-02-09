@@ -9,7 +9,7 @@ import os
 FullRun = False
 
 #### WHAT VERSION OF CATUPLES ARE YOU RUNNING 
-version = "v7-6-1"
+version = "v7-4-6"
 
 #### For data only:
 ###### Set periods to be processed. IF datasampledir is empty then all periods are automatically ran
