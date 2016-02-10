@@ -1,4 +1,4 @@
-B1;95;0c#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,6 +15,8 @@ B1;95;0c#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 
@@ -24,6 +26,7 @@ B1;95;0c#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "CATTools/DataFormats/interface/MET.h"
 #include "CATTools/DataFormats/interface/Muon.h"
 #include "CATTools/DataFormats/interface/Electron.h"
+#include "CATTools/DataFormats/interface/GenJet.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -223,9 +226,15 @@ public:
 
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   void endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eventSetup) override;
+  std::vector<const reco::Candidate *> getAncestors(const reco::Candidate &c);
+  bool hasBottom(const reco::Candidate &c);
+  bool hasCharm(const reco::Candidate &c);
+  const reco::Candidate* lastBHadron(const reco::Candidate &c);
+  const reco::Candidate* lastCHadron(const reco::Candidate &c);
 
 private:
   edm::EDGetTokenT<reco::GenParticleCollection> mcLabel_;
+  edm::EDGetTokenT<reco::GenJetCollection> genjet_;
 
   
   vector<cat::Muon> selectMuons(const edm::View<cat::Muon>* muons );
@@ -296,11 +305,11 @@ private:
 
   double met_muonEn_Px_up, met_muonEn_Px_down, met_muonEn_Py_up, met_muonEn_Py_down;
   double met_electronEn_Px_up, met_electronEn_Px_down, met_electronEn_Py_up, met_electronEn_Py_down;
-  double met_jetEn_Px_up, met_jetEn_Px_down, met_jetEn_Py_up, met_jetEn_Py_down;
-  double met_jetRes_Px_up, met_jetRes_Px_down, met_jetRes_Py_up, met_jetRes_Py_down;  
-  double met_unclusteredEn_Px_up, met_unclusteredEn_Px_down, met_unclusteredEn_Py_up, met_unclusteredEn_Py_down;
-  double met_unclusteredEn_SumEt_down, met_unclusteredEn_SumEt_up, met_jetEn_SumEt_up, met_jetEn_SumEt_down, met_jetRes_SumEt_up, met_jetRes_SumEt_down;
-  double met_unclusteredEn_Phi_up, met_unclusteredEn_Phi_down; 
+  //  double met_jetEn_Px_up, met_jetEn_Px_down, met_jetEn_Py_up, met_jetEn_Py_down;
+  //double met_jetRes_Px_up, met_jetRes_Px_down, met_jetRes_Py_up, met_jetRes_Py_down;  
+  //double met_unclusteredEn_Px_up, met_unclusteredEn_Px_down, met_unclusteredEn_Py_up, met_unclusteredEn_Py_down;
+  //double met_unclusteredEn_SumEt_down, met_unclusteredEn_SumEt_up, met_jetEn_SumEt_up, met_jetEn_SumEt_down, met_jetRes_SumEt_up, met_jetRes_SumEt_down;
+  //double met_unclusteredEn_Phi_up, met_unclusteredEn_Phi_down; 
   vector<std::string> vtrignames;
   vector<std::string> muon_trigmatch;
   vector<std::string> electron_trigmatch;
@@ -308,10 +317,17 @@ private:
   vector<int> gen_pdgid_;
   vector<int> gen_status_;
   vector<int> gen_motherindex_;
+  vector<int> GenJet_pdgid_;
   vector<float> gen_energy_;
   vector<float> gen_eta_;
   vector<float> gen_phi_;
   vector<float> gen_pt_;
+  vector<float> GenJet_eta_;
+  vector<float> GenJet_pt_;
+  vector<float> GenJet_phi_;
+  vector<float> GenJet_energy_;
+  vector<float> GenJet_emf_;
+  vector<float> GenJet_hadf_;
 
   edm::EDGetTokenT<cat::METCollection>      metToken_;
   edm::EDGetTokenT<edm::View<cat::Muon> >     muonToken_;
@@ -372,6 +388,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   else throw cms::Exception("ConfigError") << "select one from \"keep\", \"skip\", \"error\"\n";
 
   //  triggers_      = consumes<vector<pair<string, int> > >(pset.getParameter<edm::InputTag>("trigLabel"));
+  genjet_    =consumes<reco::GenJetCollection>(pset.getParameter<edm::InputTag>("genjet"));
   mcLabel_   = consumes<reco::GenParticleCollection>(pset.getParameter<edm::InputTag>("genLabel"));
   triggerBits_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerBits"));
   triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("triggerObjects"));
@@ -412,7 +429,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("met_electronEn_Py_up", &met_electronEn_Py_up, "met_electronEn_Py_up/D");
   tree_->Branch("met_electronEn_Px_down", &met_electronEn_Px_down, "met_electronEn_Px_down/D");
   tree_->Branch("met_electronEn_Py_down", &met_electronEn_Py_down, "met_electronEn_Py_down/D");
-  tree_->Branch("met_unclusteredEn_Px_up", &met_unclusteredEn_Px_up, "met_unclusteredEn_Px_up/D");
+  /*  tree_->Branch("met_unclusteredEn_Px_up", &met_unclusteredEn_Px_up, "met_unclusteredEn_Px_up/D");
   tree_->Branch("met_unclusteredEn_Py_up", &met_unclusteredEn_Py_up, "met_unclusteredEn_Py_up/D");
   tree_->Branch("met_unclusteredEn_Px_down", &met_unclusteredEn_Px_down, "met_unclusteredEn_Px_down/D");
   tree_->Branch("met_unclusteredEn_Py_down", &met_unclusteredEn_Py_down, "met_unclusteredEn_Py_down/D");
@@ -430,7 +447,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("met_jetRes_Py_down", &met_jetRes_Py_down, "met_jetRes_Py_down/D");
   tree_->Branch("met_jetRes_SumEt_up", &met_jetRes_SumEt_up, "met_jetRes_SumEt_up/D");
   tree_->Branch("met_jetRes_SumEt_down", &met_jetRes_SumEt_down, "met_jetRes_SumEt_down/D");
-
+  */
   tree_->Branch("IsData", &IsData_ , "IsData/O");
   tree_->Branch("HBHENoiseFilter", &Flag_HBHENoiseFilter , "HBHENoiseFilter/O");
   tree_->Branch("CSCTightHaloFilter", &Flag_CSCTightHaloFilter, "CSCTightHaloFilter/O");
@@ -453,6 +470,14 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("gen_status", &gen_status_);
   tree_->Branch("gen_pdgid", &gen_pdgid_);
   tree_->Branch("gen_motherindex", &gen_motherindex_);
+
+  tree_->Branch("genjet_pt", &GenJet_pt_);
+  tree_->Branch("genjet_eta", &GenJet_eta_);
+  tree_->Branch("genjet_phi", &GenJet_phi_);
+  tree_->Branch("genjet_energy", &GenJet_energy_);
+  tree_->Branch("genjet_emf", &GenJet_emf_);
+  tree_->Branch("genjet_hadf", &GenJet_hadf_);
+  tree_->Branch("genjet_pdgid", &GenJet_pdgid_);
 
   
 
@@ -638,7 +663,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   
   int nFailure = 0;
   
-
+  
+  ////// Fill vertex information
   edm::Handle<reco::VertexCollection> vertices;
   event.getByToken(vtxToken_, vertices);
   
@@ -647,6 +673,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     vertex_Y = vtx.y(); 
     vertex_Z = vtx.z();     
   }
+
+  //// Fill Trigger Information
   edm::Handle<edm::TriggerResults> triggerBits;
   edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
   edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
@@ -664,14 +692,15 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	|| trigNames.triggerName(i).find("HLT_DoubleEle") == 0 
 	|| trigNames.triggerName(i).find("HLT_IsoMu") == 0 
 	|| trigNames.triggerName(i).find("HLT_TkMu") == 0 
-	|| trigNames.triggerName(i).find("HLT_Mu") == 0 ){
+	|| trigNames.triggerName(i).find("HLT_Mu") == 0
+	|| trigNames.triggerName(i).find("HLT_Photon") == 0 
+	|| trigNames.triggerName(i).find("HLT_DoublePhoton") == 0){
       if(!(tname.Contains("Jpsi") 
 	   || tname.Contains("NoFilters") 
 	   || tname.Contains("Upsilon")
 	   || tname.Contains("7p5")
 	   || tname.Contains("Save")
-	   || tname.Contains("dEta18") 
-	   || tname.Contains("Photon"))) {
+	   || tname.Contains("dEta18"))) {
 	if(runFullTrig){
 	  vtrignames.push_back(trigNames.triggerName(i));
           if(triggerBits->accept(i)){
@@ -727,7 +756,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   vtrignames_tomatch_electron.push_back("HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v");
   
 
-  
+  ////////// Fill MET/Muon/Electron variables
   edm::Handle<edm::View<cat::Muon> > muons;
   event.getByToken(muonToken_, muons);
   edm::Handle<edm::View<cat::Electron> > electrons;
@@ -736,7 +765,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   edm::Handle<cat::METCollection> mets;         
   event.getByToken(metToken_, mets);
 
-  met_unclusteredEn_Px_up  =  mets->front().unclusteredEnPx(1);  met_unclusteredEn_Px_down  =  mets->front().unclusteredEnPx(-1);
+  /*  met_unclusteredEn_Px_up  =  mets->front().unclusteredEnPx(1);  met_unclusteredEn_Px_down  =  mets->front().unclusteredEnPx(-1);
   met_unclusteredEn_Py_up  =  mets->front().unclusteredEnPy(1);  met_unclusteredEn_Py_down  =  mets->front().unclusteredEnPy(-1);
   met_unclusteredEn_SumEt_up  =  mets->front().unclusteredEnSumEt(1);  met_unclusteredEn_SumEt_down  =  mets->front().unclusteredEnSumEt(-1);
   met_unclusteredEn_Phi_up  =  mets->front().unclusteredEnPhi(1);  met_unclusteredEn_Phi_down  =  mets->front().unclusteredEnPhi(-1);
@@ -748,7 +777,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   met_jetRes_Px_up  =  mets->front().JetEnPx(1);  met_jetRes_Px_down  =  mets->front().JetEnPx(-1);
   met_jetRes_Py_up  =  mets->front().JetEnPy(1);  met_jetRes_Py_down  =  mets->front().JetEnPy(-1);
   met_jetRes_SumEt_up  =  mets->front().JetResSumEt(1);  met_jetRes_SumEt_down  =  mets->front().JetResSumEt(-1);
-
+  */
   float px_shift_muon_up(0.), px_shift_muon_down(0.), py_shift_muon_up(0.), py_shift_muon_down(0.), px_muon(0.), py_muon(0.), px_electron(0.), py_electron(0.) ;
   float  px_shift_electron_up(0.), px_shift_electron_down(0.), py_shift_electron_up(0.), py_shift_electron_down(0.);
   for (auto mu : *muons) {
@@ -843,6 +872,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     }
   }
   
+
+  ///// Fill GENParticle Info
   if(!event.isRealData()){
     edm::Handle<reco::GenParticleCollection> genParticles;
     event.getByToken(mcLabel_,genParticles);
@@ -871,6 +902,54 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
       gen_motherindex_.push_back( idx );
     }
   }
+
+  // Fill  GenJet Info
+  edm::Handle<reco::GenJetCollection> genjet;
+  event.getByToken(genjet_, genjet);
+
+  auto_ptr<vector<cat::GenJet> >  out(new vector<cat::GenJet>());
+
+  for (const reco::GenJet & aGenJet : *genjet) {
+    if ( aGenJet.pt() < 20. || std::abs(aGenJet.eta()) > 2.5 ) continue;
+    
+    cat::GenJet aCatGenJet(aGenJet);
+    cat::MCParticle matched;
+    reco::Jet::Constituents jc = aGenJet.getJetConstituents();
+    //if B-Hadron matched, always assign B-Hadron
+    for ( reco::Jet::Constituents::const_iterator itr = jc.begin(); itr != jc.end(); ++itr ){
+      if (itr->isAvailable()){
+	const reco::Candidate* mcpart = dynamic_cast<const reco::Candidate*>(itr->get());
+	const reco::Candidate* lastB = lastBHadron(*mcpart);
+	if (lastB){
+	  matched = cat::MCParticle(*lastB);
+	  break;
+	}
+      }
+    }
+    if (std::abs(matched.pdgId()) != 5){
+      //if only no B-Hadron matched, assign C-Hadron
+      for ( reco::Jet::Constituents::const_iterator itr = jc.begin(); itr != jc.end(); ++itr ){
+	if (itr->isAvailable()){
+	  const reco::Candidate* mcpart = dynamic_cast<const reco::Candidate*>(itr->get());
+	  const reco::Candidate* lastC = lastCHadron(*mcpart);
+	  if (lastC){
+	    matched = cat::MCParticle(*lastC);
+	    break;
+	  }
+	}
+      }
+    }
+    
+    GenJet_eta_.push_back(aGenJet.eta());
+    GenJet_pt_.push_back(aGenJet.pt());
+    GenJet_phi_.push_back(aGenJet.phi());
+    GenJet_energy_.push_back(aGenJet.energy());
+    GenJet_emf_.push_back(aGenJet.emEnergy()/aGenJet.energy());
+    GenJet_hadf_.push_back(aGenJet.hadEnergy()/aGenJet.energy());
+    GenJet_pdgid_.push_back(matched.pdgId());
+  }
+
+  /// Fill EventInfo
     
   IsData_      = event.isRealData();
   runNumber_   = event.run();
@@ -1076,6 +1155,13 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   gen_status_.clear();
   gen_pdgid_.clear();
 
+  GenJet_pt_.clear();
+  GenJet_eta_.clear();
+  GenJet_phi_.clear();
+  GenJet_energy_.clear();
+  GenJet_emf_.clear();
+  GenJet_hadf_.clear();
+  GenJet_pdgid_.clear();
   
   for ( size_t iCand=0; iCand<nCand; ++iCand )
   {
@@ -1118,6 +1204,75 @@ void GenericNtupleMakerSNU::endLuminosityBlock(const edm::LuminosityBlock& lumi,
     }
   }
 }
+ 
+ 
+
+std::vector<const reco::Candidate *> GenericNtupleMakerSNU::getAncestors(const reco::Candidate &c)
+{
+  vector<const reco::Candidate *> moms;
+  if( c.numberOfMothers() == 1 ) {
+    const reco::Candidate * dau = &c;
+    const reco::Candidate * mom = c.mother();
+    while ( dau->numberOfMothers() == 1) {
+      moms.push_back( dau );
+      dau = mom ;
+      mom = dau->mother();
+    }
+  }
+  return moms;
+}
+
+bool GenericNtupleMakerSNU::hasBottom(const reco::Candidate &c)
+{
+  int code1;
+  int code2;
+  bool tmpHasBottom = false;
+  code1 = (int)( ( abs(c.pdgId() ) / 100)%10 );
+  code2 = (int)( ( abs(c.pdgId() ) /1000)%10 );
+  if ( code1 == 5 || code2 == 5) tmpHasBottom = true;
+  return tmpHasBottom;
+}
+
+bool GenericNtupleMakerSNU::hasCharm(const reco::Candidate &c)
+{
+  int code1;
+  int code2;
+  bool tmpHasCharm = false;
+  code1 = (int)( ( abs(c.pdgId() ) / 100)%10 );
+  code2 = (int)( ( abs(c.pdgId() ) /1000)%10 );
+  if ( code1 == 4 || code2 == 4) tmpHasCharm = true;
+  return tmpHasCharm;
+}
+
+
+const reco::Candidate* GenericNtupleMakerSNU::lastBHadron(const reco::Candidate & c)
+{
+  const reco::Candidate * out = 0;
+  vector<const reco::Candidate *> allParents = getAncestors( c );
+  for( vector<const reco::Candidate *>::const_iterator aParent = allParents.begin();
+       aParent != allParents.end();
+       aParent ++ )
+    {
+      if( hasBottom(**aParent) ) out = *aParent;
+    }
+  return out;
+}
+
+const reco::Candidate* GenericNtupleMakerSNU::lastCHadron(const reco::Candidate & c)
+{
+  const reco::Candidate * out = 0;
+  vector<const reco::Candidate *> allParents = getAncestors( c );
+  for( vector<const reco::Candidate *>::const_iterator aParent = allParents.begin();
+       aParent != allParents.end();
+       aParent ++ )
+    {
+      if( hasCharm(**aParent) ) out = *aParent;
+    }
+  
+  return out;
+}
+
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GenericNtupleMakerSNU);

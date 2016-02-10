@@ -4,8 +4,9 @@ from functions import *
 
 
 ## SET the production version  to process
-version = "v7-4-6"
+version = "v7-6-1"
 kisti_output_default="/tmp_cms/jalmond_temp/"+version+"/"
+
 if not (os.path.exists(kisti_output_default)):
     os.system("mkdir " + kisti_output_default)
 
@@ -220,16 +221,7 @@ for i in sampledir:
                 check_job_finished=0
             else:
                 check_job_finished=1
-                print "ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(i)
-                os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version))
-                os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i )
-                if rereco:
-                    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i + "/period" + str(period) +"_rereco/" )
-                    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i + "/period" + str(period) +"_rereco/" )
-                else:
-                    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i + "/period" + str(period)  )
-                    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i + "/period" + str(period)  )
-
+                print "Job is finished"
                 
             os.system("rm " + kisti_output + "/pslog")        
             time.sleep(30.) 
