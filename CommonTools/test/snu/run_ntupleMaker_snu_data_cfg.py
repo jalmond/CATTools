@@ -17,10 +17,10 @@ fileNames = cms.untracked.vstring(
       )
 )
 
-lumiFile = 'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver.txt'
+lumiFile = 'Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Silver.txt' 
 
 from FWCore.PythonUtilities.LumiList import LumiList
-lumiList = LumiList(os.environ["CMSSW_BASE"]+'/src/CATTools/CatProducer/prod/LumiMask/'+lumiFile)
+lumiList = LumiList(os.environ["CMSSW_BASE"]+'/src/CATTools/CatProducer/data/LumiMask/'+lumiFile)
 process.source.lumisToProcess = lumiList.getVLuminosityBlockRange()
 
 

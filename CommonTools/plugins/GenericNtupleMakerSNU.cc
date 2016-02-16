@@ -45,6 +45,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <stdlib.h> 
 
 using namespace std;
 using namespace edm;
@@ -300,6 +301,7 @@ private:
   double vertex_X, vertex_Y, vertex_Z;
   bool IsData_;
 
+  std::string CatVersion_;
 
   bool Flag_HBHENoiseFilter, Flag_CSCTightHaloFilter, Flag_goodVertices, Flag_eeBadScFilter, Flag_EcalDeadCellTriggerPrimitiveFilter;
 
@@ -448,6 +450,9 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("met_jetRes_SumEt_up", &met_jetRes_SumEt_up, "met_jetRes_SumEt_up/D");
   tree_->Branch("met_jetRes_SumEt_down", &met_jetRes_SumEt_down, "met_jetRes_SumEt_down/D");
   */
+
+  tree_->Branch("CatVersion", &CatVersion_ , "CatVersion");  
+
   tree_->Branch("IsData", &IsData_ , "IsData/O");
   tree_->Branch("HBHENoiseFilter", &Flag_HBHENoiseFilter , "HBHENoiseFilter/O");
   tree_->Branch("CSCTightHaloFilter", &Flag_CSCTightHaloFilter, "CSCTightHaloFilter/O");
@@ -879,17 +884,21 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     event.getByToken(mcLabel_,genParticles);
     
     int counter=0;
+    int skipped =0;
     for( reco::GenParticleCollection::const_iterator it = genParticles->begin(); it != genParticles->end(); ++it , ++counter) {
       
+      if(it->pdgId() == 2212 && counter > 2) { skipped++; continue ;}
       if(counter > 30) continue;
+      if(counter > 30){
+	if(fabs(it->pdgId()) > 25){
+	  if(!(it->pdgId() == 90)){	  skipped++; continue;}
+	}
+      }
       gen_eta_.push_back( it->eta() );
       gen_phi_.push_back( it->phi() );
       gen_pt_.push_back( it->pt() );
       gen_energy_.push_back( it->energy() );
       gen_pdgid_.push_back( it->pdgId() );
-      //gen_vx_.push_back( it->vx() );
-      //vy->push_back( it->vy() );
-      //vz->push_back( it->vz() );
       gen_status_.push_back( it->status() );
       
       int idx = -1;
@@ -899,58 +908,61 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	  break;
 	}
       }
-      gen_motherindex_.push_back( idx );
+
+      gen_motherindex_.push_back( idx - skipped);
     }
-  }
-
-  // Fill  GenJet Info
-  edm::Handle<reco::GenJetCollection> genjet;
-  event.getByToken(genjet_, genjet);
-
-  auto_ptr<vector<cat::GenJet> >  out(new vector<cat::GenJet>());
-
-  for (const reco::GenJet & aGenJet : *genjet) {
-    if ( aGenJet.pt() < 20. || std::abs(aGenJet.eta()) > 2.5 ) continue;
     
-    cat::GenJet aCatGenJet(aGenJet);
-    cat::MCParticle matched;
-    reco::Jet::Constituents jc = aGenJet.getJetConstituents();
-    //if B-Hadron matched, always assign B-Hadron
-    for ( reco::Jet::Constituents::const_iterator itr = jc.begin(); itr != jc.end(); ++itr ){
-      if (itr->isAvailable()){
-	const reco::Candidate* mcpart = dynamic_cast<const reco::Candidate*>(itr->get());
-	const reco::Candidate* lastB = lastBHadron(*mcpart);
-	if (lastB){
-	  matched = cat::MCParticle(*lastB);
-	  break;
-	}
-      }
-    }
-    if (std::abs(matched.pdgId()) != 5){
-      //if only no B-Hadron matched, assign C-Hadron
+    
+    // Fill  GenJet Info
+    edm::Handle<reco::GenJetCollection> genjet;
+    event.getByToken(genjet_, genjet);
+    
+    auto_ptr<vector<cat::GenJet> >  out(new vector<cat::GenJet>());
+    
+    for (const reco::GenJet & aGenJet : *genjet) {
+      if ( aGenJet.pt() < 20. || std::abs(aGenJet.eta()) > 2.5 ) continue;
+      
+      cat::GenJet aCatGenJet(aGenJet);
+      cat::MCParticle matched;
+      reco::Jet::Constituents jc = aGenJet.getJetConstituents();
+      //if B-Hadron matched, always assign B-Hadron
       for ( reco::Jet::Constituents::const_iterator itr = jc.begin(); itr != jc.end(); ++itr ){
 	if (itr->isAvailable()){
 	  const reco::Candidate* mcpart = dynamic_cast<const reco::Candidate*>(itr->get());
-	  const reco::Candidate* lastC = lastCHadron(*mcpart);
-	  if (lastC){
-	    matched = cat::MCParticle(*lastC);
+	  const reco::Candidate* lastB = lastBHadron(*mcpart);
+	  if (lastB){
+	    matched = cat::MCParticle(*lastB);
 	    break;
 	  }
 	}
       }
+      if (std::abs(matched.pdgId()) != 5){
+	//if only no B-Hadron matched, assign C-Hadron
+	for ( reco::Jet::Constituents::const_iterator itr = jc.begin(); itr != jc.end(); ++itr ){
+	  if (itr->isAvailable()){
+	    const reco::Candidate* mcpart = dynamic_cast<const reco::Candidate*>(itr->get());
+	    const reco::Candidate* lastC = lastCHadron(*mcpart);
+	    if (lastC){
+	      matched = cat::MCParticle(*lastC);
+	      break;
+	    }
+	  }
+	}
+      }
+      
+      GenJet_eta_.push_back(aGenJet.eta());
+      GenJet_pt_.push_back(aGenJet.pt());
+      GenJet_phi_.push_back(aGenJet.phi());
+      GenJet_energy_.push_back(aGenJet.energy());
+      GenJet_emf_.push_back(aGenJet.emEnergy()/aGenJet.energy());
+      GenJet_hadf_.push_back(aGenJet.hadEnergy()/aGenJet.energy());
+      GenJet_pdgid_.push_back(matched.pdgId());
     }
-    
-    GenJet_eta_.push_back(aGenJet.eta());
-    GenJet_pt_.push_back(aGenJet.pt());
-    GenJet_phi_.push_back(aGenJet.phi());
-    GenJet_energy_.push_back(aGenJet.energy());
-    GenJet_emf_.push_back(aGenJet.emEnergy()/aGenJet.energy());
-    GenJet_hadf_.push_back(aGenJet.hadEnergy()/aGenJet.energy());
-    GenJet_pdgid_.push_back(matched.pdgId());
   }
-
   /// Fill EventInfo
     
+
+  CatVersion_  = getenv("CATVERSION");
   IsData_      = event.isRealData();
   runNumber_   = event.run();
   lumiNumber_  = event.luminosityBlock();

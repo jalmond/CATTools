@@ -4,7 +4,8 @@ from functions import *
 
 
 ## SET the production version  to process
-version = "v7-6-1"
+version = "v7-6-2"
+runinbackground=False
 kisti_output_default="/tmp_cms/jalmond_temp/"+version+"/"
 
 if not (os.path.exists(kisti_output_default)):
@@ -12,20 +13,18 @@ if not (os.path.exists(kisti_output_default)):
 
 ## Check Branch for SKtrees is up to date to make skims                                                                                                                                                                                     
 
-sampledir = ["DoubleMuon",
-             "DoubleEG" ,
-             "MuonEG",
-             "SingleMuon",
-             "SingleElectron"]
+sampledir = ["DoubleMuon"]
 
+periods = ["C"]
 
-periods = ["C" , "D"]
-
-rereco=True
+rereco=False
 rereco_tag = "05Oct2015"
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
-njob=40
+njob=1
+if runinbackground == True:
+    njob =40
+
 
 skip_first=0
 samples_processed=0
@@ -201,7 +200,10 @@ for i in sampledir:
             configfile.close()
             
             log = kisti_output + "/Job_" + str(j) + ".log"
-            runcommand="cmsRun " + kisti_output + "/" + runscript + "&>" + log + "&"
+            if runinbackground == True:
+                runcommand="cmsRun " + kisti_output + "/" + runscript + "&>" + log + "&"
+            else:
+                runcommand="cmsRun " + kisti_output + "/" + runscript 
             os.system(runcommand)
         
         
