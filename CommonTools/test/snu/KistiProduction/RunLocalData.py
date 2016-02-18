@@ -11,7 +11,27 @@ kisti_output_default="/tmp_cms/jalmond_temp/"+version+"/"
 if not (os.path.exists(kisti_output_default)):
     os.system("mkdir " + kisti_output_default)
 
-## Check Branch for SKtrees is up to date to make skims                                                                                                                                                                                     
+## Check Branch for SKtrees is up to date to make skims                                                                                                                                    
+if os.path.exists("cat.txt"):
+    os.system("rm cat.txt")
+os.system("source /cms/home/jalmond/Cattuples/cat76/cattools/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
+
+
+catfile = open("cat.txt",'r')
+vcat=""
+for line in catfile:
+    vcat = line    
+    if vcat == "":
+        print "version not set"
+        quit()
+    if not "v7-" in vcat:
+        print "version does not have v7- in name " 
+        quit()
+
+print "Cat version = " + version 
+
+
+                                                
 
 sampledir = ["DoubleMuon"]
 

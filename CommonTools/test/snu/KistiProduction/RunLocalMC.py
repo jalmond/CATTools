@@ -16,6 +16,27 @@ if not (os.path.exists(kisti_output_default)):
 sampledir = [ "WZ_TuneCUETP8M1_13TeV-pythia8"]
 
 
+if os.path.exists("cat.txt"):
+    os.system("rm cat.txt")
+os.system("source /cms/home/jalmond/Cattuples/cat76/cattools/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
+
+
+catfile = open("cat.txt",'r')
+vcat=""
+for line in catfile:
+    vcat = line    
+    if vcat == "":
+        print "version not set"
+        quit()
+    if not "v7-" in vcat:
+        print "version does not have v7- in name " 
+        quit()
+
+print "Cat version = " + version 
+
+
+
+
 # njob set to 40: if n root files < 40 njobs = #rootfiles
 njob=1
 if runinbackground == True:

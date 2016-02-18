@@ -45,7 +45,7 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include <stdlib.h> 
+//#include <stdlib.h> 
 
 using namespace std;
 using namespace edm;
@@ -293,6 +293,7 @@ private:
 
   
   bool runFullTrig;
+  bool keepAllGen;
   
   TH1F* hNEvent_;
 
@@ -404,6 +405,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
 
   
   runFullTrig = pset.getParameter<bool>("runFullTrig");
+  keepAllGen = pset.getParameter<bool>("keepAllGen");
   
   if(runFullTrig) cout << "Running fulltrigger" << endl;
   else cout << "Not running full trigger" << endl;
@@ -693,6 +695,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 
   for( unsigned int i=0; i<trigNames.size(); ++i ){
     TString tname = TString(trigNames.triggerName(i));
+    if( (! (trigNames.triggerName(i).find("HLT_DoublePhoton") == 0 || trigNames.triggerName(i).find("HLT_Photon") == 0))
+	 && tname.Contains("Photon")) continue;
     if (trigNames.triggerName(i).find("HLT_Ele") == 0 
 	|| trigNames.triggerName(i).find("HLT_DoubleEle") == 0 
 	|| trigNames.triggerName(i).find("HLT_IsoMu") == 0 
@@ -707,12 +711,14 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	   || tname.Contains("Save")
 	   || tname.Contains("dEta18"))) {
 	if(runFullTrig){
-	  vtrignames.push_back(trigNames.triggerName(i));
-          if(triggerBits->accept(i)){
-            int psValue = int(triggerBits->accept(i)) * triggerPrescales->getPrescaleForIndex(i);
-            vtrigps.push_back(psValue);
-          }
-	  else  vtrigps.push_back(0);
+	  if( (!(tname.Contains("PF")|| tname.Contains("WP"))) || (tname.Contains("PFJet")|| tname.Contains("WPLoose") )) {
+	    vtrignames.push_back(trigNames.triggerName(i));
+	    if(triggerBits->accept(i)){
+	      int psValue = int(triggerBits->accept(i)) * triggerPrescales->getPrescaleForIndex(i);
+	      vtrigps.push_back(psValue);
+	  }
+	    else  vtrigps.push_back(0);
+	  }
 	}
 	else if(!(tname.Contains("PF")|| tname.Contains("WP"))) {
 	  vtrignames.push_back(trigNames.triggerName(i));
@@ -888,7 +894,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     for( reco::GenParticleCollection::const_iterator it = genParticles->begin(); it != genParticles->end(); ++it , ++counter) {
       
       if(it->pdgId() == 2212 && counter > 2) { skipped++; continue ;}
-      if(counter > 30) continue;
+      if(!keep_all_gen && counter > 30) continue;
       if(counter > 30){
 	if(fabs(it->pdgId()) > 25){
 	  if(!(it->pdgId() == 90)){	  skipped++; continue;}

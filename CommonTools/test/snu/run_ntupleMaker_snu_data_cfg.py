@@ -425,19 +425,6 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
             selections = cms.untracked.PSet(),
         ),
 
-        slimmedGenJets = cms.PSet(
-            src = cms.InputTag("slimmedGenJets",""),
-            #index = cms.untracked.int32(0),
-            exprs = cms.untracked.PSet(
-                pt  = cms.string("pt"),
-                eta = cms.string("eta"),
-                phi = cms.string("phi"),
-                m   = cms.string("mass"),
-                energy   = cms.string("energy"),
-                ),
-            selections = cms.untracked.PSet(),
-            ),
-        
         ),
 )
 
