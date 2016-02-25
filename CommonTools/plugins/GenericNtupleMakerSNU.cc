@@ -453,7 +453,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("met_jetRes_SumEt_down", &met_jetRes_SumEt_down, "met_jetRes_SumEt_down/D");
   */
 
-  tree_->Branch("CatVersion", &CatVersion_ , "CatVersion");  
+  tree_->Branch("CatVersion", &CatVersion_);  
 
   tree_->Branch("IsData", &IsData_ , "IsData/O");
   tree_->Branch("HBHENoiseFilter", &Flag_HBHENoiseFilter , "HBHENoiseFilter/O");
@@ -709,6 +709,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	   || tname.Contains("Upsilon")
 	   || tname.Contains("7p5")
 	   || tname.Contains("Save")
+	   || tname.Contains("R9Id90")
+	   || tname.Contains("EBOnly_VBF")
 	   || tname.Contains("dEta18"))) {
 	if(runFullTrig){
 	  if( (!(tname.Contains("PF")|| tname.Contains("WP"))) || (tname.Contains("PFJet")|| tname.Contains("WPLoose") )) {
@@ -731,7 +733,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
       }
     }
   }
-  
+
 
 
   std::vector<string> vtrignames_tomatch_muon;
@@ -765,7 +767,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   vtrignames_tomatch_electron.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_");
   vtrignames_tomatch_electron.push_back("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v");
   vtrignames_tomatch_electron.push_back("HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v");
-  
+
+  vtrignames_tomatch_muon.push_back(CatVersion_);  
 
   ////////// Fill MET/Muon/Electron variables
   edm::Handle<edm::View<cat::Muon> > muons;
@@ -890,16 +893,11 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     event.getByToken(mcLabel_,genParticles);
     
     int counter=0;
-    int skipped =0;
-    for( reco::GenParticleCollection::const_iterator it = genParticles->begin(); it != genParticles->end(); ++it , ++counter) {
-      
-      if(it->pdgId() == 2212 && counter > 2) { skipped++; continue ;}
-      if(!keep_all_gen && counter > 30) continue;
-      if(counter > 30){
-	if(fabs(it->pdgId()) > 25){
-	  if(!(it->pdgId() == 90)){	  skipped++; continue;}
-	}
-      }
+
+    for( reco::GenParticleCollection::const_iterator it = genParticles->begin(); it != genParticles->end(); ++it , ++counter) {      
+
+      if(!keepAllGen && counter > 30) continue;
+     
       gen_eta_.push_back( it->eta() );
       gen_phi_.push_back( it->phi() );
       gen_pt_.push_back( it->pt() );
@@ -915,7 +913,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	}
       }
 
-      gen_motherindex_.push_back( idx - skipped);
+      gen_motherindex_.push_back( idx);
     }
     
     
@@ -968,7 +966,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   /// Fill EventInfo
     
 
-  CatVersion_  = getenv("CATVERSION");
+  CatVersion_  = "v7-6-3";
   IsData_      = event.isRealData();
   runNumber_   = event.run();
   lumiNumber_  = event.luminosityBlock();
