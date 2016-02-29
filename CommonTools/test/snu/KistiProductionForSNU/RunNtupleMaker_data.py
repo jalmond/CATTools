@@ -137,7 +137,7 @@ if rereco:
     print "Running on rereco samples"
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
-njob=40
+njob=50
 
 skip_first=0
 samples_processed=0
@@ -154,7 +154,7 @@ for i in sampledir:
         if samples_processed < skip_first+1:
             continue
 
-        njob=40
+        njob=50
         output=i
         kisti_output=kisti_output_default+output+"/"
         print "Making dir: " + kisti_output

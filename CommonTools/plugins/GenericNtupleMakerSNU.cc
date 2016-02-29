@@ -709,7 +709,18 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	   || tname.Contains("Upsilon")
 	   || tname.Contains("7p5")
 	   || tname.Contains("Save")
-	   || tname.Contains("R9Id90")
+	   || tname.Contains("R9Id")
+	   || tname.Contains("PFMET")
+	   || tname.Contains("PFHT")
+	   || tname.Contains("NoHE")
+	   || tname.Contains("HE10")
+	   || tname.Contains("PFJet50")
+	   || tname.Contains("Boost")
+	   || tname.Contains("LooseIso")
+	   || tname.Contains("MediumIso")
+	   || tname.Contains("Mass")
+	   || tname.Contains("Central")
+	   || tname.Contains("MW")
 	   || tname.Contains("EBOnly_VBF")
 	   || tname.Contains("dEta18"))) {
 	if(runFullTrig){
@@ -768,7 +779,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   vtrignames_tomatch_electron.push_back("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v");
   vtrignames_tomatch_electron.push_back("HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v");
 
-  vtrignames_tomatch_muon.push_back(CatVersion_);  
+  //vtrignames_tomatch_muon.push_back(CatVersion_);  
 
   ////////// Fill MET/Muon/Electron variables
   edm::Handle<edm::View<cat::Muon> > muons;
@@ -897,7 +908,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     for( reco::GenParticleCollection::const_iterator it = genParticles->begin(); it != genParticles->end(); ++it , ++counter) {      
 
       if(!keepAllGen && counter > 30) continue;
-     
+
       gen_eta_.push_back( it->eta() );
       gen_phi_.push_back( it->phi() );
       gen_pt_.push_back( it->pt() );
@@ -967,6 +978,9 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     
 
   CatVersion_  = "v7-6-3";
+
+  string cv = getenv("CATVERSION");
+
   IsData_      = event.isRealData();
   runNumber_   = event.run();
   lumiNumber_  = event.luminosityBlock();

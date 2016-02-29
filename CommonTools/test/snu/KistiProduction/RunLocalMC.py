@@ -13,7 +13,7 @@ if not (os.path.exists(kisti_output_default)):
 
 ## Make a list of samples to process
 
-sampledir = [ "WZ_TuneCUETP8M1_13TeV-pythia8"]
+sampledir = ["QCD_Pt-170to300_EMEnriched_TuneCUETP8M1_13TeV_pythia8"]
 
 
 if os.path.exists("cat.txt"):
