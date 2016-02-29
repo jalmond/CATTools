@@ -1,6 +1,7 @@
 from CATTools.CatProducer.catTemplate_cfg import *
 ## some options
 doSecVertex=False # for jpsi candidates
+doDstar=False      # for Dstar meson.
     
 ## setting up arguements
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -44,17 +45,20 @@ else:
     process.catOut.outputCommands.extend(catEventContentRD)
     
 if runGenTop:
-    #from CATTools.CatProducer.catGenHFHadronMatching_cff import *
-    from CATTools.CatProducer.Tools.tools import *
-    genHFTool(process, useMiniAOD)
     process.load("CATTools.CatProducer.mcTruthTop.mcTruthTop_cff")
     process.catOut.outputCommands.extend(catEventContentTOPMC)
-    #if useMiniAOD:
-    #    process.catOut.outputCommands.extend(['keep *_catGenTops_*_*',])
+    # for GenTtbarCategories
+    from CATTools.CatProducer.Tools.tools import *
+    genHFTool(process, useMiniAOD)
+    process.catOut.outputCommands.extend(['keep *_catGenTops_*_*',])
             
 if doSecVertex:
     process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
     process.catOut.outputCommands.extend(catEventContentSecVertexs)
+
+if doDstar :
+    process.catOut.outputCommands.extend(['keep *_catDstars_*_*',])
+
 
 from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
 miniAOD_customizeOutput(process.catOut)
