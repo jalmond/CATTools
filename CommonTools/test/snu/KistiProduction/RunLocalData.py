@@ -4,27 +4,47 @@ from functions import *
 
 
 ## SET the production version  to process
-version = "v7-4-6"
+version = "v7-6-2"
+runinbackground=False
 kisti_output_default="/tmp_cms/jalmond_temp/"+version+"/"
+
 if not (os.path.exists(kisti_output_default)):
     os.system("mkdir " + kisti_output_default)
 
-## Check Branch for SKtrees is up to date to make skims                                                                                                                                                                                     
-
-sampledir = ["DoubleMuon",
-             "DoubleEG" ,
-             "MuonEG",
-             "SingleMuon",
-             "SingleElectron"]
+## Check Branch for SKtrees is up to date to make skims                                                                                                                                    
+if os.path.exists("cat.txt"):
+    os.system("rm cat.txt")
+os.system("source /cms/home/jalmond/Cattuples/cat76/cattools/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
 
 
-periods = ["C" , "D"]
+catfile = open("cat.txt",'r')
+vcat=""
+for line in catfile:
+    vcat = line    
+    if vcat == "":
+        print "version not set"
+        quit()
+    if not "v7-" in vcat:
+        print "version does not have v7- in name " 
+        quit()
 
-rereco=True
+print "Cat version = " + version 
+
+
+                                                
+
+sampledir = ["DoubleMuon"]
+
+periods = ["C"]
+
+rereco=False
 rereco_tag = "05Oct2015"
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
-njob=40
+njob=1
+if runinbackground == True:
+    njob =40
+
 
 skip_first=0
 samples_processed=0
@@ -200,7 +220,10 @@ for i in sampledir:
             configfile.close()
             
             log = kisti_output + "/Job_" + str(j) + ".log"
-            runcommand="cmsRun " + kisti_output + "/" + runscript + "&>" + log + "&"
+            if runinbackground == True:
+                runcommand="cmsRun " + kisti_output + "/" + runscript + "&>" + log + "&"
+            else:
+                runcommand="cmsRun " + kisti_output + "/" + runscript 
             os.system(runcommand)
         
         
@@ -220,16 +243,7 @@ for i in sampledir:
                 check_job_finished=0
             else:
                 check_job_finished=1
-                print "ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(i)
-                os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version))
-                os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i )
-                if rereco:
-                    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i + "/period" + str(period) +"_rereco/" )
-                    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i + "/period" + str(period) +"_rereco/" )
-                else:
-                    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(version) +"/" + i + "/period" + str(period)  )
-                    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(version) + "/" + i + "/period" + str(period)  )
-
+                print "Job is finished"
                 
             os.system("rm " + kisti_output + "/pslog")        
             time.sleep(30.) 

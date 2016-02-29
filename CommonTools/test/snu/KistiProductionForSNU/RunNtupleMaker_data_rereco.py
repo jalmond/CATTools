@@ -21,6 +21,29 @@ if len(periods) ==0:
 if not "ui10" in host:
     quit()
      
+
+host=os.getenv("HOSTNAME")
+if not "ui10" in host:
+    quit()
+
+if os.path.exists("cat.txt"):
+    os.system("rm cat.txt")
+os.system("source /cms/home/jalmond/Cattuples/cat76/cattools/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
+
+
+catfile = open("cat.txt",'r')
+vcat=""
+for line in catfile:
+    vcat = line
+    if vcat == "":
+        print "version not set"
+        quit()
+    if not "v7-" in vcat:
+        print "version does not have v7- in name "
+        quit()
+
+print "Cat version = " + version
+
 if not "v7-4-" in version:
     print "rereco samples only available in cat v7-4-X. No jobs are processed in v7-6-X for rereco script."
     quit()
@@ -71,6 +94,8 @@ if FullRun:
     for line in snu_connect:
         if "ssh-jalmond@cms4" in line:
             connected_cms4=False
+    os.system("rm check_snu_connection.txt")
+
     if connected_cms4 == False:
         print "No connection to cms4: please make connection in screen and run script again"
         quit()

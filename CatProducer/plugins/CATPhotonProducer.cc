@@ -175,7 +175,7 @@ cat::CATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
       aPhoton.setPhotonIDs(aPatPhoton.photonIDs());
     }
     
-    aPhoton.setIsTight( aPhoton.photonID("tight") );
+    aPhoton.setIsTight( aPhoton.photonID("Tight-") );
     aPhoton.setIsMedium( aPhoton.photonID("medium") );
     aPhoton.setIsLoose( aPhoton.photonID("loose") );
     aPhoton.setPassMVA( aPhoton.photonID("mva") );

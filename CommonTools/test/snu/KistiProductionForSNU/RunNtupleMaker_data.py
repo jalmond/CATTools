@@ -21,8 +21,32 @@ if len(periods) ==0:
 if not "ui10" in host:
     quit()
 
+
+host=os.getenv("HOSTNAME")
+if not "ui10" in host:
+    quit()
+
+if os.path.exists("cat.txt"):
+    os.system("rm cat.txt")
+os.system("source /cms/home/jalmond/Cattuples/cat76/cattools/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
+
+
+catfile = open("cat.txt",'r')
+vcat=""
+for line in catfile:
+    vcat = line
+    if vcat == "":
+        print "version not set"
+        quit()
+    if not "v7-" in vcat:
+        print "version does not have v7- in name "
+        quit()
+
+print "Cat version = " + version
+
 if not user in kisti_output_default:
     print "kisti_output_default should container username in the path. Fix this."
+    quit()
 
 if not (os.path.exists(kisti_output_default)):
     os.system("mkdir " + kisti_output_default)
@@ -30,6 +54,10 @@ if not (os.path.exists(kisti_output_default)):
         print "Problem making directory for kisti_output_default. Process is quitting. Before running again type"
         print "mkdir " + kisti_output_default
         quit()
+else:
+    os.system("rm -r " + kisti_output_default)
+    os.system("mkdir " + kisti_output_default)
+
 
 if FullRun:
     ## Check Branch for SKtrees is up to date to make skims                                                                                                                                                                                                                    
@@ -67,16 +95,21 @@ if FullRun:
     for line in snu_connect:
         if "ssh-jalmond@cms4" in line:
             connected_cms4=False
+    os.system("rm check_snu_connection.txt")
     if connected_cms4 == False:
         print "No connection to cms4: please make connection in screen and run script again"
         quit()
 
 os.system("ls /tmp > check_snu_connection.txt")
+snu_connect = open("check_snu_connection.txt",'r')
+connected_cms3=False
+
 for line in snu_connect:
     if "ssh-jalmond@cms3" in line:
         connected_cms3=True
 
 os.system("rm check_snu_connection.txt")
+       
 if connected_cms3 == False:
     print "No connection to cms3: please make connection in screen and run script again"
     quit()
@@ -86,8 +119,7 @@ if connected_cms3 == False:
 
 ## Make a list of samples to process
 
-sampledir = ["DoubleMuon",
-             "DoubleEG" ,
+sampledir = [             "DoubleEG" ,
              "MuonEG",
              "SingleMuon",
              "SingleElectron",
@@ -100,14 +132,12 @@ if not ALLSamples == True:
 
 rereco=False
 rereco_tag = "05Oct2015"
-if "v7-6-" in version:
-    rereco_tag = "16Dec2015"
 
 if rereco:
     print "Running on rereco samples"
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
-njob=40
+njob=50
 
 skip_first=0
 samples_processed=0
@@ -124,7 +154,7 @@ for i in sampledir:
         if samples_processed < skip_first+1:
             continue
 
-        njob=40
+        njob=50
         output=i
         kisti_output=kisti_output_default+output+"/"
         print "Making dir: " + kisti_output
@@ -318,7 +348,8 @@ for i in sampledir:
                     os.system("scp " +kisti_output + "/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(version) + "/" +i  +"/period" + period +"_rereco/")
                 else:
                     os.system("scp " +kisti_output + "/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(version) + "/" +i  +"/period" + period +"/")
-
+                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr chmod -R 777 /data2/DATA/cattoflat/Data/" + version)
+    
             os.system("rm " + kisti_output + "/pslog")        
             time.sleep(30.) 
         

@@ -30,19 +30,19 @@ float Photon::photonID(const std::string& name) const {
   throw ex;
 }
 
-float Photon::chargedHadronIsoWithEA(){
+float Photon::chargedHadronIsoWithEA() const{
   return std::max( (float)0.0, chargedHadronIso_ - rhoIso_*getEffArea(charged, abs(scEta_)));
 }
 
-float Photon::neutralHadronIsoWithEA(){
+float Photon::neutralHadronIsoWithEA()const{
   return std::max( (float)0.0, neutralHadronIso_ - rhoIso_*getEffArea(neutral, abs(scEta_)));
 }
 
-float Photon::photonIsoWithEA(){
+float Photon::photonIsoWithEA() const{
   return std::max( (float)0.0, photonIso_ - rhoIso_*getEffArea(photon, abs(scEta_)));
 }
 
-float Photon::getEffArea(IsoType iso_type, float scEta) 
+float Photon::getEffArea(IsoType iso_type, float scEta)  const
 {
 
   /// Taken from https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2                                                                                                                                                                            

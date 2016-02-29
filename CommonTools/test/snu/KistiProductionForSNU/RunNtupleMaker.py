@@ -8,11 +8,30 @@ from Setup import *
 ALLSamples= False
 if len(mcsampledir) == 0:
     ALLSamples=True
-
+    
 ####### make sure this file is being run at kisti                                                                                                                                                                                           
 host=os.getenv("HOSTNAME")
 if not "ui10" in host:
     quit()
+
+if os.path.exists("cat.txt"):
+    os.system("rm cat.txt")
+os.system("source /cms/home/jalmond/Cattuples/cat76/cattools/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
+
+
+catfile = open("cat.txt",'r')
+vcat=""
+for line in catfile:
+    vcat = line    
+    if vcat == "":
+        print "version not set"
+        quit()
+    if not "v7-" in vcat:
+        print "version does not have v7- in name " 
+        quit()
+
+print "Cat version = " + version 
+
 
 if not user in kisti_output_default:
     print "kisti_output_default should container username in the path. Fix this."
@@ -30,7 +49,7 @@ else:
 
 print "Output directory is " + kisti_output_default        
 
-if FullRun:
+if (MakeSKTrees == True) or (RunSkims==True):
 ## Check Branch for SKtrees is up to date to make skims
     os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/Branch.txt > check_snu_branch.txt")
     os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/CATVERSION.txt > check_catversion_branch.txt")
@@ -57,16 +76,17 @@ if FullRun:
 
     os.system("rm check_catversion_branch.txt")
     os.system("rm check_snu_branch.txt")
-    os.system("ls /tmp/ > check_snu_connection.txt")
-    snu_connect = open("check_snu_connection.txt",'r')
-    connected_cms4=False
-    for line in snu_connect:
-        if "ssh-jalmond@cms4" in line:
-            connected_cms4=True
-    os.system("rm check_snu_connection.txt")
-    if connected_cms4 == False:
-        print "No connection to cms3: please make connection in screen and run script again"
-        quit()
+    if MakeSKTrees == True:
+        os.system("ls /tmp/ > check_snu_connection.txt")
+        snu_connect = open("check_snu_connection.txt",'r')
+        connected_cms4=False
+        for line in snu_connect:
+            if "ssh-jalmond@cms4" in line:
+                connected_cms4=True
+        os.system("rm check_snu_connection.txt")
+        if connected_cms4 == False:
+            print "No connection to cms3: please make connection in screen and run script again"
+            quit()
     
 
 os.system("ls /tmp/ > check_snu_connection.txt")
@@ -86,47 +106,86 @@ if connected_cms3 == False:
 ## Make a list of samples to process
 
 sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8", 
-             "WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
-             "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
              "ZZ_TuneCUETP8M1_13TeV-pythia8",
              "WW_TuneCUETP8M1_13TeV-pythia8",
+             "ZZTo4L_13TeV_powheg_pythia8",
+             "WZJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
+             "ZZTo4L_13TeV-amcatnloFXFX-pythia8",
+             "WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8",
+             "WpWpJJ_QCD_TuneCUETP8M1_13TeV-madgraph-pythia8",
+             "ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8",
+             "ZZTo2L2Nu_13TeV_powheg_pythia8",
+             "WWTo2L2Nu_13TeV-powheg",
+             "WpWpJJ_EWK_TuneCUETP8M1_13TeV-madgraph-pythia8",
+             "WW_DoubleScattering_13TeV-pythia8",
+             "WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8",
+
              "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
              "DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
-             "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8", 
-             "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8", 
-              "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8",
-             "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8", 
-             "ttHTobb_M125_13TeV_powheg_pythia8", 
-             "ttHToNonbb_M125_13TeV_powheg_pythia8", 
-             "GluGlu_HToMuMu_M125_13TeV_powheg_pythia8",
-             "VBF_HToMuMu_M125_13TeV_powheg_pythia8",
-             "QCD_Pt-300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8", 
-             "QCD_Pt-600to800_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8", 
-             "QCD_Pt-120to170_EMEnriched_TuneCUETP8M1_13TeV_pythia8", 
-             "QCD_Pt-1000toInf_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8", 
-             "QCD_Pt-170to300_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-470to600_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-80to120_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-30to50_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-50to80_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-20to30_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-800to1000_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-20to30_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-170to300_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-30to50_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-300to470_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-50to80_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-80to120_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
-             "QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             "DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+
+             "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+             "TT_TuneCUETP8M1_13TeV-powheg-pythia8",
+             "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"]
+
+sampledir = [             "WZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8",
+                          "WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
              "ST_t-channel_top_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
              "ST_t-channel_antitop_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
              "ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
              "ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1",
-             "TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
-             "TT_TuneCUETP8M1_13TeV-powheg-scaleup-pythia8",
-             "TT_TuneCUETP8M1_13TeV-powheg-scaledown-pythia8",
-             "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
+             "ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1",
+             "TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8", 
+             "TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8", 
+             "TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8",
+             "TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8", 
+             "ttHTobb_M125_13TeV_powheg_pythia8", 
+             "ttHToNonbb_M125_13TeV_powheg_pythia8", 
+
+             "GluGlu_HToMuMu_M125_13TeV_powheg_pythia8",
+             "VBF_HToMuMu_M125_13TeV_powheg_pythia8",
+
+             #"QCD_Pt-300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8", 
+             #"QCD_Pt-120to170_EMEnriched_TuneCUETP8M1_13TeV_pythia8", 
+             #"QCD_Pt-170to300_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-470to600_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-80to120_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-50to80_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-20to30_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-800to1000_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-20to30_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-170to300_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-30to50_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-300to470_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-50to80_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-80to120_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8",
+             #"QCD_Pt-30toInf_DoubleEMEnriched_MGG-40to80_TuneCUETP8M1_13TeV_Pythia8",
+             #"QCD_Pt-30to40_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8",
+             #"QCD_Pt_20to30_bcToE_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt_80to170_bcToE_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt_15to20_bcToE_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt_30to80_bcToE_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt_170to250_bcToE_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt_250toInf_bcToE_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-600to800_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             "QCD_Pt-1000toInf_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt-30to50_EMEnriched_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt_30to80_bcToE_TuneCUETP8M1_13TeV_pythia8",
+             #"QCD_Pt_15to20_bcToE_TuneCUETP8M1_13TeV_pythia8",
+
+             "GJet_Pt-20to40_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8",
+             "GJet_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8",
+             "TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8",
+             "WGToLNuG_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+             "ZGTo2LG_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"]
+
+
+#samples with fullgen entries in the name will store all gen information. All others will store just first 30 gen particles
+fullgen = ["DY" , "TTJets"]
+
 
 if not ALLSamples == True:
     sampledir = mcsampledir
@@ -141,7 +200,13 @@ for i in sampledir:
     if samples_processed < skip_first+1:
         continue
 
-    njob=40
+    runfullgen = False
+    for j in fullgen:
+        if j in i:
+            runfullgen = True
+        
+
+    njob=50
     output=i
     kisti_output=kisti_output_default+output+"/"
     print "Making dir: " + kisti_output
@@ -211,7 +276,7 @@ for i in sampledir:
                             check_tag=split_tag_tag
     fr_end.close()
     print "tagpath = " + tagpath
-
+    
 
     if sample_exists == 0:
         continue
@@ -283,7 +348,7 @@ for i in sampledir:
     for j in range(1,njob+1):
         runscript=output + "_flatntupleMaker_"+str(j) +".py"
         configfile=open(kisti_output+ "/" + runscript,'w')
-        configfile.write(makeNtupleMaker(output,kisti_output+ "/"+output + "_" + str(j) + "_full.txt", kisti_output,j))
+        configfile.write(makeNtupleMaker(output,kisti_output+ "/"+output + "_" + str(j) + "_full.txt", kisti_output,j, runfullgen))
         configfile.close()
     
         log = kisti_output + "/Job_" + str(j) + ".log"
@@ -311,6 +376,8 @@ for i in sampledir:
             os.system("ssh " + username_snu  + "@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/MC/" + version +"/" + i )
             os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version)
             os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version + "/" + i )
+            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr chmod -R 777 /data2/DATA/cattoflat/MC/" + version)
+ 
 
             print "scp " +kisti_output + "/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/" + version + "/"  +i
             os.system("scp " +kisti_output + "/*.root " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/"  + version + "/" +i) 
@@ -318,12 +385,14 @@ for i in sampledir:
         os.system("rm " + kisti_output + "/pslog")        
         time.sleep(30.) 
         
-        
-    os.system("rm -r " + kisti_output)
+    if KeepWorkDir != True:
+        os.system("rm -r " + kisti_output)
 
 
-if FullRun == True:
+if ALLSamples == True:
     os.system("source runEffLumi.sh")
+if RunSkims == True:
     os.system("source runSkimMC.sh&")
+if MakeSKTrees == True:
     os.system("source runMCSKTree.sh&")
 

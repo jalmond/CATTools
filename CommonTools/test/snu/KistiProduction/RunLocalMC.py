@@ -3,7 +3,8 @@ import time
 from functions import *
 
 ## SET the production version  to process
-version = "v7-4-6"
+version = "v7-6-2"
+runinbackground=False
 kisti_output_default="/tmp_cms/jalmond_temp/"+version+"/" 
 
 if not (os.path.exists(kisti_output_default)):
@@ -12,13 +13,34 @@ if not (os.path.exists(kisti_output_default)):
 
 ## Make a list of samples to process
 
-sampledir = [ "WZ_TuneCUETP8M1_13TeV-pythia8"]
+sampledir = ["QCD_Pt-170to300_EMEnriched_TuneCUETP8M1_13TeV_pythia8"]
+
+
+if os.path.exists("cat.txt"):
+    os.system("rm cat.txt")
+os.system("source /cms/home/jalmond/Cattuples/cat76/cattools/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
+
+
+catfile = open("cat.txt",'r')
+vcat=""
+for line in catfile:
+    vcat = line    
+    if vcat == "":
+        print "version not set"
+        quit()
+    if not "v7-" in vcat:
+        print "version does not have v7- in name " 
+        quit()
+
+print "Cat version = " + version 
 
 
 
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
-njob=60
+njob=1
+if runinbackground == True:
+    njob =40
     
 skip_first=0
 samples_processed=0
@@ -27,7 +49,6 @@ for i in sampledir:
     if samples_processed < skip_first+1:
         continue
 
-    njob=40
     output=i
     kisti_output=kisti_output_default+output+"/"
     print "Making dir: " + kisti_output
@@ -119,7 +140,10 @@ for i in sampledir:
     for j in range(1,count+1):
         if not j%njob:
             nfilesperjob+=1
-            
+
+    if runinbackground == False:
+        nfilesperjob = 1
+
     print "Number of jobs to process is " + str(njob)            
 
     files_torun= nfilesperjob*njob
@@ -173,39 +197,33 @@ for i in sampledir:
         configfile.close()
     
         log = kisti_output + "/Job_" + str(j) + ".log"
-        runcommand="cmsRun " + kisti_output + "/" + runscript + "&>" + log + "&"
+        if runinbackground == True:
+            runcommand="cmsRun " + kisti_output + "/" + runscript + "&>" + log + "&"
+        else:
+             runcommand="cmsRun " + kisti_output + "/" + runscript
         os.system(runcommand)
         
         
+
+        
     import platform
     check_job_finished=0
-    while check_job_finished == 0:        
+    while check_job_finished == 0:
         os.system("ps ux  | grep 'cmsRun' &> " + kisti_output + "/pslog")
         print "ps ux  | grep 'cmsRun' &> " + kisti_output + "/pslog"
-        filename = kisti_output +'/pslog'    
+        filename = kisti_output +'/pslog'
         n_previous_jobs=0
         pslogfile = open(filename, 'r')
         for line in pslogfile:
             if not "grep" in line:
                 n_previous_jobs+=1
-        pslogfile.close()    
+        pslogfile.close()
         if n_previous_jobs > 0:
             check_job_finished=0
         else:
             check_job_finished=1
-            print "ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version + "/" + i 
-            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/MC/" + version +"/" + i )
-            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version)
-            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + version + "/" + i )
+            print "Job is finished"
 
-        os.system("rm " + kisti_output + "/pslog")        
-        time.sleep(30.) 
+        os.system("rm " + kisti_output + "/pslog")
+        time.sleep(30.)
         
-
-
-
-if FullRun == True:
-    os.system("source runEffLumi.sh")
-    os.system("source runSkimMC.sh&")
-    os.system("source runMCSKTree.sh&")
-
