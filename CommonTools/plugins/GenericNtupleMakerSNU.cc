@@ -979,8 +979,6 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 
   CatVersion_  = "v7-6-3";
 
-  string cv = getenv("CATVERSION");
-
   IsData_      = event.isRealData();
   runNumber_   = event.run();
   lumiNumber_  = event.luminosityBlock();

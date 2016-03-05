@@ -48,6 +48,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
         nGoodPV           =  cms.InputTag("catVertex"   , "nGoodPV"),
         nPV               =  cms.InputTag("catVertex"   , "nPV"    ),
         nTrueInteraction  =  cms.InputTag("pileupWeight", "nTrueInteraction" ),
+        nTrueInteractionSilver  =  cms.InputTag("pileupWeightSilver", "nTrueInteraction" ),
         lumiMaskGold      =  cms.InputTag("lumiMask"),
         lumiMaskSilver      =  cms.InputTag("lumiMaskSilver"),
         
