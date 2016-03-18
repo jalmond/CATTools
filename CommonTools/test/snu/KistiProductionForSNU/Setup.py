@@ -47,12 +47,12 @@ if RunALLSamples:
     mcsampledir=[]
 
 ### Set ouput directory at kisti
-kisti_output_default="/cms/scratch/jalmond/Cattuples/cat76/cattools/src/CATTools/CommonTools/test/snu/KistiProductionForSNU/"+version+"/"
+kisti_output_default=$CMSSW_DIR"/src/CATTools/CommonTools/test/snu/KistiProductionForSNU/"+version+"/"
 
 
 ### Set if you are running full production on kisti site to transfer to snu                                                                                                                                                                  
 snu_lqpath="/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/"
-username_snu="jalmond"
+username_snu=$USER
 
 
 ##########################################
