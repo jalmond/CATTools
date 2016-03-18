@@ -211,7 +211,7 @@ if not "ui10" in host:
 
 if os.path.exists("cat.txt"):
     os.system("rm cat.txt")
-os.system("source /cms/scratch/jalmond/Cattuples/cat76/cattools/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
+os.system("source /cms/scratch/"$CMSSW_BASE"/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
 
 
 
@@ -277,7 +277,7 @@ if (MakeSKTrees == True) or (RunSkims==True):
         snu_connect = open("check_snu_connection.txt",'r')
         connected_cms4=False
         for line in snu_connect:
-            if "ssh-jalmond@cms4" in line:
+            if "ssh-"$USER"@cms4" in line:
                 connected_cms4=True
         os.system("rm check_snu_connection.txt")
         if connected_cms4 == False:
@@ -289,7 +289,7 @@ os.system("ls /tmp/ > check_snu_connection.txt")
 snu_connect = open("check_snu_connection.txt",'r')
 connected_cms3=False
 for line in snu_connect:
-    if "ssh-jalmond@cms3" in line:
+    if "ssh-"$USER"@cms3" in line:
         connected_cms3=True
             
 os.system("rm check_snu_connection.txt")    
@@ -322,7 +322,7 @@ dataset_tag=""
 for i in sampledir:
     
 
-    datasetpath = "/cms/scratch/jalmond/Cattuples/cat76/cattools/src/CATTools/CatAnalyzer/data/dataset/dataset_" + i + ".txt"
+    datasetpath = $CMSSW_BASE"/src/CATTools/CatAnalyzer/data/dataset/dataset_" + i + ".txt"
     
     datasetfile = open(datasetpath, 'r')
     for line in datasetfile:
@@ -482,7 +482,7 @@ for i in sampledir:
         continue
 
     print "CheckJobStatusAfterCrash = False"
-    runcommand="create-batch  --jobName " + jobname + " --fileList  ../../../../CatAnalyzer/data/dataset/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /xrootd/store/user/jalmond/"
+    runcommand="create-batch  --jobName " + jobname + " --fileList  ../../../../CatAnalyzer/data/dataset/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /xrootd/store/user/"$USER
     print "Running:"
     print  runcommand
     os.system(runcommand)
@@ -495,7 +495,7 @@ for i in sampledir:
     while check_njob_submitted == 0:
         import platform
         
-        os.system("condor_q jalmond &>  jobcheck/runningcheck.txt")
+        os.system("condor_q "$USER" &>  jobcheck/runningcheck.txt")
         fcheck = open("jobcheck/runningcheck.txt",'r')
         for line in fcheck:
             if "completed" in line:

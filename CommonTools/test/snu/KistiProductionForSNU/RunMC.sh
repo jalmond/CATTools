@@ -24,7 +24,7 @@ then
 fi
 
 
-check=$(ssh jalmond@cms3.snu.ac.kr ls /data1/LQAnalyzer_rootfiles_for_analysis/CATAnalysis/)    
+check=$(ssh $USER@cms3.snu.ac.kr ls /data1/LQAnalyzer_rootfiles_for_analysis/CATAnalysis/)    
 
 if [[ $check == *"dataset_"$CATVERSION* ]];
 then
@@ -32,7 +32,7 @@ then
     else 
     echo "Running for the first time with this new tag. making dataset directory and copying to SNU"
     catGetDatasetInfo $CATVERSION
-    scp -r dataset jalmond@cms3.snu.ac.kr:/data1/LQAnalyzer_rootfiles_for_analysis/CATAnalysis/dataset_$CATVERSION
+    scp -r dataset $USER@cms3.snu.ac.kr:/data1/LQAnalyzer_rootfiles_for_analysis/CATAnalysis/dataset_$CATVERSION
     echo ""
     echo "Since this is a new tag:version have you run a test job?"
 fi
