@@ -47,7 +47,7 @@ if RunALLSamples:
     mcsampledir=[]
 
 ### Set ouput directory at kisti
-kisti_output_default=$CMSSW_DIR"/src/CATTools/CommonTools/test/snu/KistiProductionForSNU/"+version+"/"
+kisti_output_default=$CMSSW_BASE"/src/CATTools/CommonTools/test/snu/KistiProductionForSNU/"+version+"/"
 
 
 ### Set if you are running full production on kisti site to transfer to snu                                                                                                                                                                  
