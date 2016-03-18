@@ -1,0 +1,13 @@
+# nevt = 0
+# DataSetName = /WpWpJJ_QCD_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM
+# name = WpWpQCD
+# lumi = 0.0
+# title = Dibosons
+# path = root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/WpWpJJ_QCD_TuneCUETP8M1_13TeV-madgraph-pythia8/v7-6-3_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160221_152058
+# colour = 432
+# xsec = 0.01538
+# size = 538647479
+root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/WpWpJJ_QCD_TuneCUETP8M1_13TeV-madgraph-pythia8/v7-6-3_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160221_152058/0000/catTuple_1.root
+root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/WpWpJJ_QCD_TuneCUETP8M1_13TeV-madgraph-pythia8/v7-6-3_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160221_152058/0000/catTuple_2.root
+root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/WpWpJJ_QCD_TuneCUETP8M1_13TeV-madgraph-pythia8/v7-6-3_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160221_152058/0000/catTuple_3.root
+root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/WpWpJJ_QCD_TuneCUETP8M1_13TeV-madgraph-pythia8/v7-6-3_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160221_152058/0000/catTuple_4.root
