@@ -204,14 +204,14 @@ ALLSamples= False
 if len(mcsampledir) == 0:
     ALLSamples=True
     
-####### make sure this file is being run at kisti                                                                                                                                                                                           
+
 host=os.getenv("HOSTNAME")
 if not "ui10" in host:
     quit()
 
 if os.path.exists("cat.txt"):
     os.system("rm cat.txt")
-os.system("source /cms/scratch/"$CMSSW_BASE"/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
+os.system("source "+cmssw_dir+"/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
 
 
 
@@ -229,7 +229,7 @@ for line in catfile:
 print "Cat version = " + version 
 
 
-if not user in kisti_output_default:
+if not k_user in kisti_output_default:
     print "kisti_output_default should container username in the path. Fix this."
     quit()
 
@@ -245,51 +245,12 @@ else:
 
 print "Output directory is " + kisti_output_default        
 
-if (MakeSKTrees == True) or (RunSkims==True):
-## Check Branch for SKtrees is up to date to make skims
-    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/Branch.txt > check_snu_branch.txt")
-    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/CATVERSION.txt > check_catversion_branch.txt")
-    snubranch = open("check_snu_branch.txt",'r')
-    snu_br_uptodate=False
-
-    for line in snubranch:
-        if version in line:
-            snu_br_uptodate=True
-
-    snu_cat_uptodate=False
-    snucat = open("check_catversion_branch.txt",'r')
-    for line in snucat:
-        if version in line:
-            snu_cat_uptodate=True
-            
-    if snu_br_uptodate == False:
-        print "Branch on snu is not compatable with " + version + " please update snu branch first"
-        quit()
-
-    if snu_cat_uptodate== False:
-        print "CATVERSION on snu is not compatable with " + version + " please update cat version first"
-        quit()
-
-    os.system("rm check_catversion_branch.txt")
-    os.system("rm check_snu_branch.txt")
-    if MakeSKTrees == True:
-        os.system("ls /tmp/ > check_snu_connection.txt")
-        snu_connect = open("check_snu_connection.txt",'r')
-        connected_cms4=False
-        for line in snu_connect:
-            if "ssh-"$USER"@cms4" in line:
-                connected_cms4=True
-        os.system("rm check_snu_connection.txt")
-        if connected_cms4 == False:
-            print "No connection to cms3: please make connection in screen and run script again"
-            quit()
-    
 
 os.system("ls /tmp/ > check_snu_connection.txt")
 snu_connect = open("check_snu_connection.txt",'r')
 connected_cms3=False
 for line in snu_connect:
-    if "ssh-"$USER"@cms3" in line:
+    if "ssh-"+k_user+"@cms3" in line:
         connected_cms3=True
             
 os.system("rm check_snu_connection.txt")    
@@ -322,7 +283,7 @@ dataset_tag=""
 for i in sampledir:
     
 
-    datasetpath = $CMSSW_BASE"/src/CATTools/CatAnalyzer/data/dataset/dataset_" + i + ".txt"
+    datasetpath = cmssw_dir+"/src/CATTools/CatAnalyzer/data/dataset/dataset_" + i + ".txt"
     
     datasetfile = open(datasetpath, 'r')
     for line in datasetfile:
@@ -482,7 +443,7 @@ for i in sampledir:
         continue
 
     print "CheckJobStatusAfterCrash = False"
-    runcommand="create-batch  --jobName " + jobname + " --fileList  ../../../../CatAnalyzer/data/dataset/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /xrootd/store/user/"$USER
+    runcommand="create-batch  --jobName " + jobname + " --fileList  ../../../../CatAnalyzer/data/dataset/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /xrootd/store/user/"+k_user
     print "Running:"
     print  runcommand
     os.system(runcommand)
@@ -495,7 +456,7 @@ for i in sampledir:
     while check_njob_submitted == 0:
         import platform
         
-        os.system("condor_q "$USER" &>  jobcheck/runningcheck.txt")
+        os.system("condor_q "+k_user+" &>  jobcheck/runningcheck.txt")
         fcheck = open("jobcheck/runningcheck.txt",'r')
         for line in fcheck:
             if "completed" in line:
