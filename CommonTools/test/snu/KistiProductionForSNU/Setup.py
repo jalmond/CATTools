@@ -3,8 +3,7 @@ import os
 
 ##########################################
 #### VARIABLES THAT NEED TO BE SET BY USER
-##########################################                                                                                                                                                                                                     
-
+##########################################                                                                                                                                                                                                    
 ######## FullRun = True for running all steps and all samples: makes skims/eff lumi file etc
 FullRun=False
 

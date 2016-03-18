@@ -13,7 +13,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
-        "root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/WZ_TuneCUETP8M1_13TeV-pythia8/v7-4-2_RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/150923_192845/0000/catTuple_7.root"
+        "root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/v7-6-3_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160221_150357/0000/catTuple_237.root"
+
       )
 )
 
@@ -35,6 +36,9 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     electrons = cms.InputTag("catElectrons"),                                
     vertices = cms.InputTag("catVertex"),
     met = cms.InputTag("catMETs"),
+#   caleWeightLabel  = cms.InputTag("genWeight:scaleWeights"),
+#    PDFWeightLabel  = cms.InputTag("genWeight:pdfWeights"),
+#   OtherWeightLabel  = cms.InputTag("genWeight:otherWeights"),                                
     runFullTrig= cms.bool(True),
     keepAllGen= cms.bool(False),
     metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                                     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),               metFilterNames = cms.vstring(                                               
@@ -48,16 +52,10 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
         nGoodPV           =  cms.InputTag("catVertex"   , "nGoodPV"),
         nPV               =  cms.InputTag("catVertex"   , "nPV"    ),
         nTrueInteraction  =  cms.InputTag("pileupWeight", "nTrueInteraction" ),
-        nTrueInteractionSilver  =  cms.InputTag("pileupWeightSilver", "nTrueInteraction" ),
-        lumiMaskGold      =  cms.InputTag("lumiMask"),
-        lumiMaskSilver      =  cms.InputTag("lumiMaskSilver"),
         
-        GenTTCat =  cms.InputTag("GenTtbarCatergories" , "genTtbarId"),
-
         genWeight_id1   = cms.InputTag("genWeight" , "id1"),
         genWeight_id2   = cms.InputTag("genWeight" , "id2"),
-
-
+        
     ),
     float = cms.PSet(
         genWeightQ   = cms.InputTag("genWeight" , "Q"),
@@ -76,7 +74,9 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     ),
 
     floats = cms.PSet(
-        pdfWeight = cms.InputTag("genWeight", "pdfWeights"),
+        #pdfWeight = cms.InputTag("genWeight", "pdfWeights"),
+        #otherWeights =  cms.InputTag("genWeight","otherWeights"),
+        #scaleWeights = cms.InputTag("genWeight","scaleWeights"), 
     ),
 
     cands_bool = cms.PSet(
@@ -137,16 +137,6 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
             selections = cms.untracked.PSet(),
             ),
         
-#        jetsPuppi = cms.PSet(
-#            src = cms.InputTag("catJetsPuppi"),
-#            exprs = cms.untracked.PSet(
-#                isLoose = cms.string("looseJetID"),
-#                isTight = cms.string("tightJetID"),
-#                isTightLepVetoJetID   = cms.string("tightLepVetoJetID"),
-#                ),
-#            selections = cms.untracked.PSet(
-#                ),
-#            ),
         ),#end of cand jets
 
                                 
@@ -184,18 +174,6 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
             selections = cms.untracked.PSet(
                 ),
             ),
-
-       # jetsPuppi = cms.PSet(
-       #     src = cms.InputTag("catJetsPuppi"),
-       #     exprs = cms.untracked.PSet(
-       #         partonFlavour = cms.string("partonFlavour"),
-       #         hadronFlavour = cms.string("hadronFlavour"),
-       #         partonPdgId = cms.string("partonPdgId"),
-       #         vtxNtracks = cms.string("vtxNtracks"),
-       #         ),
-       #     selections = cms.untracked.PSet(
-       #         ),
-       #     ),##
 
         ),# end of cand_int
                                 
@@ -314,60 +292,33 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
                 ),
             ),
 
-#
- #           jetsPuppi = cms.PSet(
- #           src = cms.InputTag("catJetsPuppi"),
- #           exprs = cms.untracked.PSet(
- #               pt  = cms.string("pt"),
- #               eta = cms.string("eta"),
- #               phi = cms.string("phi"),
- #               m   = cms.string("mass"),
- #               energy   = cms.string("energy"),
- #               vtxMass = cms.string("vtxMass"),
- #               vtx3DVal = cms.string("vtx3DVal"),
- #               vtx3DSig = cms.string("vtx3DSig"),
- #               CSVInclV2 = cms.string("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')"),
- #               JetProbBJet = cms.string("bDiscriminator('pfJetProbabilityBJetTags')"),
- #               CMVAV2 = cms.string("bDiscriminator('pfCombinedMVAV2BJetTags')"),
- #               chargedEmEnergyFraction = cms.string("chargedEmEnergyFraction"),
- #               shiftedEnDown = cms.string("shiftedEnDown"),
- #               shiftedEnUp = cms.string("shiftedEnUp"),
- #               smearedRes = cms.string("smearedRes"),
- #               smearedResDown = cms.string("smearedResDown"),
- #               smearedResUp = cms.string("smearedResUp"),
- #               PileupJetId = cms.string("pileupJetId"),
- #           ),
- #           selections = cms.untracked.PSet(
- #           ),
- #       ),#
-        
         met = cms.PSet(
             src = cms.InputTag("catMETs"),
             exprs = cms.untracked.PSet(
                 pt  = cms.string("pt"),
                 phi = cms.string("phi"),
                 sumet = cms.string("sumEt"),
-                met_unclusteredEn_Px_up = cms.string("unclusteredEnPx(1)"),
-                met_unclusteredEn_Py_up = cms.string("unclusteredEnPy(1)"),
-                met_unclusteredEn_SumEt_up = cms.string("unclusteredEnSumEt(1)"),
-                met_unclusteredEn_Phi_up = cms.string("unclusteredEnPhi(1)"),
-                met_unclusteredEn_Px_down = cms.string("unclusteredEnPx(-1)"),
-                met_unclusteredEn_Py_down = cms.string("unclusteredEnPy(-1)"),
-                met_unclusteredEn_SumEt_down = cms.string("unclusteredEnSumEt(-1)"),
-                met_unclusteredEn_Phi_down = cms.string("unclusteredEnPhi(-1)"),
+                unclusteredEn_Px_up = cms.string("unclusteredEnPx(1)"),
+                unclusteredEn_Py_up = cms.string("unclusteredEnPy(1)"),
+                unclusteredEn_SumEt_up = cms.string("unclusteredEnSumEt(1)"),
+                unclusteredEn_Phi_up = cms.string("unclusteredEnPhi(1)"),
+                unclusteredEn_Px_down = cms.string("unclusteredEnPx(-1)"),
+                unclusteredEn_Py_down = cms.string("unclusteredEnPy(-1)"),
+                unclusteredEn_SumEt_down = cms.string("unclusteredEnSumEt(-1)"),
+                unclusteredEn_Phi_down = cms.string("unclusteredEnPhi(-1)"),
 
-                met_jetEn_Px_up  = cms.string("JetEnPx(1)"),
-                met_jetEn_Py_up  = cms.string("JetEnPy(1)"),
-                met_jetEn_SumEt_up  = cms.string("JetEnSumEt(1)"),
-                met_jetEn_Px_down  = cms.string("JetEnPx(-1)"),
-                met_jetEn_Py_down  = cms.string("JetEnPy(-1)"),
-                met_jetEn_SumEt_down  = cms.string("JetEnSumEt(-1)"),
-                met_jetRes_Px_up  = cms.string("JetResPx(1)"),
-                met_jetRes_Py_up  = cms.string("JetResPy(1)"),
-                met_jetRes_SumEt_up  = cms.string("JetResSumEt(1)"),
-                met_jetRes_Px_down  = cms.string("JetResPx(-1)"),
-                met_jetRes_Py_down  = cms.string("JetResPy(-1)"),
-                met_jetRes_SumEt_down  = cms.string("JetResSumEt(-1)"),
+                jetEn_Px_up  = cms.string("JetEnPx(1)"),
+                jetEn_Py_up  = cms.string("JetEnPy(1)"),
+                jetEn_SumEt_up  = cms.string("JetEnSumEt(1)"),
+                jetEn_Px_down  = cms.string("JetEnPx(-1)"),
+                jetEn_Py_down  = cms.string("JetEnPy(-1)"),
+                jetEn_SumEt_down  = cms.string("JetEnSumEt(-1)"),
+                jetRes_Px_up  = cms.string("JetResPx(1)"),
+                jetRes_Py_up  = cms.string("JetResPy(1)"),
+                jetRes_SumEt_up  = cms.string("JetResSumEt(1)"),
+                jetRes_Px_down  = cms.string("JetResPx(-1)"),
+                jetRes_Py_down  = cms.string("JetResPy(-1)"),
+                jetRes_SumEt_down  = cms.string("JetResSumEt(-1)"),
             ),
             selections = cms.untracked.PSet(),
         ),
@@ -377,69 +328,30 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
                 pt  = cms.string("pt"),
                 phi = cms.string("phi"),
                 sumet = cms.string("sumEt"),
-                met_unclusteredEn_Px_up = cms.string("unclusteredEnPx(1)"),
-                met_unclusteredEn_Py_up = cms.string("unclusteredEnPy(1)"),
-                met_unclusteredEn_SumEt_up = cms.string("unclusteredEnSumEt(1)"),
-                met_unclusteredEn_Phi_up = cms.string("unclusteredEnPhi(1)"),
-                met_unclusteredEn_Px_down = cms.string("unclusteredEnPx(-1)"),
-                met_unclusteredEn_Py_down = cms.string("unclusteredEnPy(-1)"),
-                met_unclusteredEn_SumEt_down = cms.string("unclusteredEnSumEt(-1)"),
-                met_unclusteredEn_Phi_down = cms.string("unclusteredEnPhi(-1)"),
-                met_jetEn_Px_up  = cms.string("JetEnPx(1)"),
-                met_jetEn_Py_up  = cms.string("JetEnPy(1)"),
-                met_jetEn_SumEt_up  = cms.string("JetEnSumEt(1)"),
-                met_jetEn_Px_down  = cms.string("JetEnPx(-1)"),
-                met_jetEn_Py_down  = cms.string("JetEnPy(-1)"),
-                met_jetEn_SumEt_down  = cms.string("JetEnSumEt(-1)"),
-                met_jetRes_Px_up  = cms.string("JetResPx(1)"),
-                met_jetRes_Py_up  = cms.string("JetResPy(1)"),
-                met_jetRes_SumEt_up  = cms.string("JetResSumEt(1)"),
-                met_jetRes_Px_down  = cms.string("JetResPx(-1)"),
-                met_jetRes_Py_down  = cms.string("JetResPy(-1)"),
-                met_jetRes_SumEt_down  = cms.string("JetResSumEt(-1)"),
+                unclusteredEn_Px_up = cms.string("unclusteredEnPx(1)"),
+                unclusteredEn_Py_up = cms.string("unclusteredEnPy(1)"),
+                unclusteredEn_SumEt_up = cms.string("unclusteredEnSumEt(1)"),
+                unclusteredEn_Phi_up = cms.string("unclusteredEnPhi(1)"),
+                unclusteredEn_Px_down = cms.string("unclusteredEnPx(-1)"),
+                unclusteredEn_Py_down = cms.string("unclusteredEnPy(-1)"),
+                unclusteredEn_SumEt_down = cms.string("unclusteredEnSumEt(-1)"),
+                unclusteredEn_Phi_down = cms.string("unclusteredEnPhi(-1)"),
+                jetEn_Px_up  = cms.string("JetEnPx(1)"),
+                jetEn_Py_up  = cms.string("JetEnPy(1)"),
+                jetEn_SumEt_up  = cms.string("JetEnSumEt(1)"),
+                jetEn_Px_down  = cms.string("JetEnPx(-1)"),
+                jetEn_Py_down  = cms.string("JetEnPy(-1)"),
+                jetEn_SumEt_down  = cms.string("JetEnSumEt(-1)"),
+                jetRes_Px_up  = cms.string("JetResPx(1)"),
+                jetRes_Py_up  = cms.string("JetResPy(1)"),
+                jetRes_SumEt_up  = cms.string("JetResSumEt(1)"),
+                jetRes_Px_down  = cms.string("JetResPx(-1)"),
+                jetRes_Py_down  = cms.string("JetResPy(-1)"),
+                jetRes_SumEt_down  = cms.string("JetResSumEt(-1)"),
 
             ),
             selections = cms.untracked.PSet(),
-        ),
-     #   metPfMva = cms.PSet(
-     #       src = cms.InputTag("catMETsPfMva"),
-     #       exprs = cms.untracked.PSet(
-     #           pt  = cms.string("pt"),
-     #           phi = cms.string("phi"),
-     #           sumet = cms.string("sumEt"),
-     #       ),
-     #       selections = cms.untracked.PSet(),
-     #   ),
-     #   metPuppi = cms.PSet(
-       #     src = cms.InputTag("catMETsPuppi"),
-      #      exprs = cms.untracked.PSet(
-      #          pt  = cms.string("pt"),
-      #          phi = cms.string("phi"),
-       #         sumet = cms.string("sumEt"),
-       #         met_unclusteredEn_Px_up = cms.string("unclusteredEnPx(1)"),
-       #         met_unclusteredEn_Py_up = cms.string("unclusteredEnPy(1)"),
-       #         met_unclusteredEn_SumEt_up = cms.string("unclusteredEnSumEt(1)"),
-       #         met_unclusteredEn_Phi_up = cms.string("unclusteredEnPhi(1)"),
-       #         met_unclusteredEn_Px_down = cms.string("unclusteredEnPx(-1)"),
-       #         met_unclusteredEn_Py_down = cms.string("unclusteredEnPy(-1)"),
-       #         met_unclusteredEn_SumEt_down = cms.string("unclusteredEnSumEt(-1)"),
-       #         met_unclusteredEn_Phi_down = cms.string("unclusteredEnPhi(-1)"),
-       #         met_jetEn_Px_up  = cms.string("JetEnPx(1)"),
-       #         met_jetEn_Py_up  = cms.string("JetEnPy(1)"),
-       #         met_jetEn_SumEt_up  = cms.string("JetEnSumEt(1)"),
-       #         met_jetEn_Px_down  = cms.string("JetEnPx(-1)"),
-       #         met_jetEn_Py_down  = cms.string("JetEnPy(-1)"),
-       #         met_jetEn_SumEt_down  = cms.string("JetEnSumEt(-1)"),
-       #         met_jetRes_Px_up  = cms.string("JetResPx(1)"),
-       #         met_jetRes_Py_up  = cms.string("JetResPy(1)"),
-       #         met_jetRes_SumEt_up  = cms.string("JetResSumEt(1)"),
-       #         met_jetRes_Px_down  = cms.string("JetResPx(-1)"),
-       #         met_jetRes_Py_down  = cms.string("JetResPy(-1)"),
-       #         met_jetRes_SumEt_down  = cms.string("JetResSumEt(-1)"),##
-
-#            ),
-#            selections = cms.untracked.PSet(),
-#        ),#
+            ),
         
         )#end of cands
 )

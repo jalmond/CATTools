@@ -702,6 +702,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	|| trigNames.triggerName(i).find("HLT_IsoMu") == 0 
 	|| trigNames.triggerName(i).find("HLT_TkMu") == 0 
 	|| trigNames.triggerName(i).find("HLT_Mu") == 0
+	|| trigNames.triggerName(i).find("HLT_DiMu9") == 0
+	|| trigNames.triggerName(i).find("HLT_TripleMu_") == 0
 	|| trigNames.triggerName(i).find("HLT_Photon") == 0 
 	|| trigNames.triggerName(i).find("HLT_DoublePhoton") == 0){
       if(!(tname.Contains("Jpsi") 

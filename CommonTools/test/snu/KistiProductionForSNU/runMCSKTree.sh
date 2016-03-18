@@ -1,1 +1,0 @@
-ssh jalmond@cms3.snu.ac.kr 'cd /home/jalmond/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/; source setup.sh; make distclean; make; cd LQRun/SKTreeMakerSubmit; source runMCskim.sh' &> log_mcsktree.txt&
