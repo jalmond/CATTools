@@ -269,7 +269,7 @@ sampledir = ["HN_ee_40", "HN_ee_100", "HN_ee_500", "HN_ee_1500","HN_mm_40","HN_m
 #samples with fullgen entries in the name will store all gen information. All others will store just first 30 gen particles
 fullgen = ["QCD"]
 
-signalsample = ["Major"]
+signalsample = ["Major", "SNU"]
 
 if not ALLSamples == True:
     sampledir = mcsampledir
