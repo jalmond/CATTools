@@ -151,7 +151,7 @@ cat::CATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
     aElectron.setscEta( aPatElectron.superCluster()->eta());
     aElectron.setPassConversionVeto( aPatElectron.passConversionVeto() );
-
+    
     if (elecIDSrcs_.size()){// for remade electron IDs
       for (size_t i = 0; i < elecIDSrcs_.size(); ++i){
 	ids[i].second = (*idhandles[i])[elecsRef];
@@ -165,6 +165,7 @@ cat::CATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       }
     }
     else {
+
       aElectron.setElectronIDs(aPatElectron.electronIDs());
     }
 

@@ -3,7 +3,7 @@ import time
 from functions import *
 
 ## sample directory
-sample= "/cms/scratch/jskim/rootfiles/cattuples/"
+sample= "/cms/scratch/jalmond/Cattuples/cat76/cattools/src/CATTools/CommonTools/test/snu/SNUProduction/cattuples/"
 ## output name can be anything, it creates a tmp dir
 output="WZ"
 outputdir="/tmp/test1/"

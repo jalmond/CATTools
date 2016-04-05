@@ -23,7 +23,7 @@ datasampledir = ["DoubleMuon"]
 
                 
 #### For MC only
-mcsampledir = ["WpWpQCD"]
+mcsampledir = ["tthwA_3l4j_hc130A30_3mu"]
 
 
 if RunALLSamples:

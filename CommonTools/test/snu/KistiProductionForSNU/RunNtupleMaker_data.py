@@ -167,7 +167,8 @@ if not "ui10" in host:
 
 if os.path.exists("cat.txt"):
     os.system("rm cat.txt")
-os.system("source /cms/home/jalmond/Cattuples/cat76/cattools/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
+os.system("source "+cmssw_dir+"/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
+
 
 
 catfile = open("cat.txt",'r')
@@ -184,7 +185,7 @@ for line in catfile:
 print "Cat version = " + version 
 
 
-if not user in kisti_output_default:
+if not k_user in kisti_output_default:
     print "kisti_output_default should container username in the path. Fix this."
     quit()
 
@@ -200,51 +201,13 @@ else:
 
 print "Output directory is " + kisti_output_default        
 
-if FullRun:
-## Check Branch for SKtrees is up to date to make skims
-    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/Branch.txt > check_snu_branch.txt")
-    os.system("ssh " +  username_snu +"@cms3.snu.ac.kr cat /home/" + username_snu+ snu_lqpath + "/bin/CATVERSION.txt > check_catversion_branch.txt")
-    snubranch = open("check_snu_branch.txt",'r')
-    snu_br_uptodate=False
-
-    for line in snubranch:
-        if version in line:
-            snu_br_uptodate=True
-
-    snu_cat_uptodate=False
-    snucat = open("check_catversion_branch.txt",'r')
-    for line in snucat:
-        if version in line:
-            snu_cat_uptodate=True
-            
-    if snu_br_uptodate == False:
-        print "Branch on snu is not compatable with " + version + " please update snu branch first"
-        quit()
-
-    if snu_cat_uptodate== False:
-        print "CATVERSION on snu is not compatable with " + version + " please update cat version first"
-        quit()
-
-    os.system("rm check_catversion_branch.txt")
-    os.system("rm check_snu_branch.txt")
-    if MakeSKTrees == True:
-        os.system("ls /tmp/ > check_snu_connection.txt")
-        snu_connect = open("check_snu_connection.txt",'r')
-        connected_cms4=False
-        for line in snu_connect:
-            if "ssh-jalmond@cms4" in line:
-                connected_cms4=True
-        os.system("rm check_snu_connection.txt")
-        if connected_cms4 == False:
-            print "No connection to cms3: please make connection in screen and run script again"
-            quit()
     
 
 os.system("ls /tmp/ > check_snu_connection.txt")
 snu_connect = open("check_snu_connection.txt",'r')
 connected_cms3=False
 for line in snu_connect:
-    if "ssh-jalmond@cms3" in line:
+    if "ssh-" +k_user +"@cms3" in line:
         connected_cms3=True
             
 os.system("rm check_snu_connection.txt")    
@@ -259,8 +222,10 @@ if connected_cms3 == False:
 
 sampledir = ["SingleMuon","DoubleMuon", "MuonEG", "SinglePhoton", "DoubleEG", "SingleElectron"]
 
+sampledir = [ "SingleElectron"]
+
 #samples with fullgen entries in the name will store all gen information. All others will store just first 30 gen particles
-periods = ["C"]
+periods = ["C", "D"]
 
 if not ALLSamples == True:
     sampledir = datasampledir
@@ -283,6 +248,8 @@ for i in sampledir:
         runtrig=True
         #runtrig true means more triggers are available in catuples              
 
+    if "SingleEl" in i:
+        runtrig=True
     
     for period in periods:
         print "period = " + period
@@ -300,8 +267,7 @@ for i in sampledir:
         else:
             os.system("rm " + kisti_output + "/*")
 
-
-        datasetpath = "/cms/scratch/jalmond/Cattuples/cat76/cattools/src/CATTools/CatAnalyzer/data/dataset/dataset_" + i + "_Run2015"+ period + ".txt"
+        datasetpath = cmssw_dir+"/src/CATTools/CatAnalyzer/data/dataset/dataset_" + i + "_Run2015"+ period + ".txt"                              
     
         datasetfile = open(datasetpath, 'r')
         for line in datasetfile:
@@ -461,7 +427,7 @@ t")
             continue
 
         print "CheckJobStatusAfterCrash = False"
-        runcommand="create-batch  --jobName " + jobname + " --fileList  ../../../../CatAnalyzer/data/dataset/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /xrootd/store/user/jalmond/"
+        runcommand="create-batch  --jobName " + jobname + " --fileList  ../../../../CatAnalyzer/data/dataset/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /xrootd/store/user/" + k_user + "/"
         
         print runcommand
         os.system(runcommand)
@@ -474,7 +440,7 @@ t")
         while check_njob_submitted == 0:
             import platform
         
-            os.system("condor_q jalmond &>  jobcheck/runningcheck_data.txt")
+            os.system("condor_q " + k_user + " &>  jobcheck/runningcheck_data.txt")
             fcheck = open("jobcheck/runningcheck_data.txt",'r')
             for line in fcheck:
                 if "completed" in line:

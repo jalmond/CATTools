@@ -13,8 +13,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
-#        'file:/cms/scratch/jalmond/privateCatuples/v7-6-3/EE/40/catTuple_1.root'
-        "root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/v7-6-3_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160221_150303/0000/catTuple_567.root"
+        'file:/cms/scratch/jalmond/privateCatuples/v7-6-3/EE/40/catTuple_1.root'
+        #"root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/v7-6-3_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160221_150303/0000/catTuple_567.root"
       )
 )
 
@@ -41,8 +41,9 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
 #    PDFWeightLabel  = cms.InputTag("genWeight:pdfWeights"),
 #   OtherWeightLabel  = cms.InputTag("genWeight:otherWeights"),                                
     runFullTrig= cms.bool(True),
-    keepAllGen= cms.bool(True),
+    keepAllGen= cms.bool(False),
     makeSlim= cms.bool(True),
+
     metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                                     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),               metFilterNames = cms.vstring(                                               
     "HBHENoiseFilter",
     "CSCTightHaloFilter",

@@ -88,7 +88,8 @@ if not options.inputFiles:
                                       '/store/relval/CMSSW_7_4_15/RelValTTbar_13/MINIAODSIM/PU25ns_74X_mcRun2_asymptotic_v2-v1/00000/0253820F-4772-E511-ADD3-002618943856.root',
                                       '/store/relval/CMSSW_7_4_15/RelValTTbar_13/MINIAODSIM/PU25ns_74X_mcRun2_asymptotic_v2-v1/00000/3848030E-4772-E511-AFCA-0026189438CC.root']
         else:
-            process.source.fileNames = ['/store/relval/CMSSW_7_4_15/RelValZMM_13/MINIAODSIM/PU25ns_74X_mcRun2_asymptotic_v2-v1/00000/10FF6E32-3C72-E511-87AD-0025905A60B4.root']
+            process.source.fileNames = ['file:/cms/scratch/jalmond/miniAOD/EE/40/step3_1.root']
+
     else:
         if useGenTop:
             process.source.fileNames = ['/store/relval/CMSSW_7_4_12/RelValTTbar_13/GEN-SIM-RECO/PU25ns_74X_mcRun2_asymptotic_v2_v2-v1/00000/006F3660-4B5E-E511-B8FD-0025905B8596.root']

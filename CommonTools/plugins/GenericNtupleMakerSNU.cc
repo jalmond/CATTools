@@ -25,6 +25,7 @@
 
 #include "CATTools/DataFormats/interface/MET.h"
 #include "CATTools/DataFormats/interface/Muon.h"
+#include "CATTools/DataFormats/interface/Jet.h"
 #include "CATTools/DataFormats/interface/Electron.h"
 #include "CATTools/DataFormats/interface/GenJet.h"
 
@@ -239,7 +240,8 @@ private:
 
   
   vector<cat::Muon> selectMuons(const edm::View<cat::Muon>* muons );
-  vector<cat::Electron> selectElecs(const edm::View<cat::Electron>* elecs );
+  vector<cat::Jet> selectJets(const edm::View<cat::Jet>* jets );
+  vector<cat::Electron> selectElecs(const edm::View<cat::Electron>* electrons );
   
   typedef edm::ParameterSet PSet;
   typedef std::vector<double> vdouble;
@@ -294,6 +296,7 @@ private:
   
   bool runFullTrig;
   bool keepAllGen;
+  bool makeSlim;
   
   TH1F* hNEvent_;
 
@@ -303,16 +306,41 @@ private:
   bool IsData_;
 
   std::string CatVersion_;
+  
+  //// Bools 
+  /// Muons  8
+  vector<bool> muon_isTrackerMuon, muon_isGlobalMuon, muon_isLooseMuon, muon_isMediumMuon, muon_isTightMuon, muon_isSoftMuon, muon_mcMatched, muon_isPFMuon;
+  /// Electrons 13
+  vector<bool>  electrons_electronID_loose,electrons_electronID_medium,electrons_electronID_tight,electrons_electronID_veto,electrons_electronID_mva_medium,electrons_electronID_mva_tight,electrons_electronID_mva_trig_medium,electrons_electronID_mva_trig_tight,electrons_electronID_heep,  electrons_mcMatched,electrons_isPF,electrons_passConversionVeto,electrons_isTrigMVAValid;
+  /// Jest 3
+  vector<bool>  jets_looseJetID,jets_tightJetID,jets_tightLepVetoJetID;
+  
+  /////// ints
+  ///// muon 6
+  vector<int>  muon_numberOfValidHits, muon_numberOfValidMuonHits,muon_numberOfMatchedStations,muon_numberOfValidPixelHits,muon_trackerLayersWithMeasurement,muon_charge;
+  
+  /// electrons 2
+  vector<int>  electrons_snuID, electrons_charge;
 
+  /// jets 4
+  vector<int>  jets_partonFlavour,jets_hadronFlavour,jets_partonPdgId,jets_vtxNtracks;
+  
+  //// double
+  //// muon  15
+  vector<double>  muon_x,muon_y,muon_z,muon_pt, muon_eta,muon_phi, muon_m, muon_energy, muon_relIso03,muon_relIso04, muon_dxy, muon_normchi, muon_dz, muon_shiftedEup,muon_shiftedEdown;
+  
+  //// electrons  26
+  vector<double>   electrons_x,electrons_y,electrons_z,electrons_pt, electrons_eta,electrons_phi, electrons_m, electrons_energy, electrons_relIso03,electrons_relIso04,electrons_shiftedEnDown, electrons_shiftedEnUp, electrons_absIso03, electrons_absIso04,electrons_chIso03, electrons_nhIso03, electrons_phIso03, electrons_puChIso03, electrons_chIso04, electrons_nhIso04, electrons_phIso04, electrons_puChIso04, electrons_scEta, electrons_dxy, electrons_dz, electrons_isGsfCtfScPixChargeConsistent;
+  
+  //// jets  18
+  vector<double>   jets_pt, jets_eta,jets_phi, jets_m, jets_energy, jets_vtxMass, jets_vtx3DVal, jets_vtx3DSig, jets_CSVInclV2, jets_JetProbBJet, jets_CMVAV2, jets_chargedEmEnergyFraction, jets_shiftedEnDown, jets_shiftedEnUp, jets_smearedRes, jets_smearedResDown, jets_smearedResUp, jets_PileupJetId;
+
+  
   bool Flag_HBHENoiseFilter, Flag_CSCTightHaloFilter, Flag_goodVertices, Flag_eeBadScFilter, Flag_EcalDeadCellTriggerPrimitiveFilter;
 
   double met_muonEn_Px_up, met_muonEn_Px_down, met_muonEn_Py_up, met_muonEn_Py_down;
   double met_electronEn_Px_up, met_electronEn_Px_down, met_electronEn_Py_up, met_electronEn_Py_down;
-  //  double met_jetEn_Px_up, met_jetEn_Px_down, met_jetEn_Py_up, met_jetEn_Py_down;
-  //double met_jetRes_Px_up, met_jetRes_Px_down, met_jetRes_Py_up, met_jetRes_Py_down;  
-  //double met_unclusteredEn_Px_up, met_unclusteredEn_Px_down, met_unclusteredEn_Py_up, met_unclusteredEn_Py_down;
-  //double met_unclusteredEn_SumEt_down, met_unclusteredEn_SumEt_up, met_jetEn_SumEt_up, met_jetEn_SumEt_down, met_jetRes_SumEt_up, met_jetRes_SumEt_down;
-  //double met_unclusteredEn_Phi_up, met_unclusteredEn_Phi_down; 
+
   vector<std::string> vtrignames;
   vector<std::string> muon_trigmatch;
   vector<std::string> electron_trigmatch;
@@ -334,6 +362,7 @@ private:
 
   edm::EDGetTokenT<cat::METCollection>      metToken_;
   edm::EDGetTokenT<edm::View<cat::Muon> >     muonToken_;
+  edm::EDGetTokenT<edm::View<cat::Jet> >     jetToken_;
   edm::EDGetTokenT<edm::View<cat::Electron> > elecToken_;
   
 
@@ -399,6 +428,8 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   metToken_  = consumes<cat::METCollection>(pset.getParameter<edm::InputTag>("met"));
   muonToken_ = consumes<edm::View<cat::Muon> >(pset.getParameter<edm::InputTag>("muons"));
   elecToken_ = consumes<edm::View<cat::Electron> >(pset.getParameter<edm::InputTag>("electrons"));
+  jetToken_ = consumes<edm::View<cat::Jet> >(pset.getParameter<edm::InputTag>("jets"));
+
   metFilterBitsPAT_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("metFilterBitsPAT"));
   metFilterBitsRECO_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("metFilterBitsRECO"));
   vtxToken_  = consumes<reco::VertexCollection >(pset.getParameter<edm::InputTag>("vertices"));
@@ -406,7 +437,8 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   
   runFullTrig = pset.getParameter<bool>("runFullTrig");
   keepAllGen = pset.getParameter<bool>("keepAllGen");
-  
+  makeSlim = pset.getParameter<bool>("makeSlim");
+
   if(runFullTrig) cout << "Running fulltrigger" << endl;
   else cout << "Not running full trigger" << endl;
   //// Test MET
@@ -433,25 +465,6 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("met_electronEn_Py_up", &met_electronEn_Py_up, "met_electronEn_Py_up/D");
   tree_->Branch("met_electronEn_Px_down", &met_electronEn_Px_down, "met_electronEn_Px_down/D");
   tree_->Branch("met_electronEn_Py_down", &met_electronEn_Py_down, "met_electronEn_Py_down/D");
-  /*  tree_->Branch("met_unclusteredEn_Px_up", &met_unclusteredEn_Px_up, "met_unclusteredEn_Px_up/D");
-  tree_->Branch("met_unclusteredEn_Py_up", &met_unclusteredEn_Py_up, "met_unclusteredEn_Py_up/D");
-  tree_->Branch("met_unclusteredEn_Px_down", &met_unclusteredEn_Px_down, "met_unclusteredEn_Px_down/D");
-  tree_->Branch("met_unclusteredEn_Py_down", &met_unclusteredEn_Py_down, "met_unclusteredEn_Py_down/D");
-  tree_->Branch("met_unclusteredEn_SumEt_down", &met_unclusteredEn_SumEt_down, "met_unclusteredEn_SumEt_down/D");
-  tree_->Branch("met_unclusteredEn_SumEt_up", &met_unclusteredEn_SumEt_up, "met_unclusteredEn_SumEt_up/D");
-  tree_->Branch("met_jetEn_Px_up", &met_jetEn_Px_up, "met_jetEn_Px_up/D");
-  tree_->Branch("met_jetEn_Py_up", &met_jetEn_Py_up, "met_jetEn_Py_up/D");
-  tree_->Branch("met_jetEn_Px_down", &met_jetEn_Px_down, "met_jetEn_Px_down/D");
-  tree_->Branch("met_jetEn_Py_down", &met_jetEn_Py_down, "met_jetEn_Py_down/D");
-  tree_->Branch("met_jetEn_SumEt_up", &met_jetEn_SumEt_up, "met_jetEn_SumEt_up/D");
-  tree_->Branch("met_jetEn_SumEt_down", &met_jetEn_SumEt_down, "met_jetEn_SumEt_down/D");
-  tree_->Branch("met_jetRes_Px_up", &met_jetRes_Px_up, "met_jetRes_Px_up/D");
-  tree_->Branch("met_jetRes_Py_up", &met_jetRes_Py_up, "met_jetRes_Py_up/D");
-  tree_->Branch("met_jetRes_Px_down", &met_jetRes_Px_down, "met_jetRes_Px_down/D");
-  tree_->Branch("met_jetRes_Py_down", &met_jetRes_Py_down, "met_jetRes_Py_down/D");
-  tree_->Branch("met_jetRes_SumEt_up", &met_jetRes_SumEt_up, "met_jetRes_SumEt_up/D");
-  tree_->Branch("met_jetRes_SumEt_down", &met_jetRes_SumEt_down, "met_jetRes_SumEt_down/D");
-  */
 
   tree_->Branch("CatVersion", &CatVersion_);  
 
@@ -485,6 +498,123 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("genjet_emf", &GenJet_emf_);
   tree_->Branch("genjet_hadf", &GenJet_hadf_);
   tree_->Branch("genjet_pdgid", &GenJet_pdgid_);
+
+ 
+  tree_->Branch("muon_isTracker", &muon_isTrackerMuon);
+  tree_->Branch("muon_isGlobal", &muon_isGlobalMuon);
+  tree_->Branch("muon_isLoose", &muon_isLooseMuon);
+  tree_->Branch("muon_isMedium", &muon_isMediumMuon);
+  tree_->Branch("muon_isTight", &muon_isTightMuon);
+  tree_->Branch("muon_isSoft", &muon_isSoftMuon);
+  tree_->Branch("muon_matched", &muon_mcMatched);
+  tree_->Branch("muon_isPF", &muon_isPFMuon);
+
+  tree_->Branch("electrons_electronID_loose", &electrons_electronID_loose);
+  tree_->Branch("electrons_electronID_medium", &electrons_electronID_medium);
+  tree_->Branch("electrons_electronID_tight", &electrons_electronID_tight);
+  tree_->Branch("electrons_electronID_veto", &electrons_electronID_veto);
+  tree_->Branch("electrons_electronID_mva_medium", &electrons_electronID_mva_medium);
+  tree_->Branch("electrons_electronID_mva_tight", &electrons_electronID_mva_tight);
+  tree_->Branch("electrons_electronID_mva_trig_medium", &electrons_electronID_mva_trig_medium);
+  tree_->Branch("electrons_electronID_mva_trig_tight", &electrons_electronID_mva_trig_tight);
+  tree_->Branch("electrons_electronID_heep", &electrons_electronID_heep);
+  tree_->Branch("electrons_mcMatched", &electrons_mcMatched);
+  tree_->Branch("electrons_isPF", &electrons_isPF);
+  tree_->Branch("electrons_passConversionVeto", &electrons_passConversionVeto);
+  tree_->Branch("electrons_isTrigMVAValid", &electrons_isTrigMVAValid);
+
+
+  /// Jets                                                                                                                                                                          
+  tree_->Branch("jets_isLoose", &jets_looseJetID);
+  tree_->Branch("jets_isTight", &jets_tightJetID);
+  tree_->Branch("jets_isTightLepVetoJetID", &jets_tightLepVetoJetID);
+
+  /////// ints                                                                                                                                                                      
+  ///// muon                                                                                                                                                                        
+  tree_->Branch("muon_validhits", &muon_numberOfValidHits);
+  tree_->Branch("muon_validmuonhits", &muon_numberOfValidMuonHits);
+  tree_->Branch("muon_matchedstations", &muon_numberOfMatchedStations);
+  tree_->Branch("muon_validpixhits", &muon_numberOfValidPixelHits);
+  tree_->Branch("muon_trackerlayers", &muon_trackerLayersWithMeasurement);
+  tree_->Branch("muon_q", &muon_charge);
+  /// electrons                                                                                                                                                                     
+  tree_->Branch("electrons_electronID_snu", &electrons_snuID);
+  tree_->Branch("electrons_q", &electrons_charge);
+
+  /// jets                                                                                                                                                                          
+  
+  tree_->Branch("jets_partonFlavour", &jets_partonFlavour);
+  tree_->Branch("jets_hadronFlavour", &jets_hadronFlavour);
+  tree_->Branch("jets_partonPdgId", &jets_partonPdgId);
+  tree_->Branch("jets_vtxNtracks", &jets_vtxNtracks);
+
+  //// floats                                                                                                                                                                       
+  //// muon                                                                                                                                                                         
+
+  tree_->Branch("muon_x", &muon_x);
+  tree_->Branch("muon_y", &muon_y);
+  tree_->Branch("muon_z", &muon_z);
+  tree_->Branch("muon_pt", &muon_pt);
+  tree_->Branch("muon_eta", &muon_eta);
+  tree_->Branch("muon_phi", &muon_phi);
+  tree_->Branch("muon_m", &muon_m);
+  tree_->Branch("muon_energy", &muon_energy);
+  tree_->Branch("muon_dxy", &muon_dxy);
+  tree_->Branch("muon_dz", &muon_dz);
+  tree_->Branch("muon_normchi" , &muon_normchi);
+  tree_->Branch("muon_relIso03", &muon_relIso03);
+  tree_->Branch("muon_relIso04", &muon_relIso04);
+  tree_->Branch("muon_shiftedEdown", &muon_shiftedEdown);
+  tree_->Branch("muon_shiftedEup", &muon_shiftedEup);
+
+
+  //// electronss                                                                                                                                                                    
+  tree_->Branch("electrons_x", &electrons_x);
+  tree_->Branch("electrons_y", &electrons_y);
+  tree_->Branch("electrons_z", &electrons_z);
+  tree_->Branch("electrons_pt", &electrons_pt);
+  tree_->Branch("electrons_eta", &electrons_eta);
+  tree_->Branch("electrons_phi", &electrons_phi);
+  tree_->Branch("electrons_m", &electrons_m);
+  tree_->Branch("electrons_energy", &electrons_energy);
+  tree_->Branch("electrons_relIso03", &electrons_relIso03);
+  tree_->Branch("electrons_relIso04", &electrons_relIso04);
+  tree_->Branch("electrons_shiftedEnDown", &electrons_shiftedEnDown);
+  tree_->Branch("electrons_shiftedEnUp", &electrons_shiftedEnUp);
+  tree_->Branch("electrons_absIso03", &electrons_absIso03);
+  tree_->Branch("electrons_absIso04", &electrons_absIso04);
+  tree_->Branch("electrons_chIso03", &electrons_chIso03);
+  tree_->Branch("electrons_chIso04", &electrons_chIso04);
+  tree_->Branch("electrons_nhIso03", &electrons_nhIso03);
+  tree_->Branch("electrons_nhIso04", &electrons_nhIso04);
+  tree_->Branch("electrons_phIso03", &electrons_phIso03);
+  tree_->Branch("electrons_phIso04", &electrons_phIso04);
+  tree_->Branch("electrons_scEta", &electrons_scEta);
+  tree_->Branch("electrons_dxy", &electrons_dxy);
+  tree_->Branch("electrons_dz", &electrons_dz);
+  tree_->Branch("electrons_isGsfCtfScPixChargeConsistent", &electrons_isGsfCtfScPixChargeConsistent);
+  tree_->Branch("electrons_puChIso03", &electrons_puChIso03);
+  tree_->Branch("electrons_puChIso04", &electrons_puChIso04);
+
+  //// jets                                                                                                                                                                         
+  tree_->Branch("jets_pt", &jets_pt);
+  tree_->Branch("jets_eta", &jets_eta);
+  tree_->Branch("jets_phi", &jets_phi);
+  tree_->Branch("jets_m", &jets_m);
+  tree_->Branch("jets_energy", &jets_energy);
+  tree_->Branch("jets_vtxMass", &jets_vtxMass);
+  tree_->Branch("jets_vtx3DVal", &jets_vtx3DVal);
+  tree_->Branch("jets_vtx3DSig", &jets_vtx3DSig);
+  tree_->Branch("jets_CSVInclV2", &jets_CSVInclV2);
+  tree_->Branch("jets_JetProbBJet", &jets_JetProbBJet);
+  tree_->Branch("jets_CMVAV2", &jets_CMVAV2);
+  tree_->Branch("jets_chargedEmEnergyFraction", &jets_chargedEmEnergyFraction);
+  tree_->Branch("jets_shiftedEnDown", &jets_shiftedEnDown);
+  tree_->Branch("jets_shiftedEnUp", &jets_shiftedEnUp);
+  tree_->Branch("jets_smearedRes", &jets_smearedRes);
+  tree_->Branch("jets_smearedResDown", &jets_smearedResDown);
+  tree_->Branch("jets_smearedResUp", &jets_smearedResUp);
+  tree_->Branch("jets_PileupJetId", &jets_PileupJetId);
 
   
 
@@ -789,22 +919,163 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   edm::Handle<edm::View<cat::Electron> > electrons;
   event.getByToken(elecToken_, electrons);
   
+  edm::Handle<edm::View<cat::Jet> > jets;
+  event.getByToken(jetToken_, jets);
+
+  double el_pt_min= 10.;
+  double el_eta_max= 3.;
+  double mu_pt_min= 10.;
+  double mu_eta_max= 3.;
+  double j_pt_min= 15.;
+  double j_eta_max= 5.;
+  if(!makeSlim){
+    el_pt_min= 0.;
+    el_eta_max= 10.;
+    mu_pt_min= 0.;
+    mu_eta_max= 10.;
+    j_pt_min= 0.;
+    j_eta_max= 10.;
+  }
+  for (auto el : *electrons) {
+
+    if(el.pt() < el_pt_min) continue;
+    if(fabs(el.eta()) > el_eta_max) continue;
+    if(el.pt() != el.pt()) continue;
+    bool private_sample=false;
+    if(private_sample){
+      electrons_electronID_loose.push_back(el.electronID("cutBasedElectronID_Spring15_25ns_V1_standalone_loose"));
+      electrons_electronID_medium.push_back(el.electronID("cutBasedElectronID_Spring15_25ns_V1_standalone_medium"));
+      electrons_electronID_tight.push_back(el.electronID("cutBasedElectronID_Spring15_25ns_V1_standalone_tight"));
+      electrons_electronID_veto.push_back(el.electronID("cutBasedElectronID_Spring15_25ns_V1_standalone_veto"));
+      electrons_electronID_mva_medium.push_back(el.electronID("mvaEleID_Spring15_25ns_nonTrig_V1_wp90"));
+      electrons_electronID_mva_tight.push_back(el.electronID("mvaEleID_Spring15_25ns_nonTrig_V1_wp80"));
+      electrons_electronID_mva_trig_medium.push_back(el.electronID("mvaEleID_Spring15_25ns_Trig_V1_wp90"));
+      electrons_electronID_mva_trig_tight.push_back(el.electronID("mvaEleID_Spring15_25ns_Trig_V1_wp80"));
+      electrons_electronID_heep.push_back(el.electronID("heepElectronID_HEEPV60"));
+    }
+    else{
+      electrons_electronID_loose.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-loose"));
+      electrons_electronID_medium.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-medium"));
+      electrons_electronID_tight.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-tight"));
+      electrons_electronID_veto.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-veto"));
+      electrons_electronID_mva_medium.push_back(el.electronID("mvaEleID-Spring15-25ns-nonTrig-V1-wp90"));
+      electrons_electronID_mva_tight.push_back(el.electronID("mvaEleID-Spring15-25ns-nonTrig-V1-wp80"));
+      electrons_electronID_mva_trig_medium.push_back(el.electronID("mvaEleID-Spring15-25ns-Trig-V1-wp90"));
+      electrons_electronID_mva_trig_tight.push_back(el.electronID("mvaEleID-Spring15-25ns-Trig-V1-wp80"));
+      electrons_electronID_heep.push_back(el.electronID("heepElectronID-HEEPV60"));
+
+    }
+    electrons_mcMatched.push_back(el.mcMatched());
+    electrons_isPF.push_back(el.isPF());
+    electrons_passConversionVeto.push_back(el.passConversionVeto());
+    electrons_isTrigMVAValid.push_back(el.isTrigMVAValid());
+    electrons_snuID.push_back(el.snuID()); 
+    electrons_charge.push_back(el.charge());
+    electrons_x.push_back(el.vx());
+    electrons_y.push_back(el.vy());
+    electrons_z.push_back(el.vz());
+    electrons_pt.push_back(el.pt());
+    electrons_eta.push_back(el.eta());
+    electrons_phi.push_back(el.phi());
+    electrons_m.push_back(el.mass()); 
+    electrons_energy.push_back(el.energy()); 
+    electrons_relIso03.push_back(el.relIso(0.3));
+    electrons_relIso04.push_back(el.relIso(0.4));
+    electrons_shiftedEnDown.push_back(el.shiftedEnDown()); 
+    electrons_shiftedEnUp.push_back(el.shiftedEnUp()); 
+    electrons_absIso03.push_back(el.absIso(0.3)); 
+    electrons_absIso04.push_back(el.absIso(0.4));
+    electrons_chIso03.push_back(el.chargedHadronIso(0.3));
+    electrons_nhIso03.push_back(el.neutralHadronIso(0.3)); 
+    electrons_phIso03.push_back(el.photonIso(0.3)); 
+    electrons_puChIso03.push_back(el.puChargedHadronIso(0.3)); 
+    electrons_chIso04.push_back(el.chargedHadronIso(0.4)); 
+    electrons_nhIso04.push_back(el.neutralHadronIso(0.4)); 
+    electrons_phIso04.push_back(el.photonIso(0.4)); 
+    electrons_puChIso04.push_back(el.puChargedHadronIso(0.4)); 
+    electrons_scEta.push_back(el.scEta()); 
+    electrons_dxy.push_back(el.dxy()); 
+    electrons_dz.push_back(el.dz());
+    electrons_isGsfCtfScPixChargeConsistent.push_back(el.isGsfCtfScPixChargeConsistent());
+    
+  }
+  
+  
+  for (auto mu : *muons) {
+    if(mu.pt() < mu_pt_min) continue;
+    if(fabs(mu.eta()) > mu_eta_max) continue;
+    muon_isTrackerMuon.push_back(mu.isTrackerMuon());
+    muon_isGlobalMuon.push_back(mu.isGlobalMuon()); 
+    muon_isLooseMuon.push_back(mu.isLooseMuon()); 
+    muon_isMediumMuon.push_back(mu.isMediumMuon());
+    muon_isTightMuon.push_back(mu.isTightMuon());
+    muon_isSoftMuon.push_back(mu.isSoftMuon()); 
+    muon_mcMatched.push_back(mu.mcMatched()); 
+    muon_isPFMuon.push_back(mu.isPFMuon());
+    muon_numberOfValidHits.push_back(mu.numberOfValidHits());
+    muon_numberOfValidMuonHits.push_back(mu.numberOfValidMuonHits());
+    muon_numberOfMatchedStations.push_back(mu.numberOfMatchedStations());
+    muon_numberOfValidPixelHits.push_back(mu.numberOfValidPixelHits());
+    muon_trackerLayersWithMeasurement.push_back(mu.trackerLayersWithMeasurement());
+    muon_charge.push_back(mu.charge());
+    muon_x.push_back(mu.vx());
+    muon_y.push_back(mu.vy());
+    muon_z.push_back(mu.vz());
+    muon_pt.push_back(mu.pt());
+    muon_eta.push_back(mu.eta());
+    muon_phi.push_back(mu.phi()); 
+    muon_m.push_back(mu.mass());
+    muon_energy.push_back(mu.energy()); 
+    muon_relIso03.push_back(mu.relIso(0.3));
+    muon_relIso04.push_back(mu.relIso(0.4));
+    muon_dxy.push_back(mu.dxy());
+    muon_normchi.push_back(mu.normalizedChi2());
+    muon_dz.push_back(mu.dz()); 
+    muon_shiftedEup.push_back(mu.shiftedEnUp());
+    muon_shiftedEdown.push_back(mu.shiftedEnDown());
+    
+  }
+  
+  for (auto jt : *jets) {
+    if(jt.pt() < j_pt_min) continue;
+    if(fabs(jt.eta()) > j_eta_max) continue;
+    
+    /// Jets                                                                                                                                                                                                                       
+    jets_looseJetID.push_back(jt.looseJetID());
+    jets_tightJetID.push_back(jt.tightJetID());
+    jets_tightLepVetoJetID.push_back(jt.tightLepVetoJetID());
+
+    jets_partonFlavour.push_back(jt.partonFlavour());
+    jets_hadronFlavour.push_back(jt.hadronFlavour());
+    jets_partonPdgId.push_back(jt.partonPdgId());
+    jets_vtxNtracks.push_back(jt.vtxNtracks());
+    
+    jets_pt.push_back(jt.pt()); 
+    jets_eta.push_back(jt.eta());
+    jets_phi.push_back(jt.phi());
+    jets_m.push_back(jt.mass());
+    jets_energy.push_back(jt.energy());
+    jets_vtxMass.push_back(jt.vtxMass()); 
+    jets_vtx3DVal.push_back(jt.vtx3DVal()); 
+    jets_vtx3DSig.push_back(jt.vtx3DSig()); 
+    jets_CSVInclV2.push_back(jt.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")); 
+    jets_JetProbBJet.push_back(jt.bDiscriminator("pfJetProbabilityBJetTags")); 
+    jets_CMVAV2.push_back(jt.bDiscriminator("pfCombinedMVAV2BJetTags")); 
+    jets_chargedEmEnergyFraction.push_back(jt.chargedEmEnergyFraction()); 
+    jets_shiftedEnDown .push_back(jt.shiftedEnDown()); 
+    jets_shiftedEnUp.push_back(jt.shiftedEnUp()); 
+    jets_smearedRes.push_back(jt.smearedRes()); 
+    jets_smearedResDown.push_back(jt.smearedResDown()); 
+    jets_smearedResUp.push_back(jt.smearedResUp()); 
+    jets_PileupJetId.push_back(jt.pileupJetId()); 
+
+
+  }
+
   edm::Handle<cat::METCollection> mets;         
   event.getByToken(metToken_, mets);
 
-  /*  met_unclusteredEn_Px_up  =  mets->front().unclusteredEnPx(1);  met_unclusteredEn_Px_down  =  mets->front().unclusteredEnPx(-1);
-  met_unclusteredEn_Py_up  =  mets->front().unclusteredEnPy(1);  met_unclusteredEn_Py_down  =  mets->front().unclusteredEnPy(-1);
-  met_unclusteredEn_SumEt_up  =  mets->front().unclusteredEnSumEt(1);  met_unclusteredEn_SumEt_down  =  mets->front().unclusteredEnSumEt(-1);
-  met_unclusteredEn_Phi_up  =  mets->front().unclusteredEnPhi(1);  met_unclusteredEn_Phi_down  =  mets->front().unclusteredEnPhi(-1);
 
-  met_jetEn_Px_up  =  mets->front().JetEnPx(1);  met_jetEn_Px_down  =  mets->front().JetEnPx(-1); 
-  met_jetEn_Py_up  =  mets->front().JetEnPy(1);  met_jetEn_Py_down  =  mets->front().JetEnPy(-1); 
-  met_jetEn_SumEt_up  =  mets->front().JetEnSumEt(1);  met_jetEn_SumEt_down  =  mets->front().JetEnSumEt(-1);
-  
-  met_jetRes_Px_up  =  mets->front().JetEnPx(1);  met_jetRes_Px_down  =  mets->front().JetEnPx(-1);
-  met_jetRes_Py_up  =  mets->front().JetEnPy(1);  met_jetRes_Py_down  =  mets->front().JetEnPy(-1);
-  met_jetRes_SumEt_up  =  mets->front().JetResSumEt(1);  met_jetRes_SumEt_down  =  mets->front().JetResSumEt(-1);
-  */
   float px_shift_muon_up(0.), px_shift_muon_down(0.), py_shift_muon_up(0.), py_shift_muon_down(0.), px_muon(0.), py_muon(0.), px_electron(0.), py_electron(0.) ;
   float  px_shift_electron_up(0.), px_shift_electron_down(0.), py_shift_electron_up(0.), py_shift_electron_down(0.);
   for (auto mu : *muons) {
@@ -835,7 +1106,9 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     
   }
   
+
   for (auto el : *electrons) {
+    if(el.pt() != el.pt()) continue;
     std::string eltrig= "SKTriggerMatching:";
     for(unsigned int i =0; i< vtrignames_tomatch_electron.size(); i++){
       for (pat::TriggerObjectStandAlone trigObj : *triggerObjects) {
@@ -1193,6 +1466,109 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   GenJet_hadf_.clear();
   GenJet_pdgid_.clear();
   
+
+  /// Jets                                                                                                                                                                                                                       
+  jets_looseJetID.clear();
+  jets_tightJetID.clear();
+  jets_tightLepVetoJetID.clear();
+
+  jets_partonFlavour.clear();
+  jets_hadronFlavour.clear();
+  jets_partonPdgId.clear();
+  jets_vtxNtracks.clear();
+
+  jets_pt.clear();
+  jets_eta.clear();
+  jets_phi.clear();
+  jets_m.clear();
+  jets_energy.clear();
+  jets_vtxMass.clear();
+  jets_vtx3DVal.clear();
+  jets_vtx3DSig.clear();
+  jets_CSVInclV2.clear();
+  jets_JetProbBJet.clear();
+  jets_CMVAV2.clear();
+  jets_chargedEmEnergyFraction.clear();
+  jets_shiftedEnDown .clear();
+  jets_shiftedEnUp.clear();
+  jets_smearedRes.clear();
+  jets_smearedResDown.clear();
+  jets_smearedResUp.clear();
+  jets_PileupJetId.clear();
+
+  muon_isTrackerMuon.clear();
+  muon_isGlobalMuon.clear();
+  muon_isLooseMuon.clear();
+  muon_isMediumMuon.clear();
+  muon_isTightMuon.clear();
+  muon_isSoftMuon.clear();
+  muon_mcMatched.clear();
+  muon_isPFMuon.clear();
+  muon_numberOfValidHits.clear();
+  muon_numberOfValidMuonHits.clear();
+  muon_numberOfMatchedStations.clear();
+  muon_numberOfValidPixelHits.clear();
+  muon_trackerLayersWithMeasurement.clear();
+  muon_charge.clear();
+  muon_x.clear();
+  muon_y.clear();
+  muon_z.clear();
+  muon_pt.clear();
+  muon_eta.clear();
+  muon_phi.clear();
+  muon_m.clear();
+  muon_energy.clear();
+  muon_relIso03.clear();
+  muon_relIso04.clear();
+  muon_dxy.clear();
+  muon_normchi.clear();
+  muon_dz.clear();
+  muon_shiftedEup.clear();
+  muon_shiftedEdown.clear();
+ 
+  electrons_electronID_loose.clear();
+  electrons_electronID_medium.clear();
+  electrons_electronID_tight.clear();
+  electrons_electronID_veto.clear();
+  electrons_electronID_mva_medium.clear();
+  electrons_electronID_mva_tight.clear();
+  electrons_electronID_mva_trig_medium.clear();
+  electrons_electronID_mva_trig_tight.clear();
+  electrons_electronID_heep.clear();
+  electrons_mcMatched.clear();
+  electrons_isPF.clear();
+  electrons_passConversionVeto.clear();
+  electrons_isTrigMVAValid.clear();
+  electrons_snuID.clear();
+  electrons_charge.clear();
+  electrons_x.clear();
+  electrons_y.clear();
+  electrons_z.clear();
+  electrons_pt.clear();
+  electrons_eta.clear();
+  electrons_phi.clear();
+  electrons_m.clear();
+  electrons_energy.clear();
+  electrons_relIso03.clear();
+  electrons_relIso04.clear();
+  electrons_shiftedEnDown.clear();
+  electrons_shiftedEnUp.clear();
+  electrons_absIso03.clear();
+  electrons_absIso04.clear();
+  electrons_chIso03.clear();
+  electrons_nhIso03.clear();
+  electrons_phIso03.clear();
+  electrons_puChIso03.clear();
+  electrons_chIso04.clear();
+  electrons_nhIso04.clear();
+  electrons_phIso04.clear();
+  electrons_puChIso04.clear();
+  electrons_scEta.clear();
+  electrons_dxy.clear();
+  electrons_dz.clear();
+  electrons_isGsfCtfScPixChargeConsistent.clear();
+
+
   for ( size_t iCand=0; iCand<nCand; ++iCand )
   {
     const size_t nVar = candVars_[iCand].size();
@@ -1307,3 +1683,5 @@ const reco::Candidate* GenericNtupleMakerSNU::lastCHadron(const reco::Candidate 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(GenericNtupleMakerSNU);
 
+
+//  LocalWords:  isPFMuon

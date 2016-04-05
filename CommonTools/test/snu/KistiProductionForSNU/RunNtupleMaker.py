@@ -264,10 +264,12 @@ if connected_cms3 == False:
 
 sampledir = ["QCD_DoubleEM_Pt_30to40", "QCD_DoubleEM_Pt_30toInf", "QCD_DoubleEM_Pt_40toInf", "QCD_Pt-1000toInf_MuEnriched" , "QCD_Pt-120to170_EMEnriched" , "QCD_Pt-120to170_MuEnriched", "QCD_Pt-15to20_EMEnriched", "QCD_Pt-15to20_MuEnriched", "QCD_Pt-170to300_EMEnriched" , "QCD_Pt-170to300_MuEnriched" , "QCD_Pt-20to30_EMEnriched" , "QCD_Pt-20to30_MuEnriched", "QCD_Pt-300to470_MuEnriched", "QCD_Pt-300toInf_EMEnriched", "QCD_Pt-30to50_EMEnriched", "QCD_Pt-30to50_MuEnriched" , "QCD_Pt-470to600_MuEnriched", "QCD_Pt-50to80_EMEnriched", "QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched","QCD_Pt-800to1000_MuEnriched" ,"QCD_Pt-80to120_MuEnriched" ,"QCD_Pt-80to120_EMEnriched", "QCD_Pt-170to250_bcToE","QCD_Pt-15to20_bcToE", "QCD_Pt-20to30_bcToE", "QCD_Pt-250toINF_bcToE", "QCD_Pt-30to80_bcToE", "QCD_Pt-80to170_bcToE" ,"DYJets" , "DYJets_10to50","DYJets_MG","GG_HToMuMu","GJets_Pt20to40","GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","SingleTbar_t","SingleTbar_tW","SingleTop_s","SingleTop_t","SingleTop_tW","TTG","TTJets_MG5","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WW","WWTo2L2Nu_powheg","WWZ","WW_dps","WZ","WZTo2L2Q","WZTo3LNu","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZ","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ"]
 
+sampledir = ["HN_ee_40", "HN_ee_100", "HN_ee_500", "HN_ee_1500","HN_mm_40","HN_mm_100","HN_mm_500","HN_mm_1500"]
 
 #samples with fullgen entries in the name will store all gen information. All others will store just first 30 gen particles
-fullgen = ["DY" , "TTJets"]
+fullgen = ["QCD"]
 
+signalsample = ["Major"]
 
 if not ALLSamples == True:
     sampledir = mcsampledir
@@ -297,10 +299,16 @@ for i in sampledir:
     if samples_processed < skip_first+1:
         continue
 
-    runfullgen = False
+    runfullgen = True
     for j in fullgen:
         if j in dataset_tag:
-            runfullgen = True
+            runfullgen = False
+
+    issignal = False
+    for j in signalsample:
+         if j in dataset_tag:
+             issignal= True
+
 
     output= dataset_tag
     kisti_output=kisti_output_default+output+"/"
@@ -372,21 +380,34 @@ for i in sampledir:
     fr_end.close()
     print "tagpath = " + tagpath
     
+    private=0
+    if "HN" in i:
+        private = 1
+    if "tthwA" in i:
+        private = 1
 
     if sample_exists == 0:
-        continue
+        if private == 0:
+            continue
 
     os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output  + "/" + versionpath + "/" + tagpath + "/0000/ > " + kisti_output+ "/"+output + "_tmpfull.txt")
     os.system("sed -r 's/^.{43}//' " +  kisti_output+ "/"+output  + "_tmpfull.txt  > " +kisti_output+ "/"+output  + "_full.txt")
 
     ## Set the number of jobs and files per job
     fr = open(kisti_output+ "/"+output +"_full.txt",'r')
+
+    if private == 1:
+        fr =  open(datasetpath, 'r')
+    
     count=0
     nfilesperjob=0
     for line in fr:
         if ".root" in line:
             count+=1
     fr.close()
+
+    print str(count)
+ 
 
     njob=30
     if njob > count:
@@ -427,10 +448,12 @@ for i in sampledir:
     
     jobname = "SNU_" + version + "_" + dataset_tag
     datasetlist= "dataset_" + i + ".txt"
-    #cfgfile="run_ntupleMaker_snu_mc_cfg.py"
-    #if runfullgen == True:
-    cfgfile="run_ntupleMaker_snu_mc_fullgen_cfg.py"
+    cfgfile="run_ntupleMaker_snu_mc_cfg.py"
+    if runfullgen == False:
+        cfgfile="run_ntupleMaker_snu_mc_nofullgen_cfg.py"
 
+    if issignal == True:
+         cfgfile="run_ntupleMaker_snu_mc_noslim_cfg.py"
 
     isjobrunning=False
     print "Running : CheckJobStatusAfterCrash"
@@ -443,6 +466,7 @@ for i in sampledir:
         continue
 
     print "CheckJobStatusAfterCrash = False"
+
     runcommand="create-batch  --jobName " + jobname + " --fileList  ../../../../CatAnalyzer/data/dataset/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /xrootd/store/user/"+k_user
     print "Running:"
     print  runcommand
@@ -452,6 +476,8 @@ for i in sampledir:
     
     njobs_submitted= int(njobs_submitted)+int(njob)
     
+    if not os.path.exists("jobcheck"):
+        os.system("mkdir jobcheck")
     check_njob_submitted=0
     while check_njob_submitted == 0:
         import platform

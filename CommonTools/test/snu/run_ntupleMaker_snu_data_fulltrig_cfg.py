@@ -35,10 +35,13 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     triggerPrescales = cms.InputTag("patTrigger"),
     muons = cms.InputTag("catMuons"),
     electrons = cms.InputTag("catElectrons"),
+    jets = cms.InputTag("catJets"), 
     vertices = cms.InputTag("catVertex"),
     met = cms.InputTag("catMETs"),
     runFullTrig = cms.bool(True),
-    keepAllGen= cms.bool(False),                      
+    keepAllGen= cms.bool(False), 
+    makeSlim= cms.bool(True),
+                    
     metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                 
     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),                                                                                
                metFilterNames = cms.vstring(
@@ -64,41 +67,6 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
 
 
     cands_bool = cms.PSet(
-        muon = cms.PSet(                                
-            src = cms.InputTag("catMuons"),
-             exprs = cms.untracked.PSet(
-                isTracker = cms.string("isTrackerMuon"),
-                isGlobal = cms.string("isGlobalMuon"),
-                isLoose = cms.string("isLooseMuon"),
-                isMedium = cms.string("isMediumMuon"),
-                isTight = cms.string("isTightMuon"),
-                isSoft = cms.string("isSoftMuon"),
-                matched = cms.string("mcMatched"),
-                isPF = cms.string("isPFMuon"),
-                ),
-            selections = cms.untracked.PSet(),
-            ),
-        
-        electrons = cms.PSet(
-            src = cms.InputTag("catElectrons"),
-            exprs = cms.untracked.PSet(
-                electronID_loose   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-loose')"),
-                electronID_medium   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-medium')"),
-                electronID_tight   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-tight')"),
-                electronID_veto   = cms.string("electronID('cutBasedElectronID-Spring15-25ns-V1-standalone-veto')"),
-                electronID_mva_medium        = cms.string("electronID('mvaEleID-Spring15-25ns-nonTrig-V1-wp90')"),
-                electronID_mva_tight        = cms.string("electronID('mvaEleID-Spring15-25ns-nonTrig-V1-wp80')"),
-                electronID_mva_trig_medium        = cms.string("electronID('mvaEleID-Spring15-25ns-Trig-V1-wp90')"),
-                electronID_mva_trig_tight        = cms.string("electronID('mvaEleID-Spring15-25ns-Trig-V1-wp80')"),
-                electronID_heep   = cms.string("electronID('heepElectronID-HEEPV60')"),
-                mcMatched = cms.string("mcMatched"),
-                isPF = cms.string("isPF"),
-                passConversionVeto = cms.string("passConversionVeto"),
-                isTrigMVAValid = cms.string("isTrigMVAValid"),
-                ),
-            selections = cms.untracked.PSet(),
-            ),
-
         photons = cms.PSet(
             src = cms.InputTag("catPhotons"),
             exprs = cms.untracked.PSet(
@@ -113,107 +81,13 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
             selections = cms.untracked.PSet(),
             ),
 
-        jets = cms.PSet(
-            src = cms.InputTag("catJets"),
-            exprs = cms.untracked.PSet(
-                isLoose = cms.string("looseJetID"),
-                isTight = cms.string("tightJetID"),
-                isTightLepVetoJetID   = cms.string("tightLepVetoJetID"),
-                ),
-            selections = cms.untracked.PSet(),
-            ),
         ),
                                 
    cands_int = cms.PSet(
-        muon = cms.PSet(
-            src = cms.InputTag("catMuons"),
-             exprs = cms.untracked.PSet(
-                validhits = cms.string("numberOfValidHits"),
-                validmuonhits = cms.string("numberOfValidMuonHits"),
-                matchedstations = cms.string("numberOfMatchedStations"),
-                validpixhits = cms.string("numberOfValidPixelHits"),
-                trackerlayers= cms.string("trackerLayersWithMeasurement"),
-                q = cms.string("charge"),
-                ),
-            selections = cms.untracked.PSet(),
-            ),
-        electrons = cms.PSet(
-            src = cms.InputTag("catElectrons"),
-            exprs = cms.untracked.PSet(
-                electronID_snu   = cms.string("snuID"),                
-                q = cms.string("charge"),
-                ),
-            selections = cms.untracked.PSet(),
-            ),
-        jets = cms.PSet(
-            src = cms.InputTag("catJets"),
-            exprs = cms.untracked.PSet(
-                partonFlavour = cms.string("partonFlavour"),
-                hadronFlavour = cms.string("hadronFlavour"),
-                partonPdgId = cms.string("partonPdgId"),
-                vtxNtracks = cms.string("vtxNtracks"),
-                ),
-            selections = cms.untracked.PSet(
-                ),
-            ),
         ),
                     
     cands = cms.PSet(
-        muon = cms.PSet(
-            src = cms.InputTag("catMuons"),
-            exprs = cms.untracked.PSet(
-                x  = cms.string("vx"),
-                y  = cms.string("vy"),
-                z  = cms.string("vz"),
-                pt  = cms.string("pt"),
-                eta = cms.string("eta"),
-                phi = cms.string("phi"),
-                m   = cms.string("mass"),
-                energy   = cms.string("energy"),
-                relIso03 = cms.string("relIso(0.3)"),
-                relIso04 = cms.string("relIso(0.4)"),
-                dxy = cms.string("dxy"),
-                normchi = cms.string("normalizedChi2"),
-                dz = cms.string("dz"),
-                shiftedEup = cms.string("shiftedEnUp"),
-                shiftedEdown = cms.string("shiftedEnDown"),
-            ),
-            selections = cms.untracked.PSet(),
-        ),
 
-        electrons = cms.PSet(
-            src = cms.InputTag("catElectrons"),
-            #index = cms.untracked.int32(0),
-            exprs = cms.untracked.PSet(
-                x  = cms.string("vx"),
-                y  = cms.string("vy"),
-                z  = cms.string("vz"),
-                pt  = cms.string("pt"),
-                eta = cms.string("eta"),
-                phi = cms.string("phi"),
-                m   = cms.string("mass"),
-                energy   = cms.string("energy"),
-                shiftedEnDown = cms.string("shiftedEnDown"),
-                shiftedEnUp = cms.string("shiftedEnUp"),
-                relIso03 = cms.string("relIso(0.3)"),
-                relIso04 = cms.string("relIso(0.4)"),
-                absIso03 = cms.string("absIso(0.3)"),
-                absIso04 = cms.string("absIso(0.4)"),
-                chIso03 = cms.string("chargedHadronIso(0.3)"),
-                nhIso03 = cms.string("neutralHadronIso(0.3)"),
-                phIso03 = cms.string("photonIso(0.3)"),
-                puChIso03 = cms.string("puChargedHadronIso(0.3)"),
-                chIso04 = cms.string("chargedHadronIso(0.4)"),
-                nhIso04 = cms.string("neutralHadronIso(0.4)"),
-                phIso04 = cms.string("photonIso(0.4)"),
-                puChIso04 = cms.string("puChargedHadronIso(0.4)"), 
-                scEta = cms.string("scEta"),
-                dxy = cms.string("dxy"),
-                dz = cms.string("dz"),
-                isGsfCtfScPixChargeConsistent = cms.string("isGsfCtfScPixChargeConsistent"),
-            ),
-            selections = cms.untracked.PSet(),
-        ),
      photons = cms.PSet(
             src = cms.InputTag("catPhotons"),
             exprs = cms.untracked.PSet(
@@ -238,32 +112,6 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
                  scpreshowerenergy = cms.string("SCPreShowerEnergy"),
                  ),
             selections = cms.untracked.PSet(),
-        ),
-
-        jets = cms.PSet(
-            src = cms.InputTag("catJets"),
-            exprs = cms.untracked.PSet(
-                pt  = cms.string("pt"),
-                eta = cms.string("eta"),
-                phi = cms.string("phi"),
-                m   = cms.string("mass"),
-                energy   = cms.string("energy"),
-                vtxMass = cms.string("vtxMass"),
-                vtx3DVal = cms.string("vtx3DVal"),
-                vtx3DSig = cms.string("vtx3DSig"),
-                CSVInclV2 = cms.string("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')"),
-                JetProbBJet = cms.string("bDiscriminator('pfJetProbabilityBJetTags')"),
-                CMVAV2 = cms.string("bDiscriminator('pfCombinedMVAV2BJetTags')"),
-                chargedEmEnergyFraction = cms.string("chargedEmEnergyFraction"),
-                shiftedEnDown = cms.string("shiftedEnDown"),
-                shiftedEnUp = cms.string("shiftedEnUp"),
-                smearedRes = cms.string("smearedRes"),
-                smearedResDown = cms.string("smearedResDown"),
-                smearedResUp = cms.string("smearedResUp"),
-                PileupJetId = cms.string("pileupJetId"),
-                
-            ),
-            selections = cms.untracked.PSet(),   
         ),
 
         met = cms.PSet(

@@ -128,6 +128,9 @@ sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8",
              "TT_TuneCUETP8M1_13TeV-powheg-scaledown-pythia8",
              "TT_TuneCUETP8M1_13TeV-powheg-pythi8"]
 
+sampledir = ["WZ_TuneCUETP8M1_13TeV-pythia8"]
+
+
 if not ALLSamples == True:
     sampledir = mcsampledir
 
