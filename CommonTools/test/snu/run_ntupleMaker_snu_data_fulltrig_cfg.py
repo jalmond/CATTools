@@ -41,6 +41,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     runFullTrig = cms.bool(True),
     keepAllGen= cms.bool(False), 
     makeSlim= cms.bool(True),
+    private_sample = cms.bool(False),
                     
     metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                 
     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),                                                                                

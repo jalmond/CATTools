@@ -181,12 +181,13 @@ def CheckJobStatus(submitted_list, v):
             os.system("ssh " + username_snu  + "@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/MC/" + v +"/" + i )
             os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + v)
             os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + v + "/" + i )
-            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr chmod -R 777 /data2/DATA/cattoflat/MC/" + v)
+            
             
 
             print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/" + v + "/"  +i
-            os.system("scp SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/"  + v + "/" +i)                                                                                                                                                                                       
-
+            os.system("scp SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/"  + v + "/" +i) 
+            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr chmod -R 777 /data2/DATA/cattoflat/MC/" + v + "/" +i) 
+            
             print "submitted_list = " + submitted_list + " is ammended to: "
             new_submitted_list = string.replace(submitted_list, i+"!" , "")
             print new_submitted_list
@@ -454,6 +455,9 @@ for i in sampledir:
 
     if issignal == True:
          cfgfile="run_ntupleMaker_snu_mc_noslim_cfg.py"
+
+    if PrivateSample == True:
+        cfgfile="run_ntupleMaker_snu_mc_private_cfg.py"
 
     isjobrunning=False
     print "Running : CheckJobStatusAfterCrash"

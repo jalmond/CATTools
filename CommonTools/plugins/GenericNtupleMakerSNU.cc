@@ -297,7 +297,8 @@ private:
   bool runFullTrig;
   bool keepAllGen;
   bool makeSlim;
-  
+  bool private_sample;
+
   TH1F* hNEvent_;
 
   TTree* tree_;
@@ -438,8 +439,9 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   runFullTrig = pset.getParameter<bool>("runFullTrig");
   keepAllGen = pset.getParameter<bool>("keepAllGen");
   makeSlim = pset.getParameter<bool>("makeSlim");
+  private_sample = pset.getParameter<bool>("private_sample");
 
-  if(runFullTrig) cout << "Running fulltrigger" << endl;
+ if(runFullTrig) cout << "Running fulltrigger" << endl;
   else cout << "Not running full trigger" << endl;
   //// Test MET
 
@@ -941,7 +943,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     if(el.pt() < el_pt_min) continue;
     if(fabs(el.eta()) > el_eta_max) continue;
     if(el.pt() != el.pt()) continue;
-    bool private_sample=false;
+
     if(private_sample){
       electrons_electronID_loose.push_back(el.electronID("cutBasedElectronID_Spring15_25ns_V1_standalone_loose"));
       electrons_electronID_medium.push_back(el.electronID("cutBasedElectronID_Spring15_25ns_V1_standalone_medium"));

@@ -7,6 +7,7 @@ import os
 
 ##### Set RunALLSamples=True true to simply add ALL samples to production list                                                                                                                                        
 RunALLSamples=False
+PrivateSample=True
 
 ###### If you want to debug you can set KeepWorkDir=True and the dir will not be deleted
 KeepWorkDir=False
