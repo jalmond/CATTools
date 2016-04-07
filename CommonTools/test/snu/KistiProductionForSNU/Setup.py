@@ -7,6 +7,7 @@ import os
 
 ##### Set RunALLSamples=True true to simply add ALL samples to production list                                                                                                                                        
 RunALLSamples=False
+
 PrivateSample=True
 
 ###### If you want to debug you can set KeepWorkDir=True and the dir will not be deleted
@@ -39,7 +40,6 @@ kisti_output_default=cmssw_dir+"/src/CATTools/CommonTools/test/snu/KistiProducti
 ### Set if you are running full production on kisti site to transfer to snu                                                                                                                                                                  
 snu_lqpath="/HeavyNeutrino/13TeV/LQAnalyzer_cat/LQanalyzer/"
 username_snu=os.getenv("USER")
-
 
 ##########################################
 ###### VARIABLES THAT ARE NOT SET BY USER

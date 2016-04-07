@@ -379,16 +379,9 @@ for i in sampledir:
                             check_d=split_tag_date_d
                             check_tag=split_tag_tag
     fr_end.close()
-    print "tagpath = " + tagpath
     
-    private=0
-    if "HN" in i:
-        private = 1
-    if "tthwA" in i:
-        private = 1
-
     if sample_exists == 0:
-        if private == 0:
+        if PrivateSample == False:
             continue
 
     os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output  + "/" + versionpath + "/" + tagpath + "/0000/ > " + kisti_output+ "/"+output + "_tmpfull.txt")
@@ -397,7 +390,7 @@ for i in sampledir:
     ## Set the number of jobs and files per job
     fr = open(kisti_output+ "/"+output +"_full.txt",'r')
 
-    if private == 1:
+    if PrivateSample == True:
         fr =  open(datasetpath, 'r')
     
     count=0
@@ -457,8 +450,12 @@ for i in sampledir:
          cfgfile="run_ntupleMaker_snu_mc_noslim_cfg.py"
 
     if PrivateSample == True:
-        cfgfile="run_ntupleMaker_snu_mc_private_cfg.py"
+        cfgfile="run_ntupleMaker_snu_mc_noslim_cfg.py"
+        if "jalmond" in k_user:
+            cfgfile="run_ntupleMaker_snu_mc_private_cfg.py"
 
+
+        
     isjobrunning=False
     print "Running : CheckJobStatusAfterCrash"
     isjobrunning = CheckJobStatusAfterCrash(jobname, version)
