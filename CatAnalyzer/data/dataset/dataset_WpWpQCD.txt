@@ -1,5 +1,5 @@
 # nevt = 0
-# DataSetName = /WpWpJJ_QCD_TuneCUETP8M1_13TeV-madgraph-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM
+# DataSetName = WpWpJJ_QCD_TuneCUETP8M1_13TeV-madgraph-pythia8
 # name = WpWpQCD
 # lumi = 0.0
 # title = Dibosons
