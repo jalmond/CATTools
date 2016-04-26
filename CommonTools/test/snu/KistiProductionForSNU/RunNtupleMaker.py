@@ -260,8 +260,9 @@ connected_cluster=False
 for line in snu_connect:
     if "ssh-"+k_user+"@cms3" in line:
         connected_cms3=True
-    if "ssh-"+k_user+"@147.47.242.67" in line:
-        connected_cluster=True
+    if copy_cluster:
+        if "ssh-"+k_user+"@147.47.242.67" in line:
+            connected_cluster=True
 
             
 os.system("rm check_snu_connection.txt")    
