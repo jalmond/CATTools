@@ -2,7 +2,7 @@
 import ROOT,os,getopt,sys
 
 certJSON = None
-minBiasXsec = 69000.
+minBiasXsec = 71000.
 
 try:
     opts, args = getopt.getopt(sys.argv[1:],"hl:c:",["lumiMask",'minBiasXsec'])
@@ -42,7 +42,7 @@ for i, f in enumerate(syst):
     PileUpData = 'PileUpData%s.root'%(f)
     if i == 1: minBiasXsec = minBiasXsec*1.05
     if i == 2: minBiasXsec = minBiasXsec*0.95
-    command = 'pileupCalc.py -i %s --inputLumiJSON /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/PileUp/pileup_latest.txt --calcMode true --minBiasXsec %i --maxPileupBin 50 --numPileupBins 50 %s'%(certJSON,minBiasXsec,PileUpData)
+    command = 'pileupCalc.py -i %s --inputLumiJSON pileup_latest.txt --calcMode true --minBiasXsec %i --maxPileupBin 50 --numPileupBins 50 %s'%(certJSON,minBiasXsec,PileUpData)
     os.system(command)
     tt = ROOT.TFile(PileUpData)
     histo = tt.Get("pileup")

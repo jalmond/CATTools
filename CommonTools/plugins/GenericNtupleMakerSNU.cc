@@ -353,6 +353,21 @@ private:
   vector<float> gen_eta_;
   vector<float> gen_phi_;
   vector<float> gen_pt_;
+
+  vector<bool>  gen_ispromptfinalstate_;
+  vector<bool>  gen_isdecayedleptonhadron_;
+  vector<bool>  gen_istaudecayproduct_;
+  vector<bool>  gen_isprompttaudecayproduct_;
+  vector<bool>  gen_isdirectfromtau_;
+  vector<bool>  gen_ispromptdirectfromtau_;
+  vector<bool>  gen_isdirecthadrondecayproduct_;
+  
+  vector<bool>  gen_ishardprocess_;
+  vector<bool>  gen_fromhardprocess_;
+  vector<bool>  gen_fromhardprocess_finalstate_;
+  vector<bool>  gen_fromhardprocess_beforeFSR_;
+  
+  
   vector<float> GenJet_eta_;
   vector<float> GenJet_pt_;
   vector<float> GenJet_phi_;
@@ -490,6 +505,20 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("gen_status", &gen_status_);
   tree_->Branch("gen_pdgid", &gen_pdgid_);
   tree_->Branch("gen_motherindex", &gen_motherindex_);
+
+  tree_->Branch("gen_ispromptfinalstate", &gen_ispromptfinalstate_);
+  tree_->Branch("gen_isdecayedleptonhadron", &gen_isdecayedleptonhadron_);
+  tree_->Branch("gen_istaudecayproduct", &gen_isdecayedleptonhadron_);
+  tree_->Branch("gen_isprompttaudecayproduct", &gen_isprompttaudecayproduct_);
+  tree_->Branch("gen_isdirectfromtau", &gen_isdirectfromtau_);
+  tree_->Branch("gen_ispromptdirectfromtau", &gen_ispromptdirectfromtau_);
+  tree_->Branch("gen_isdirecthadrondecayproduct", &gen_isdirecthadrondecayproduct_);
+
+  tree_->Branch("gen_ishardprocess", &gen_ishardprocess_);
+  tree_->Branch("gen_fromhardprocess", &gen_fromhardprocess_);
+  tree_->Branch("gen_fromhardprocess_finalstate", &gen_fromhardprocess_finalstate_);
+  tree_->Branch("gen_fromhardprocess_beforeFSR", &gen_fromhardprocess_beforeFSR_);
+
 
   tree_->Branch("genjet_pt", &GenJet_pt_);
   tree_->Branch("genjet_eta", &GenJet_eta_);
@@ -1178,6 +1207,22 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
       gen_pdgid_.push_back( it->pdgId() );
       gen_status_.push_back( it->status() );
       
+      // https://indico.cern.ch/event/459797/contributions/1961581/attachments/1181555/1800214/mcaod-Feb15-2016.pdf
+      //gen_isprompt_.push_back( it->isPrompt() );
+      gen_ispromptfinalstate_.push_back( it->isPromptFinalState() );
+      gen_isdecayedleptonhadron_.push_back( it->isDecayedLeptonHadron() );
+      gen_istaudecayproduct_.push_back( it->isTauDecayProduct() );
+      gen_isprompttaudecayproduct_.push_back( it->isPromptTauDecayProduct() );
+      gen_isdirectfromtau_.push_back( it->isDirectTauDecayProduct() );
+      gen_ispromptdirectfromtau_.push_back( it->isDirectPromptTauDecayProduct() );
+      gen_isdirecthadrondecayproduct_.push_back( it->isDirectHadronDecayProduct() );
+
+      gen_ishardprocess_.push_back( it->isHardProcess() );
+      gen_fromhardprocess_.push_back( it->fromHardProcessDecayed() );	
+      gen_fromhardprocess_finalstate_.push_back( it->fromHardProcessFinalState() );
+      gen_fromhardprocess_beforeFSR_.push_back( it->fromHardProcessBeforeFSR() );
+      
+	
       int idx = -1;
       for( reco::GenParticleCollection::const_iterator mit = genParticles->begin(); mit != genParticles->end(); ++mit ) {
 	if( it->mother()==&(*mit) ) {
@@ -1444,6 +1489,20 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   gen_energy_.clear();
   gen_status_.clear();
   gen_pdgid_.clear();
+
+  gen_ispromptfinalstate_.clear();
+  gen_isdecayedleptonhadron_.clear();
+  gen_istaudecayproduct_.clear();
+  gen_isprompttaudecayproduct_.clear();
+  gen_isdirectfromtau_.clear();
+  gen_ispromptdirectfromtau_.clear();
+  gen_isdirecthadrondecayproduct_.clear();
+
+  gen_ishardprocess_.clear();
+  gen_fromhardprocess_.clear();
+  gen_fromhardprocess_finalstate_.clear();
+  gen_fromhardprocess_beforeFSR_.clear();
+
 
   GenJet_pt_.clear();
   GenJet_eta_.clear();

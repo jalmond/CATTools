@@ -21,6 +21,17 @@ fileNames = cms.untracked.vstring(
 
 process.nEventsTotal = cms.EDProducer("EventCountProducer")
 
+process.load("CATTools.CatProducer.pileupWeight_cff")                # loads pileup weighting tool
+from CATTools.CatProducer.pileupWeight_cff import pileupWeightMap
+process.pileupWeight.weightingMethod = "RedoWeight"                  # set mode to reweighting
+process.pileupWeight.pileupMC = pileupWeightMap["Startup2015_25ns"]  # MC pileup distrubition 
+from pileup import pileupMap                                         # new pileup file made with getPileUpData.py
+process.pileupWeight.pileupRD = pileupMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON"] # new data PU distrubition
+process.pileupWeight.pileupUp = pileupMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Up"]
+process.pileupWeight.pileupDn = pileupMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Dn"]
+process.pileupWeight.pileup2RD = pileupMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000"] # new data PU distrubition
+process.pileupWeight.pileup2Up = pileupMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Up"]
+process.pileupWeight.pileup2Dn = pileupMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Dn"]
 
 
 

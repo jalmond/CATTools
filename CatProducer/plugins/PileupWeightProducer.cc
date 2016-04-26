@@ -30,6 +30,7 @@ public:
 
 private:
   edm::LumiReWeighting lumiWeights_, lumiWeightsUp_, lumiWeightsDn_;
+  edm::LumiReWeighting lumiWeights_71000_, lumiWeightsUp_71000_, lumiWeightsDn_71000_;
 
   enum class WeightingMethod { Standard, RedoWeight, NVertex };
   WeightingMethod weightingMethod_;
@@ -76,30 +77,54 @@ PileupWeightProducer::PileupWeightProducer(const edm::ParameterSet& pset)
     std::vector<double> pileupRD = pset.getParameter<std::vector<double> >("pileupRD");
     std::vector<double> pileupUp = pset.getParameter<std::vector<double> >("pileupUp");
     std::vector<double> pileupDn = pset.getParameter<std::vector<double> >("pileupDn");
+    std::vector<double> pileupRD_71000 = pset.getParameter<std::vector<double> >("pileupRD_71000");
+    std::vector<double> pileupUp_71000 = pset.getParameter<std::vector<double> >("pileupUp_71000");
+    std::vector<double> pileupDn_71000 = pset.getParameter<std::vector<double> >("pileupDn_71000");
+    std::cout << "Size of pileupUp_71000 = " << pileupRD_71000.size() << std::endl;
+    if(pileupRD_71000.size() == 0){
+      std::vector<double> pileupRD_71000 = pset.getParameter<std::vector<double> >("pileupRD");
+      std::vector<double> pileupUp_71000 = pset.getParameter<std::vector<double> >("pileupUp");
+      std::vector<double> pileupDn_71000 = pset.getParameter<std::vector<double> >("pileupDn");
+    }
     const double sumWMC = std::accumulate(pileupMC.begin(), pileupMC.end(), 0.);
     const double sumWRD = std::accumulate(pileupRD.begin(), pileupRD.end(), 0.);
     const double sumWUp = std::accumulate(pileupUp.begin(), pileupUp.end(), 0.);
     const double sumWDn = std::accumulate(pileupDn.begin(), pileupDn.end(), 0.);
 
+    const double sumWRD_71000 = std::accumulate(pileupRD_71000.begin(), pileupRD_71000.end(), 0.);
+    const double sumWUp_71000 = std::accumulate(pileupUp_71000.begin(), pileupUp_71000.end(), 0.);
+    const double sumWDn_71000 = std::accumulate(pileupDn_71000.begin(), pileupDn_71000.end(), 0.);
     std::vector<float> pileupMCTmp;
     std::vector<float> pileupRDTmp;
     std::vector<float> pileupUpTmp, pileupDnTmp;
+    std::vector<float> pileupRDTmp_71000;
+    std::vector<float> pileupUpTmp_71000, pileupDnTmp_71000;
     for ( int i=0, n=min(pileupMC.size(), pileupRD.size()); i<n; ++i )
     {
       pileupMCTmp.push_back(pileupMC[i]/sumWMC);
       pileupRDTmp.push_back(pileupRD[i]/sumWRD);
       pileupUpTmp.push_back(pileupUp[i]/sumWUp);
       pileupDnTmp.push_back(pileupDn[i]/sumWDn);
+      pileupRDTmp_71000.push_back(pileupRD_71000[i]/sumWRD_71000);
+      pileupUpTmp_71000.push_back(pileupUp_71000[i]/sumWUp_71000);
+      pileupDnTmp_71000.push_back(pileupDn_71000[i]/sumWDn_71000);
     }
+    
     lumiWeights_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp);
     lumiWeightsUp_ = edm::LumiReWeighting(pileupMCTmp, pileupUpTmp);
     lumiWeightsDn_ = edm::LumiReWeighting(pileupMCTmp, pileupDnTmp);
+    lumiWeights_71000_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_71000);
+    lumiWeightsUp_71000_ = edm::LumiReWeighting(pileupMCTmp, pileupUpTmp_71000);
+    lumiWeightsDn_71000_ = edm::LumiReWeighting(pileupMCTmp, pileupDnTmp_71000);
   }
 
   produces<int>("nTrueInteraction");
   produces<float>("");
   produces<float>("up");
   produces<float>("dn");
+  produces<float>("_71000");
+  produces<float>("_71000up");
+  produces<float>("_71000dn");
 
 }
 
@@ -109,6 +134,10 @@ void PileupWeightProducer::produce(edm::Event& event, const edm::EventSetup& eve
   std::auto_ptr<float> weight(new float(1.));
   std::auto_ptr<float> weightUp(new float(1.));
   std::auto_ptr<float> weightDn(new float(1.));
+  std::auto_ptr<float> weight_71000(new float(1.));
+  std::auto_ptr<float> weightUp_71000(new float(1.));
+  std::auto_ptr<float> weightDn_71000(new float(1.));
+
 
   if ( !event.isRealData() ){
     if ( weightingMethod_ == WeightingMethod::NVertex) {
@@ -147,6 +176,9 @@ void PileupWeightProducer::produce(edm::Event& event, const edm::EventSetup& eve
         *weight   = lumiWeights_.weight(*nTrueIntr);
         *weightUp = lumiWeightsUp_.weight(*nTrueIntr);
         *weightDn = lumiWeightsDn_.weight(*nTrueIntr);
+	*weight_71000   = lumiWeights_71000_.weight(*nTrueIntr);
+        *weightUp_71000 = lumiWeightsUp_71000_.weight(*nTrueIntr);
+        *weightDn_71000 = lumiWeightsDn_71000_.weight(*nTrueIntr);
       }
     }
   }
@@ -155,6 +187,9 @@ void PileupWeightProducer::produce(edm::Event& event, const edm::EventSetup& eve
   event.put(weight  , "");
   event.put(weightUp, "up");
   event.put(weightDn, "dn");
+  event.put(weight_71000  , "_71000");
+  event.put(weightUp_71000, "_71000up");
+  event.put(weightDn_71000, "_71000dn");
 }
 
 DEFINE_FWK_MODULE(PileupWeightProducer);
