@@ -462,7 +462,9 @@ for i in sampledir:
     
     jobname = "SNU_" + version + "_" + dataset_tag
     datasetlist= "dataset_" + i + ".txt"
-    cfgfile="run_ntupleMaker_snu_mc_noslim_cfg.py"
+    cfgfile="run_ntupleMaker_snu_mc_cfg.py"
+
+    #### QCD SAMPLES
     if runfullgen == False:
         cfgfile="run_ntupleMaker_snu_mc_nofullgen_cfg.py"
 
