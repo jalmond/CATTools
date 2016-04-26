@@ -28,6 +28,8 @@
 #include "CATTools/DataFormats/interface/Jet.h"
 #include "CATTools/DataFormats/interface/Electron.h"
 #include "CATTools/DataFormats/interface/GenJet.h"
+#include "CATTools/DataFormats/interface/GenWeights.h"
+
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -354,17 +356,14 @@ private:
   vector<float> gen_phi_;
   vector<float> gen_pt_;
 
-  vector<bool>  gen_ispromptfinalstate_;
+  vector<bool>  gen_isprompt_;
   vector<bool>  gen_isdecayedleptonhadron_;
   vector<bool>  gen_istaudecayproduct_;
   vector<bool>  gen_isprompttaudecayproduct_;
-  vector<bool>  gen_isdirectfromtau_;
-  vector<bool>  gen_ispromptdirectfromtau_;
   vector<bool>  gen_isdirecthadrondecayproduct_;
-  
+ 
   vector<bool>  gen_ishardprocess_;
   vector<bool>  gen_fromhardprocess_;
-  vector<bool>  gen_fromhardprocess_finalstate_;
   vector<bool>  gen_fromhardprocess_beforeFSR_;
   
   
@@ -375,10 +374,14 @@ private:
   vector<float> GenJet_emf_;
   vector<float> GenJet_hadf_;
 
+  std::vector<float> ScaleWeight_;
+  std::vector<float> PDFWeights_;
+
   edm::EDGetTokenT<cat::METCollection>      metToken_;
   edm::EDGetTokenT<edm::View<cat::Muon> >     muonToken_;
   edm::EDGetTokenT<edm::View<cat::Jet> >     jetToken_;
   edm::EDGetTokenT<edm::View<cat::Electron> > elecToken_;
+  edm::EDGetTokenT<cat::GenWeights>              genWeightToken_;
   
 
   /// bool
@@ -444,12 +447,14 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   muonToken_ = consumes<edm::View<cat::Muon> >(pset.getParameter<edm::InputTag>("muons"));
   elecToken_ = consumes<edm::View<cat::Electron> >(pset.getParameter<edm::InputTag>("electrons"));
   jetToken_ = consumes<edm::View<cat::Jet> >(pset.getParameter<edm::InputTag>("jets"));
-
   metFilterBitsPAT_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("metFilterBitsPAT"));
   metFilterBitsRECO_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("metFilterBitsRECO"));
   vtxToken_  = consumes<reco::VertexCollection >(pset.getParameter<edm::InputTag>("vertices"));
-
+  /// new weights
+  genWeightToken_       = consumes<cat::GenWeights>              (pset.getParameter<edm::InputTag>("genWeightLabel"));
   
+
+  //// bool to specify job
   runFullTrig = pset.getParameter<bool>("runFullTrig");
   keepAllGen = pset.getParameter<bool>("keepAllGen");
   makeSlim = pset.getParameter<bool>("makeSlim");
@@ -506,17 +511,14 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("gen_pdgid", &gen_pdgid_);
   tree_->Branch("gen_motherindex", &gen_motherindex_);
 
-  tree_->Branch("gen_ispromptfinalstate", &gen_ispromptfinalstate_);
-  tree_->Branch("gen_isdecayedleptonhadron", &gen_isdecayedleptonhadron_);
-  tree_->Branch("gen_istaudecayproduct", &gen_isdecayedleptonhadron_);
-  tree_->Branch("gen_isprompttaudecayproduct", &gen_isprompttaudecayproduct_);
-  tree_->Branch("gen_isdirectfromtau", &gen_isdirectfromtau_);
-  tree_->Branch("gen_ispromptdirectfromtau", &gen_ispromptdirectfromtau_);
-  tree_->Branch("gen_isdirecthadrondecayproduct", &gen_isdirecthadrondecayproduct_);
 
+  tree_->Branch("gen_isprompt", &gen_isprompt_);
+  tree_->Branch("gen_isdecayedleptonhadron", &gen_isdecayedleptonhadron_);
+  tree_->Branch("gen_istaudecayproduct", &gen_istaudecayproduct_);
+  tree_->Branch("gen_isprompttaudecayproduct", &gen_isprompttaudecayproduct_);
+  tree_->Branch("gen_isdirecthadrondecayproduct", &gen_isdirecthadrondecayproduct_);
   tree_->Branch("gen_ishardprocess", &gen_ishardprocess_);
   tree_->Branch("gen_fromhardprocess", &gen_fromhardprocess_);
-  tree_->Branch("gen_fromhardprocess_finalstate", &gen_fromhardprocess_finalstate_);
   tree_->Branch("gen_fromhardprocess_beforeFSR", &gen_fromhardprocess_beforeFSR_);
 
 
@@ -529,6 +531,9 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("genjet_pdgid", &GenJet_pdgid_);
 
  
+  tree_->Branch("ScaleWeights", &ScaleWeight_);
+  tree_->Branch("PDFWeights", &PDFWeight_);
+
   tree_->Branch("muon_isTracker", &muon_isTrackerMuon);
   tree_->Branch("muon_isGlobal", &muon_isGlobalMuon);
   tree_->Branch("muon_isLoose", &muon_isLooseMuon);
@@ -830,6 +835,30 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   int nFailure = 0;
   
   
+
+
+  //// Set weights
+  bool issignal=true;
+  if(issignal){  
+    edm::Handle<cat::GenWeights> genWeightHandle;
+    iEvent.getByToken(genWeightToken_, genWeightHandle);
+    
+    // muR/muF Scale Weights
+    ScaleWeight_.push_back(genWeightHandle->scaleUpWeights()[0]);   // muR=Nom  muF=Up
+    ScaleWeight_.push_back(genWeightHandle->scaleDownWeights()[0]); // muR=Nom  muF=Down
+    ScaleWeight_.push_back(genWeightHandle->scaleUpWeights()[1]);   // muR=Up   muF=Nom
+    ScaleWeight_.push_back(genWeightHandle->scaleUpWeights()[2]);   // muR=Up   muF=Up
+    ScaleWeight_.push_back(genWeightHandle->scaleDownWeights()[1]); // muR=Down muF=Nom
+    ScaleWeight_.push_back(genWeightHandle->scaleDownWeights()[2]); // muR=Down muF=Down
+    
+    
+    for (unsigned int ipdf=0; ipdf < genWeightHandle->pdfWeights().size(); ipdf++){ 
+      PDFWeights_.push_back(genWeightHandle->pdfWeights()[ipdf]);
+    }
+  }// end of signal weights
+  
+
+
   ////// Fill vertex information
   edm::Handle<reco::VertexCollection> vertices;
   event.getByToken(vtxToken_, vertices);
@@ -1208,20 +1237,18 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
       gen_status_.push_back( it->status() );
       
       // https://indico.cern.ch/event/459797/contributions/1961581/attachments/1181555/1800214/mcaod-Feb15-2016.pdf
-      //gen_isprompt_.push_back( it->isPrompt() );
-      gen_ispromptfinalstate_.push_back( it->isPromptFinalState() );
-      gen_isdecayedleptonhadron_.push_back( it->isDecayedLeptonHadron() );
-      gen_istaudecayproduct_.push_back( it->isTauDecayProduct() );
-      gen_isprompttaudecayproduct_.push_back( it->isPromptTauDecayProduct() );
-      gen_isdirectfromtau_.push_back( it->isDirectTauDecayProduct() );
-      gen_ispromptdirectfromtau_.push_back( it->isDirectPromptTauDecayProduct() );
-      gen_isdirecthadrondecayproduct_.push_back( it->isDirectHadronDecayProduct() );
-
-      gen_ishardprocess_.push_back( it->isHardProcess() );
-      gen_fromhardprocess_.push_back( it->fromHardProcessDecayed() );	
-      gen_fromhardprocess_finalstate_.push_back( it->fromHardProcessFinalState() );
-      gen_fromhardprocess_beforeFSR_.push_back( it->fromHardProcessBeforeFSR() );
+      /// https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_4_12_patch4/doc/html/d5/dd4/classreco_1_1GenParticle.html#a81efe019b5fc56363973c98a24c7fddb
+      gen_isprompt_.push_back( it->statusFlags().isPrompt() );
+      gen_isdecayedleptonhadron_.push_back( it->statusFlags().isDecayedLeptonHadron() );
+      gen_istaudecayproduct_.push_back( it->statusFlags().isTauDecayProduct() );
+      gen_isprompttaudecayproduct_.push_back( it->statusFlags().isPromptTauDecayProduct() );
+      gen_isdirecthadrondecayproduct_.push_back( it->statusFlags().isDirectHadronDecayProduct() );
+      gen_ishardprocess_.push_back( it->isHardProcess() );                ///  { return statusFlags_.isHardProcess(); }
+      gen_fromhardprocess_.push_back( it->statusFlags().fromHardProcess() );	  //{ return statusFlags_.isDecayedLeptonHadron() && statusFlags_.fromHardProcess(); }
+      gen_fromhardprocess_beforeFSR_.push_back( it->fromHardProcessBeforeFSR() ); //
       
+      //gen_isdirectfromtau_.push_back( it->statusFlags().isDirectTauDecayProduct() );
+      //gen_ispromptdirectfromtau_.push_back( it->statusFlags().isDirectPromptTauDecayProduct() );                                                                                                                                                                             
 	
       int idx = -1;
       for( reco::GenParticleCollection::const_iterator mit = genParticles->begin(); mit != genParticles->end(); ++mit ) {
@@ -1490,19 +1517,18 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   gen_status_.clear();
   gen_pdgid_.clear();
 
-  gen_ispromptfinalstate_.clear();
+  gen_isprompt_.clear();
   gen_isdecayedleptonhadron_.clear();
   gen_istaudecayproduct_.clear();
   gen_isprompttaudecayproduct_.clear();
-  gen_isdirectfromtau_.clear();
-  gen_ispromptdirectfromtau_.clear();
   gen_isdirecthadrondecayproduct_.clear();
 
   gen_ishardprocess_.clear();
   gen_fromhardprocess_.clear();
-  gen_fromhardprocess_finalstate_.clear();
   gen_fromhardprocess_beforeFSR_.clear();
 
+  ScaleWeight_.clear();
+  PDFWeights_.clear();
 
   GenJet_pt_.clear();
   GenJet_eta_.clear();

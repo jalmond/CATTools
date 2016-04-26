@@ -122,9 +122,9 @@ PileupWeightProducer::PileupWeightProducer(const edm::ParameterSet& pset)
   produces<float>("");
   produces<float>("up");
   produces<float>("dn");
-  produces<float>("_71000");
-  produces<float>("_71000up");
-  produces<float>("_71000dn");
+  produces<float>("71000");
+  produces<float>("71000up");
+  produces<float>("71000dn");
 
 }
 
@@ -187,9 +187,9 @@ void PileupWeightProducer::produce(edm::Event& event, const edm::EventSetup& eve
   event.put(weight  , "");
   event.put(weightUp, "up");
   event.put(weightDn, "dn");
-  event.put(weight_71000  , "_71000");
-  event.put(weightUp_71000, "_71000up");
-  event.put(weightDn_71000, "_71000dn");
+  event.put(weight_71000  , "71000");
+  event.put(weightUp_71000, "71000up");
+  event.put(weightDn_71000, "71000dn");
 }
 
 DEFINE_FWK_MODULE(PileupWeightProducer);

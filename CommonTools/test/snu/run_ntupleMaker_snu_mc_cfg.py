@@ -25,13 +25,13 @@ process.load("CATTools.CatProducer.pileupWeight_cff")                # loads pil
 from CATTools.CatProducer.pileupWeight_cff import pileupWeightMap
 process.pileupWeight.weightingMethod = "RedoWeight"                  # set mode to reweighting
 process.pileupWeight.pileupMC = pileupWeightMap["Startup2015_25ns"]  # MC pileup distrubition 
-from pileup import pileupMap                                         # new pileup file made with getPileUpData.py
-process.pileupWeight.pileupRD = pileupMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON"] # new data PU distrubition
-process.pileupWeight.pileupUp = pileupMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Up"]
-process.pileupWeight.pileupDn = pileupMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Dn"]
-process.pileupWeight.pileup2RD = pileupMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000"] # new data PU distrubition
-process.pileupWeight.pileup2Up = pileupMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Up"]
-process.pileupWeight.pileup2Dn = pileupMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Dn"]
+
+process.pileupWeight.pileupRD = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON"] # new data PU distrubition
+process.pileupWeight.pileupUp = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Up"]
+process.pileupWeight.pileupDn = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Dn"]
+process.pileupWeight.pileupRD_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000"] # new data PU distrubition
+process.pileupWeight.pileupUp_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Up"]
+process.pileupWeight.pileupDn_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Dn"]
 
 
 
@@ -48,9 +48,9 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     jets = cms.InputTag("catJets"),                                
     vertices = cms.InputTag("catVertex"),
     met = cms.InputTag("catMETs"),
-#   caleWeightLabel  = cms.InputTag("genWeight:scaleWeights"),
-#    PDFWeightLabel  = cms.InputTag("genWeight:pdfWeights"),
-#   OtherWeightLabel  = cms.InputTag("genWeight:otherWeights"),                                
+    genWeightLabel = cms.InputTag("genWeight")
+
+
     runFullTrig= cms.bool(True),
     keepAllGen= cms.bool(True),
     makeSlim= cms.bool(True),
@@ -86,11 +86,6 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
 
     ),
 
-    floats = cms.PSet(
-        #pdfWeight = cms.InputTag("genWeight", "pdfWeights"),
-        #otherWeights =  cms.InputTag("genWeight","otherWeights"),
-        #scaleWeights = cms.InputTag("genWeight","scaleWeights"), 
-    ),
 
 cands_int= cms.PSet(
 ),
@@ -212,6 +207,7 @@ process.TFileService = cms.Service("TFileService",
 
 #process.load("CATTools.CatProducer.pseudoTop_cff")
 process.p = cms.Path(
+    process.pileupWeight* 
     process.nEventsTotal*
     process.ntuple
 )
