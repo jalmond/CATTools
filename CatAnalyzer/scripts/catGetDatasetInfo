@@ -13,6 +13,7 @@ gidMap = {
     'v7-6-1':'1617837617',
     'v7-6-2':'1966334211',
     'v7-6-3':'266478682',
+    'v7-6-4':'600658293',
 }
     
 era = ''    
@@ -67,8 +68,8 @@ outDir = os.environ["CMSSW_BASE"]+"/src/CATTools/CatAnalyzer/data"
 if not os.path.exists(outDir+"/dataset"): os.makedirs(outDir+"/dataset")
 
 import json
-f = open("%s/dataset.json" % outDir, "w")
-print "Saving dataset info to %s/dataset.json" % outDir
+f = open("%s/dataset/dataset.json" % outDir, "w")
+print "Saving dataset info to %s/dataset/dataset.json" % outDir
 print>>f, json.dumps(ds, indent=4, sort_keys=True)
 f.close()
 
