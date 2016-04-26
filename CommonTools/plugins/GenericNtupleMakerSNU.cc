@@ -297,7 +297,6 @@ private:
   bool runFullTrig;
   bool keepAllGen;
   bool makeSlim;
-  bool private_sample;
 
   TH1F* hNEvent_;
 
@@ -439,7 +438,6 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   runFullTrig = pset.getParameter<bool>("runFullTrig");
   keepAllGen = pset.getParameter<bool>("keepAllGen");
   makeSlim = pset.getParameter<bool>("makeSlim");
-  private_sample = pset.getParameter<bool>("private_sample");
 
  if(runFullTrig) cout << "Running fulltrigger" << endl;
   else cout << "Not running full trigger" << endl;
@@ -924,9 +922,9 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   edm::Handle<edm::View<cat::Jet> > jets;
   event.getByToken(jetToken_, jets);
 
-  double el_pt_min= 10.;
+  double el_pt_min= 9.;
   double el_eta_max= 3.;
-  double mu_pt_min= 10.;
+  double mu_pt_min= 9.;
   double mu_eta_max= 3.;
   double j_pt_min= 15.;
   double j_eta_max= 5.;
@@ -944,29 +942,16 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     if(fabs(el.eta()) > el_eta_max) continue;
     if(el.pt() != el.pt()) continue;
 
-    if(private_sample){
-      electrons_electronID_loose.push_back(el.electronID("cutBasedElectronID_Spring15_25ns_V1_standalone_loose"));
-      electrons_electronID_medium.push_back(el.electronID("cutBasedElectronID_Spring15_25ns_V1_standalone_medium"));
-      electrons_electronID_tight.push_back(el.electronID("cutBasedElectronID_Spring15_25ns_V1_standalone_tight"));
-      electrons_electronID_veto.push_back(el.electronID("cutBasedElectronID_Spring15_25ns_V1_standalone_veto"));
-      electrons_electronID_mva_medium.push_back(el.electronID("mvaEleID_Spring15_25ns_nonTrig_V1_wp90"));
-      electrons_electronID_mva_tight.push_back(el.electronID("mvaEleID_Spring15_25ns_nonTrig_V1_wp80"));
-      electrons_electronID_mva_trig_medium.push_back(el.electronID("mvaEleID_Spring15_25ns_Trig_V1_wp90"));
-      electrons_electronID_mva_trig_tight.push_back(el.electronID("mvaEleID_Spring15_25ns_Trig_V1_wp80"));
-      electrons_electronID_heep.push_back(el.electronID("heepElectronID_HEEPV60"));
-    }
-    else{
-      electrons_electronID_loose.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-loose"));
-      electrons_electronID_medium.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-medium"));
-      electrons_electronID_tight.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-tight"));
-      electrons_electronID_veto.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-veto"));
-      electrons_electronID_mva_medium.push_back(el.electronID("mvaEleID-Spring15-25ns-nonTrig-V1-wp90"));
-      electrons_electronID_mva_tight.push_back(el.electronID("mvaEleID-Spring15-25ns-nonTrig-V1-wp80"));
-      electrons_electronID_mva_trig_medium.push_back(el.electronID("mvaEleID-Spring15-25ns-Trig-V1-wp90"));
-      electrons_electronID_mva_trig_tight.push_back(el.electronID("mvaEleID-Spring15-25ns-Trig-V1-wp80"));
-      electrons_electronID_heep.push_back(el.electronID("heepElectronID-HEEPV60"));
+    electrons_electronID_loose.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-loose"));
+    electrons_electronID_medium.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-medium"));
+    electrons_electronID_tight.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-tight"));
+    electrons_electronID_veto.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-veto"));
+    electrons_electronID_mva_medium.push_back(el.electronID("mvaEleID-Spring15-25ns-nonTrig-V1-wp90"));
+    electrons_electronID_mva_tight.push_back(el.electronID("mvaEleID-Spring15-25ns-nonTrig-V1-wp80"));
+    electrons_electronID_mva_trig_medium.push_back(el.electronID("mvaEleID-Spring15-25ns-Trig-V1-wp90"));
+    electrons_electronID_mva_trig_tight.push_back(el.electronID("mvaEleID-Spring15-25ns-Trig-V1-wp80"));
+    electrons_electronID_heep.push_back(el.electronID("heepElectronID-HEEPV60"));
 
-    }
     electrons_mcMatched.push_back(el.mcMatched());
     electrons_isPF.push_back(el.isPF());
     electrons_passConversionVeto.push_back(el.passConversionVeto());

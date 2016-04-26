@@ -7,9 +7,16 @@ import os
 
 ##### Set RunALLSamples=True true to simply add ALL samples to production list                                                                                                                                        
 RunALLSamples=False
-
 PrivateSample=True
 
+####### For now keep these the same  #########
+copy_cluster=False
+copy_cms1=True
+##############################################
+#RunALLSamples=False
+#PrivateSample=True
+#
+#
 ###### If you want to debug you can set KeepWorkDir=True and the dir will not be deleted
 KeepWorkDir=False
 
@@ -25,7 +32,8 @@ datasampledir = ["DoubleMuon"]
 
                 
 #### For MC only
-mcsampledir = ["tthwA_3l4j_hc130A30_3mu"]
+mcsampledir = ["HN_ee_40"]
+
 
 
 if RunALLSamples:

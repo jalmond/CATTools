@@ -51,6 +51,7 @@ namespace cat {
     std::vector<NameTag> elecIDSrcs_;
     std::vector<edm::EDGetTokenT<edm::ValueMap<bool> > > elecIDTokens_;
     const std::vector<std::string> electronIDs_;
+    const std::vector<std::string> electronIDsJS_;
 
   };
 
@@ -62,7 +63,9 @@ cat::CATElectronProducer::CATElectronProducer(const edm::ParameterSet & iConfig)
   mcLabel_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("mcLabel"))),
   beamLineSrc_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"))),
   rhoLabel_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoLabel"))),
-  electronIDs_(iConfig.getParameter<std::vector<std::string> >("electronIDs"))
+  electronIDs_(iConfig.getParameter<std::vector<std::string> >("electronIDs")),
+  electronIDsJS_(iConfig.getParameter<std::vector<std::string> >("electronIDsJS"))
+
 {
   produces<std::vector<cat::Electron> >();
   if (iConfig.existsAs<edm::ParameterSet>("electronIDSources")) {
@@ -71,6 +74,7 @@ cat::CATElectronProducer::CATElectronProducer(const edm::ParameterSet & iConfig)
     for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
       auto inputTag = idps.getParameter<edm::InputTag>(*it);
       elecIDSrcs_.push_back(NameTag(inputTag.instance(), inputTag));
+
     }
     elecIDTokens_ = edm::vector_transform(elecIDSrcs_, [this](NameTag const & tag){return mayConsume<edm::ValueMap<bool> >(tag.second);});
   }
@@ -160,7 +164,9 @@ cat::CATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     }
     else if (electronIDs_.size()){// for selected IDs in miniAOD
       for(unsigned int i = 0; i < electronIDs_.size(); i++){
-	pat::Electron::IdPair pid(electronIDs_.at(i), aPatElectron.electronID(electronIDs_.at(i)));
+	//pat::Electron::IdPair pid(electronIDs_.at(i), aPatElectron.electronID(electronIDs_.at(i)));
+	pat::Electron::IdPair pid(electronIDsJS_.at(i), aPatElectron.electronID(electronIDs_.at(i)));
+
 	aElectron.setElectronID(pid);
       }
     }

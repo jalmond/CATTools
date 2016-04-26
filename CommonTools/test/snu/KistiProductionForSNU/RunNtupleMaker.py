@@ -9,14 +9,13 @@ import string
 
 def CheckJobStatusAfterCrash(dirname, v):
     
-    print "CheckJobStatusAfterCrash:"
     if not os.path.exists(dirname):
         return
     
     if os.path.exists(dirname + "/check_list.txt"):
         os.system("rm " + dirname +"/check_list.txt")
 
-    print "ls " + dirname + "/* > " + dirname+ "/check_list.txt"
+    #print "ls " + dirname + "/* > " + dirname+ "/check_list.txt"
     
     os.system("ls " + dirname + "/* > " + dirname+ "/check_list.txt")
     logfile = open( dirname+"/check_list.txt", "r")
@@ -55,7 +54,6 @@ def CheckJobStatusAfterCrash(dirname, v):
 def CheckFailedJobStatus(submitted_list, v, flist):
     mod_list =string.replace(submitted_list,"!", " ")
     split_list = mod_list.split()
-    print "CheckFailedJobStatus:"
     print "List of jobs submitted = " 
     for x in split_list:
         print x
@@ -113,7 +111,6 @@ def CheckJobStatus(submitted_list, v):
 
     mod_list =string.replace(submitted_list,"!", " ")
     split_list = mod_list.split()
-    print "CheckJobStatus:"
     print "List of jobs submitted = " 
     for x in split_list:
         print x
@@ -177,17 +174,26 @@ def CheckJobStatus(submitted_list, v):
                             os.system("rm SNU_" + v+ "_" +i +"/ntuple_" +  str(k) + ".root")
 
             
-            print "ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + v + "/" + i
-            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/MC/" + v +"/" + i )
-            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + v)
-            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + v + "/" + i )
-            
-            
+            if copy_cluster:
 
-            print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/" + v + "/"  +i
-            os.system("scp SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/"  + v + "/" +i) 
-            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr chmod -R 777 /data2/DATA/cattoflat/MC/" + v + "/" +i) 
-            
+                print "ssh " + username_snu  + "@147.47.242.67 mkdir  /data4/LocalNtuples/SKTrees13TeV/MC/" + v + "/" + i
+                os.system("ssh " + username_snu  + "@147.47.242.67 rm -r  /data4/LocalNtuples/SKTrees13TeV/MC/" + v +"/" + i )
+                os.system("ssh " + username_snu  + "@147.47.242.67 mkdir  /data4/LocalNtuples/SKTrees13TeV/MC/" + v)
+                os.system("ssh " + username_snu  + "@147.47.242.67 mkdir  /data4/LocalNtuples/SKTrees13TeV/MC/" + v + "/" + i )
+
+                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/LocalNtuples/SKTrees13TeV/MC/" + v + "/"  +i
+                os.system("scp SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@147.47.242.67:/data4/LocalNtuples/SKTrees13TeV/MC/"  + v + "/" +i)
+
+
+            if copy_cms1:
+                print "ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + v + "/" + i
+                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/MC/" + v +"/" + i )
+                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + v)
+                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/MC/" + v + "/" + i )
+
+                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/" + v + "/"  +i
+                os.system("scp SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/MC/"  + v + "/" +i) 
+             
             print "submitted_list = " + submitted_list + " is ammended to: "
             new_submitted_list = string.replace(submitted_list, i+"!" , "")
             print new_submitted_list
@@ -250,33 +256,42 @@ print "Output directory is " + kisti_output_default
 os.system("ls /tmp/ > check_snu_connection.txt")
 snu_connect = open("check_snu_connection.txt",'r')
 connected_cms3=False
+connected_cluster=False
 for line in snu_connect:
     if "ssh-"+k_user+"@cms3" in line:
         connected_cms3=True
+    if "ssh-"+k_user+"@147.47.242.67" in line:
+        connected_cluster=True
+
             
 os.system("rm check_snu_connection.txt")    
 if connected_cms3 == False:    
     print "No connection to cms3: please make connection in screen and run script again"
     quit()
 
+if connected_cluster == False:
+    print "No connection to snu cluster: please make connection in screen and run script again"
+    quit()
 
 
 ## Make a list of samples to process
 
 sampledir = ["QCD_DoubleEM_Pt_30to40", "QCD_DoubleEM_Pt_30toInf", "QCD_DoubleEM_Pt_40toInf", "QCD_Pt-1000toInf_MuEnriched" , "QCD_Pt-120to170_EMEnriched" , "QCD_Pt-120to170_MuEnriched", "QCD_Pt-15to20_EMEnriched", "QCD_Pt-15to20_MuEnriched", "QCD_Pt-170to300_EMEnriched" , "QCD_Pt-170to300_MuEnriched" , "QCD_Pt-20to30_EMEnriched" , "QCD_Pt-20to30_MuEnriched", "QCD_Pt-300to470_MuEnriched", "QCD_Pt-300toInf_EMEnriched", "QCD_Pt-30to50_EMEnriched", "QCD_Pt-30to50_MuEnriched" , "QCD_Pt-470to600_MuEnriched", "QCD_Pt-50to80_EMEnriched", "QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched","QCD_Pt-800to1000_MuEnriched" ,"QCD_Pt-80to120_MuEnriched" ,"QCD_Pt-80to120_EMEnriched", "QCD_Pt-170to250_bcToE","QCD_Pt-15to20_bcToE", "QCD_Pt-20to30_bcToE", "QCD_Pt-250toINF_bcToE", "QCD_Pt-30to80_bcToE", "QCD_Pt-80to170_bcToE" ,"DYJets" , "DYJets_10to50","DYJets_MG","GG_HToMuMu","GJets_Pt20to40","GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","SingleTbar_t","SingleTbar_tW","SingleTop_s","SingleTop_t","SingleTop_tW","TTG","TTJets_MG5","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WW","WWTo2L2Nu_powheg","WWZ","WW_dps","WZ","WZTo2L2Q","WZTo3LNu","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZ","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ"]
+#, "HN_ee_40", "HN_ee_100", "HN_ee_500", "HN_ee_1500","HN_mm_40","HN_mm_100","HN_mm_500","HN_mm_1500"]
 
-sampledir = ["HN_ee_40", "HN_ee_100", "HN_ee_500", "HN_ee_1500","HN_mm_40","HN_mm_100","HN_mm_500","HN_mm_1500"]
+sampledir = ["HN_ee_schan_lll_ss_40" , "HN_ee_schan_lll_ss_100", "HN_ee_schan_lll_ss_500", "HN_ee_schan_lll_ss_1500" ,"HN_mm_schan_lll_ss_40" , "HN_mm_schan_lll_ss_100", "HN_mm_schan_lll_ss_500", "HN_mm_schan_lll_ss_1500",   "HN_ee_schan_lll_os_40" , "HN_ee_schan_lll_os_100", "HN_ee_schan_lll_os_500", "HN_ee_schan_lll_os_1500", "HN_mm_schan_lll_os_40" , "HN_mm_schan_lll_os_100", "HN_mm_schan_lll_os_500", "HN_mm_schan_lll_os_1500","HN_ee_schan_ll_os_40" , "HN_ee_schan_ll_os_100", "HN_ee_schan_ll_os_500", "HN_ee_schan_ll_os_1500" ,"HN_mm_schan_ll_os_40" , "HN_mm_schan_ll_os_100", "HN_mm_schan_ll_os_500", "HN_mm_schan_ll_os_1500"]
+
 
 #samples with fullgen entries in the name will store all gen information. All others will store just first 30 gen particles
-fullgen = ["QCD"]
+fullgen = ["QCD_"]
 
-signalsample = ["Major", "SNU"]
+signalsample = ["Major", "SNU", "HN"]
 
 if not ALLSamples == True:
     sampledir = mcsampledir
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
-njob=30
+njob=100
 njobs_submitted=0
 string_of_submitted=""
 string_of_failed=""
@@ -285,7 +300,12 @@ samples_processed=0
 dataset_tag=""
 for i in sampledir:
     
-
+    if "DY" in i:
+        njob=200
+    elif "TT" in i:
+        njob=200
+    else:
+        njob=100
     datasetpath = cmssw_dir+"/src/CATTools/CatAnalyzer/data/dataset/dataset_" + i + ".txt"
     
     datasetfile = open(datasetpath, 'r')
@@ -295,7 +315,7 @@ for i in sampledir:
             datasetname= splitline[3].replace("/"," ")
             split_datasetname = datasetname.split()
             dataset_tag =split_datasetname[0]
-
+    
     samples_processed=samples_processed+1 
     if samples_processed < skip_first+1:
         continue
@@ -403,7 +423,7 @@ for i in sampledir:
     print str(count)
  
 
-    njob=30
+
     if njob > count:
         njob=count
 
@@ -442,7 +462,7 @@ for i in sampledir:
     
     jobname = "SNU_" + version + "_" + dataset_tag
     datasetlist= "dataset_" + i + ".txt"
-    cfgfile="run_ntupleMaker_snu_mc_cfg.py"
+    cfgfile="run_ntupleMaker_snu_mc_noslim_cfg.py"
     if runfullgen == False:
         cfgfile="run_ntupleMaker_snu_mc_nofullgen_cfg.py"
 
@@ -451,11 +471,8 @@ for i in sampledir:
 
     if PrivateSample == True:
         cfgfile="run_ntupleMaker_snu_mc_noslim_cfg.py"
-        if "jalmond" in k_user:
-            cfgfile="run_ntupleMaker_snu_mc_private_cfg.py"
-
-
         
+    print "using " + cfgfile    
     isjobrunning=False
     print "Running : CheckJobStatusAfterCrash"
     isjobrunning = CheckJobStatusAfterCrash(jobname, version)
