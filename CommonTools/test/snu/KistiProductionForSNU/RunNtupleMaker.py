@@ -15,7 +15,7 @@ def CheckJobStatusAfterCrash(dirname, v):
     if os.path.exists(dirname + "/check_list.txt"):
         os.system("rm " + dirname +"/check_list.txt")
 
-    #print "ls " + dirname + "/* > " + dirname+ "/check_list.txt"
+    print "ls " + dirname + "/* > " + dirname+ "/check_list.txt"
     
     os.system("ls " + dirname + "/* > " + dirname+ "/check_list.txt")
     logfile = open( dirname+"/check_list.txt", "r")
@@ -66,6 +66,7 @@ def CheckFailedJobStatus(submitted_list, v, flist):
         print "Sample " + i
         if os.path.exists("SNU_" + v+ "_" +i +"/check_list.txt"):
             os.system("rm SNU_" + v+ "_" +i +"/check_list.txt")
+        
         os.system("ls SNU_" + v + "_" + i +"/* >  SNU_" + v+ "_" +i +"/check_list.txt")
         
         logfile = open( "SNU_" + v+ "_" +i +"/check_list.txt", "r")
@@ -260,9 +261,8 @@ connected_cluster=False
 for line in snu_connect:
     if "ssh-"+k_user+"@cms3" in line:
         connected_cms3=True
-    if copy_cluster:
-        if "ssh-"+k_user+"@147.47.242.67" in line:
-            connected_cluster=True
+    if "ssh-"+k_user+"@147.47.242.67" in line:
+        connected_cluster=True
 
             
 os.system("rm check_snu_connection.txt")    
@@ -270,23 +270,30 @@ if connected_cms3 == False:
     print "No connection to cms3: please make connection in screen and run script again"
     quit()
 
-if connected_cluster == False:
-    print "No connection to snu cluster: please make connection in screen and run script again"
-    quit()
+if copy_cluster:
+    if connected_cluster == False:
+        print "No connection to snu cluster: please make connection in screen and run script again"
+        quit()
 
 
 ## Make a list of samples to process
 
-sampledir = ["QCD_DoubleEM_Pt_30to40", "QCD_DoubleEM_Pt_30toInf", "QCD_DoubleEM_Pt_40toInf", "QCD_Pt-1000toInf_MuEnriched" , "QCD_Pt-120to170_EMEnriched" , "QCD_Pt-120to170_MuEnriched", "QCD_Pt-15to20_EMEnriched", "QCD_Pt-15to20_MuEnriched", "QCD_Pt-170to300_EMEnriched" , "QCD_Pt-170to300_MuEnriched" , "QCD_Pt-20to30_EMEnriched" , "QCD_Pt-20to30_MuEnriched", "QCD_Pt-300to470_MuEnriched", "QCD_Pt-300toInf_EMEnriched", "QCD_Pt-30to50_EMEnriched", "QCD_Pt-30to50_MuEnriched" , "QCD_Pt-470to600_MuEnriched", "QCD_Pt-50to80_EMEnriched", "QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched","QCD_Pt-800to1000_MuEnriched" ,"QCD_Pt-80to120_MuEnriched" ,"QCD_Pt-80to120_EMEnriched", "QCD_Pt-170to250_bcToE","QCD_Pt-15to20_bcToE", "QCD_Pt-20to30_bcToE", "QCD_Pt-250toINF_bcToE", "QCD_Pt-30to80_bcToE", "QCD_Pt-80to170_bcToE" ,"DYJets" , "DYJets_10to50","DYJets_MG","GG_HToMuMu","GJets_Pt20to40","GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","SingleTbar_t","SingleTbar_tW","SingleTop_s","SingleTop_t","SingleTop_tW","TTG","TTJets_MG5","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WW","WWTo2L2Nu_powheg","WWZ","WW_dps","WZ","WZTo2L2Q","WZTo3LNu","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZ","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ"]
+sampledir = ["QCD_DoubleEM_Pt_30to40", "QCD_DoubleEM_Pt_30toInf", "QCD_DoubleEM_Pt_40toInf", "QCD_Pt-1000toInf_MuEnriched" , "QCD_Pt-120to170_EMEnriched", "QCD_Pt-120to170_MuEnriched", "QCD_Pt-15to20_EMEnriched", "QCD_Pt-15to20_MuEnriched", "QCD_Pt-170to300_EMEnriched" , "QCD_Pt-170to300_MuEnriched" , "QCD_Pt-20to30_EMEnriched" , "QCD_Pt-20to30_MuEnriched", "QCD_Pt-300to470_MuEnriched", "QCD_Pt-300toInf_EMEnriched", "QCD_Pt-30to50_EMEnriched", "QCD_Pt-30to50_MuEnriched" , "QCD_Pt-470to600_MuEnriched", "QCD_Pt-50to80_EMEnriched", "QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched","QCD_Pt-800to1000_MuEnriched" ,"QCD_Pt-80to120_MuEnriched" ,"QCD_Pt-80to120_EMEnriched", "QCD_Pt-170to250_bcToE","QCD_Pt-15to20_bcToE", "QCD_Pt-20to30_bcToE", "QCD_Pt-250toINF_bcToE", "QCD_Pt-30to80_bcToE", "QCD_Pt-80to170_bcToE" ,"DYJets" , "DYJets_10to50", "DYJets_MG_5to50", "DYJets_MG","GG_HToMuMu","GJets_Pt20to40","GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","SingleTbar_t","SingleTbar_tW","SingleTop_s","SingleTop_t","SingleTop_tW","TTG","TTJets_MG5","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WW","WWTo2L2Nu_powheg","WWZ","WW_dps","WZ","WZTo2L2Q", "WZJets","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZ","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ"]
+
+sampledir = ["VBF_HToMuMu","WGtoLNuG","WJets","WW","WWTo2L2Nu_powheg","WWZ","WW_dps","WZ","WZTo2L2Q", "WZJets","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZ","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ"]
+
+
 #, "HN_ee_40", "HN_ee_100", "HN_ee_500", "HN_ee_1500","HN_mm_40","HN_mm_100","HN_mm_500","HN_mm_1500"]
 
-sampledir = ["HN_ee_schan_lll_ss_40" , "HN_ee_schan_lll_ss_100", "HN_ee_schan_lll_ss_500", "HN_ee_schan_lll_ss_1500" ,"HN_mm_schan_lll_ss_40" , "HN_mm_schan_lll_ss_100", "HN_mm_schan_lll_ss_500", "HN_mm_schan_lll_ss_1500",   "HN_ee_schan_lll_os_40" , "HN_ee_schan_lll_os_100", "HN_ee_schan_lll_os_500", "HN_ee_schan_lll_os_1500", "HN_mm_schan_lll_os_40" , "HN_mm_schan_lll_os_100", "HN_mm_schan_lll_os_500", "HN_mm_schan_lll_os_1500","HN_ee_schan_ll_os_40" , "HN_ee_schan_ll_os_100", "HN_ee_schan_ll_os_500", "HN_ee_schan_ll_os_1500" ,"HN_mm_schan_ll_os_40" , "HN_mm_schan_ll_os_100", "HN_mm_schan_ll_os_500", "HN_mm_schan_ll_os_1500"]
+#sampledir = ["HN_ee_schan_lll_ss_40" , "HN_ee_schan_lll_ss_100", "HN_ee_schan_lll_ss_500", "HN_ee_schan_lll_ss_1500" ,"HN_mm_schan_lll_ss_40" , "HN_mm_schan_lll_ss_100", "HN_mm_schan_lll_ss_500", "HN_mm_schan_lll_ss_1500",   "HN_ee_schan_lll_os_40" , "HN_ee_schan_lll_os_100", "HN_ee_schan_lll_os_500", "HN_ee_schan_lll_os_1500", "HN_mm_schan_lll_os_40" , "HN_mm_schan_lll_os_100", "HN_mm_schan_lll_os_500", "HN_mm_schan_lll_os_1500","HN_ee_schan_ll_os_40" , "HN_ee_schan_ll_os_100", "HN_ee_schan_ll_os_500", "HN_ee_schan_ll_os_1500" ,"HN_mm_schan_ll_os_40" , "HN_mm_schan_ll_os_100", "HN_mm_schan_ll_os_500", "HN_mm_schan_ll_os_1500"]
 
 
 #samples with fullgen entries in the name will store all gen information. All others will store just first 30 gen particles
 fullgen = ["QCD_"]
 
-signalsample = ["Major", "SNU", "HN"]
+##### *name*
+signalsample = ["Major", "SNU", "HN", "DY"]
+allweights = ["DY"]
 
 if not ALLSamples == True:
     sampledir = mcsampledir
@@ -331,7 +338,15 @@ for i in sampledir:
          if j in dataset_tag:
              issignal= True
 
-
+    AllWeights=False
+    for k in allweights:
+        if k in dataset_tag:
+            if "DY" in dataset_tag:
+                if "amcatnlo" in dataset_tag:
+                    AllWeights= True
+                else:
+                    AllWeights= False
+            AllWeights= True
     output= dataset_tag
     kisti_output=kisti_output_default+output+"/"
     print "Making dir: " + kisti_output
@@ -403,17 +418,91 @@ for i in sampledir:
     
     if sample_exists == 0:
         if PrivateSample == False:
+            with open("log.txt" , "a"    ) as f:
+                f.write("No sample found for " + str(i))
             continue
+        
 
-    os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output  + "/" + versionpath + "/" + tagpath + "/0000/ > " + kisti_output+ "/"+output + "_tmpfull.txt")
+    os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output  + "/" + versionpath + "/" + tagpath + " > " + kisti_output+ "/"+output + "_resub.txt")
+    fr_check_resubmit = open(kisti_output+ "/"+output +"_resub.txt",'r')
+    
+    isresubmitted=True
+    nresub=0
+    nchecker=0
+    while isresubmitted:
+        for line_rs in fr_check_resubmit:
+            job_x=False
+            if ("/000" + str(nchecker)) in line_rs:
+                nresub=nresub+1
+                nchecker=nchecker+1
+                job_x=True
+                break
+        if not job_x:    
+            isresubmitted=False
+        
+    fr_check_resubmit.close()
+    
+    if nresub > 1:
+        print "nresub = " + str(nresub)
+    if os.path.exists( kisti_output+ "/"+output + "_tmpfull.txt"):
+        os.system("rm  " + kisti_output+ "/"+output + "_tmpfull.txt")
+    for x in range(0,nresub+1):
+        os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output  + "/" + versionpath + "/" + tagpath + "/000" + str(x) + "/  >> " + kisti_output+ "/"+output + "_tmpfull.txt")
+
     os.system("sed -r 's/^.{43}//' " +  kisti_output+ "/"+output  + "_tmpfull.txt  > " +kisti_output+ "/"+output  + "_full.txt")
 
     ## Set the number of jobs and files per job
-    fr = open(kisti_output+ "/"+output +"_full.txt",'r')
-
+    file_to_run=kisti_output+ "/"+output +"_full.txt"
     if PrivateSample == True:
-        fr =  open(datasetpath, 'r')
+        file_to_run=datasetpath
+
+    fr_txt = open(kisti_output+ "/"+output +"_full.txt",'r')
+    count_txt=0
+    for line_txt in fr_txt:
+        if ".root" in line_txt:
+            count_txt+=1
+    fr_txt.close()
+
+    fr_xrd = open(datasetpath,'r')
+    count_xrd=0
+    for line_xrd in fr_xrd:
+        if ".root" in line_xrd:
+            count_xrd+=1
+    fr_xrd.close()
+
+    check_file=False
+    if check_file:
+        if count_xrd != count_txt:
+            print str(count_xrd) +" :  "  + str(count_txt)
+            print "##############################################"
+            print "#rootfiles in " + datasetpath + " and " + kisti_output+ "/"+output +"_full.txt differ" 
+            print "##############################################"
+            
+            fr = open(file_to_run,'r')
+            for line in fr:
+                if ".root" in line:
+                    does_exist=False
+                    fr_xrd = open(datasetpath,'r')
+                    for line_xrd in fr_xrd:
+                        if line_xrd in line:
+                            does_exist=True
+                    fr_xrd.close()
+                    if not does_exist:
+                        with open(datasetpath, "a") as myfile:
+                            myfile.write("root://cms-xrdr.sdfarm.kr:1094//"+line)
+                        with open("log.txt" , "a"    ) as f:
+                            f.write(" appening to + " + datasetpath + "--> " + line)
     
+            fr.close()   
+            continue
+        else:
+            print "##############################################"
+            continue
+        
+        
+    fr = open(file_to_run,'r')
+    
+
     count=0
     nfilesperjob=0
     for line in fr:
@@ -421,8 +510,12 @@ for i in sampledir:
             count+=1
     fr.close()
 
-    print str(count)
- 
+
+    if count == 0:
+        print "No files in list"
+        quit()
+    else:
+        print str(count)
 
 
     if njob > count:
@@ -465,15 +558,17 @@ for i in sampledir:
     datasetlist= "dataset_" + i + ".txt"
     cfgfile="run_ntupleMaker_snu_mc_cfg.py"
 
-    #### QCD SAMPLES
+    #### QCD SAMPLES: Slim but only 30 gen kept
     if runfullgen == False:
         cfgfile="run_ntupleMaker_snu_mc_nofullgen_cfg.py"
-
+    #### DY sample: PDF + scale weights stored, slim made
+    if AllWeights == True:
+        cfgfile="run_ntupleMaker_snu_mc_allweights_cfg.py"   
+    ##### Everything stored
     if issignal == True:
-         cfgfile="run_ntupleMaker_snu_mc_noslim_cfg.py"
-
+         cfgfile="run_ntupleMaker_snu_mc_signal_cfg.py"
     if PrivateSample == True:
-        cfgfile="run_ntupleMaker_snu_mc_noslim_cfg.py"
+        cfgfile="run_ntupleMaker_snu_mc_signal_cfg.py"
         
     print "using " + cfgfile    
     isjobrunning=False

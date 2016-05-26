@@ -135,7 +135,6 @@ def CheckJobStatus(submitted_list, v):
             print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
 
             os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] )
-            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr chmod -R 777 /data2/DATA/cattoflat/Data/" + v)
 
             print "submitted_list = " + submitted_list + " is set to: "
             new_submitted_list = string.replace(submitted_list, i+"!" , "")
@@ -222,9 +221,6 @@ if connected_cms3 == False:
 
 sampledir = ["SingleMuon","DoubleMuon", "MuonEG", "SinglePhoton", "DoubleEG", "SingleElectron"]
 
-sampledir = [ "SingleElectron"]
-
-#samples with fullgen entries in the name will store all gen information. All others will store just first 30 gen particles
 periods = ["C", "D"]
 
 if not ALLSamples == True:
@@ -235,7 +231,7 @@ rereco=False
 rereco_tag = "05Oct2015"
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
-njob=30
+njob=100
 njobs_submitted=0
 string_of_submitted=""
 skip_first=0
@@ -257,7 +253,7 @@ for i in sampledir:
         if samples_processed < skip_first+1:
             continue
 
-        njob=30
+        njob=100
         output=i
         kisti_output=kisti_output_default+output+"/"
         print "Making dir: " + kisti_output

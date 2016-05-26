@@ -227,7 +227,7 @@ class GenericNtupleMakerSNU : public edm::EDAnalyzer
 {
 public:
   GenericNtupleMakerSNU(const edm::ParameterSet& pset);
-
+  
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   void endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eventSetup) override;
   std::vector<const reco::Candidate *> getAncestors(const reco::Candidate &c);
@@ -279,12 +279,13 @@ private:
   FlatConsumers<int> intCSet_;
   FlatConsumers<double> doubleCSet_;
   FlatConsumers<float> floatCSet_;
+
   //FlatConsumers<std::string> stringCSet_;
   VectorConsumers<bool> vboolCSet_;
   VectorConsumers<int> vintCSet_;
   VectorConsumers<double> vdoubleCSet_;
   VectorConsumers<float> vfloatCSet_;
-  
+
   VectorConsumers<std::string> vstringCSet_;
 
 
@@ -295,14 +296,17 @@ private:
   std::vector<std::vector<CandFtn> > exprs_;
   std::vector<std::vector<CandSel> > selectors_;
 
-  
+  /// Process specific variables
   bool runFullTrig;
   bool keepAllGen;
   bool makeSlim;
-
+  bool store_allweights;
   TH1F* hNEvent_;
 
   TTree* tree_;
+
+  ///// variables to store for sktrees
+
   int runNumber_, lumiNumber_, eventNumber_;
   double vertex_X, vertex_Y, vertex_Z;
   bool IsData_;
@@ -319,63 +323,77 @@ private:
   
   /////// ints
   ///// muon 6
-  vector<int>  muon_numberOfValidHits, muon_numberOfValidMuonHits,muon_numberOfMatchedStations,muon_numberOfValidPixelHits,muon_trackerLayersWithMeasurement,muon_charge;
+  std::vector<int>  muon_numberOfValidHits, muon_numberOfValidMuonHits,muon_numberOfMatchedStations,muon_numberOfValidPixelHits,muon_trackerLayersWithMeasurement,muon_charge;
   
   /// electrons 2
-  vector<int>  electrons_snuID, electrons_charge;
+  std::vector<int>  electrons_snuID, electrons_charge;
 
   /// jets 4
-  vector<int>  jets_partonFlavour,jets_hadronFlavour,jets_partonPdgId,jets_vtxNtracks;
-  
-  //// double
-  //// muon  15
-  vector<double>  muon_x,muon_y,muon_z,muon_pt, muon_eta,muon_phi, muon_m, muon_energy, muon_relIso03,muon_relIso04, muon_dxy, muon_normchi, muon_dz, muon_shiftedEup,muon_shiftedEdown;
-  
-  //// electrons  26
-  vector<double>   electrons_x,electrons_y,electrons_z,electrons_pt, electrons_eta,electrons_phi, electrons_m, electrons_energy, electrons_relIso03,electrons_relIso04,electrons_shiftedEnDown, electrons_shiftedEnUp, electrons_absIso03, electrons_absIso04,electrons_chIso03, electrons_nhIso03, electrons_phIso03, electrons_puChIso03, electrons_chIso04, electrons_nhIso04, electrons_phIso04, electrons_puChIso04, electrons_scEta, electrons_dxy, electrons_dz, electrons_isGsfCtfScPixChargeConsistent;
-  
-  //// jets  18
-  vector<double>   jets_pt, jets_eta,jets_phi, jets_m, jets_energy, jets_vtxMass, jets_vtx3DVal, jets_vtx3DSig, jets_CSVInclV2, jets_JetProbBJet, jets_CMVAV2, jets_chargedEmEnergyFraction, jets_shiftedEnDown, jets_shiftedEnUp, jets_smearedRes, jets_smearedResDown, jets_smearedResUp, jets_PileupJetId;
+  std::vector<int>  jets_partonFlavour,jets_hadronFlavour,jets_partonPdgId,jets_vtxNtracks;
 
+//// double
+  //// muon  15
+  std::vector<double>  muon_x,muon_y,muon_z, muon_relIso03,muon_relIso04, muon_dxy, muon_normchi, muon_dz, muon_shiftedEup,muon_shiftedEdown;
+  
+  std::vector<double> muon_pt, muon_eta,muon_phi, muon_m, muon_energy;
+
+  //// electrons  26
+  std::vector<double>   electrons_x,electrons_y,electrons_z, electrons_relIso03,electrons_relIso04,electrons_shiftedEnDown, electrons_shiftedEnUp, electrons_absIso03, electrons_absIso04,electrons_chIso03, electrons_nhIso03, electrons_phIso03, electrons_puChIso03, electrons_chIso04, electrons_nhIso04, electrons_phIso04, electrons_puChIso04, electrons_scEta, electrons_dxy, electrons_dz, electrons_isGsfCtfScPixChargeConsistent;
+  
+  std::vector<double> electrons_pt, electrons_eta,electrons_phi, electrons_m, electrons_energy;
+
+  //// jets  21
+  std::vector<double>   jets_vtxMass, jets_vtx3DVal, jets_vtx3DSig, jets_CSVInclV2, jets_JetProbBJet, jets_CMVAV2, jets_chargedEmEnergyFraction, jets_shiftedEnDown, jets_shiftedEnUp, jets_smearedRes, jets_smearedResDown, jets_smearedResUp, jets_PileupJetId, jets_iCSVCvsL,jets_CCvsLT, jets_CCvsBT;
+
+  std::vector<double> jets_pt, jets_eta,jets_phi, jets_m, jets_energy;
   
   bool Flag_HBHENoiseFilter, Flag_CSCTightHaloFilter, Flag_goodVertices, Flag_eeBadScFilter, Flag_EcalDeadCellTriggerPrimitiveFilter;
 
   double met_muonEn_Px_up, met_muonEn_Px_down, met_muonEn_Py_up, met_muonEn_Py_down;
   double met_electronEn_Px_up, met_electronEn_Px_down, met_electronEn_Py_up, met_electronEn_Py_down;
 
-  vector<std::string> vtrignames;
-  vector<std::string> muon_trigmatch;
-  vector<std::string> electron_trigmatch;
-  vector<int> vtrigps;
-  vector<int> gen_pdgid_;
-  vector<int> gen_status_;
-  vector<int> gen_motherindex_;
-  vector<int> GenJet_pdgid_;
-  vector<float> gen_energy_;
-  vector<float> gen_eta_;
-  vector<float> gen_phi_;
-  vector<float> gen_pt_;
+  std::vector<std::string> vtrignames;
+  std::vector<std::string> muon_trigmatch;
+  std::vector<std::string> electron_trigmatch;
+  std::vector<int> vtrigps;
+  std::vector<int> gen_pdgid_;
+  std::vector<int> gen_status_;
+  std::vector<int> gen_motherindex_;
+  std::vector<int> GenJet_pdgid_;
+  std::vector<float> gen_energy_;
+  std::vector<float> gen_eta_;
+  std::vector<float> gen_phi_;
+  std::vector<float> gen_pt_;
 
-  vector<bool>  gen_isprompt_;
-  vector<bool>  gen_isdecayedleptonhadron_;
-  vector<bool>  gen_istaudecayproduct_;
-  vector<bool>  gen_isprompttaudecayproduct_;
-  vector<bool>  gen_isdirecthadrondecayproduct_;
+  std::vector<bool>  gen_isprompt_;
+  std::vector<bool>  gen_isdecayedleptonhadron_;
+  std::vector<bool>  gen_istaudecayproduct_;
+  std::vector<bool>  gen_isprompttaudecayproduct_;
+  std::vector<bool>  gen_isdirecthadrondecayproduct_;
  
-  vector<bool>  gen_ishardprocess_;
-  vector<bool>  gen_fromhardprocess_;
-  vector<bool>  gen_fromhardprocess_beforeFSR_;
+  std::vector<bool>  gen_ishardprocess_;
+  std::vector<bool>  gen_fromhardprocess_;
+  std::vector<bool>  gen_fromhardprocess_beforeFSR_;
   
-  
-  vector<float> GenJet_eta_;
-  vector<float> GenJet_pt_;
-  vector<float> GenJet_phi_;
-  vector<float> GenJet_energy_;
-  vector<float> GenJet_emf_;
-  vector<float> GenJet_hadf_;
+  /// Gen Info stored as float to save space
+  std::vector<float> GenJet_eta_;
+  std::vector<float> GenJet_pt_;
+  std::vector<float> GenJet_phi_;
+  std::vector<float> GenJet_energy_;
+  std::vector<float> GenJet_emf_;
+  std::vector<float> GenJet_hadf_;
 
   std::vector<float> ScaleWeight_;
-  std::vector<float> PDFWeights_;
+  std::vector<float> PDFWeight_;
+
+  float genWeightQ_;
+  float genWeightX1_;
+  float genWeightX2_;
+  int genWeight_id1_;
+  int genWeight_id2_;
+  float genWeight_;
+  float lheWeight_;
+
 
   edm::EDGetTokenT<cat::METCollection>      metToken_;
   edm::EDGetTokenT<edm::View<cat::Muon> >     muonToken_;
@@ -458,7 +476,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   runFullTrig = pset.getParameter<bool>("runFullTrig");
   keepAllGen = pset.getParameter<bool>("keepAllGen");
   makeSlim = pset.getParameter<bool>("makeSlim");
-
+  store_allweights = pset.getParameter<bool>("allweights");
  if(runFullTrig) cout << "Running fulltrigger" << endl;
   else cout << "Not running full trigger" << endl;
   //// Test MET
@@ -466,8 +484,8 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   // Output histograms and tree
   edm::Service<TFileService> fs;
   tree_ = fs->make<TTree>("event", "event");
-
   
+  /// I = int, i = UInt, F=Double, O=bool
   tree_->Branch("run"  , &runNumber_  , "run/I"  );
   tree_->Branch("lumi" , &lumiNumber_ , "lumi/I" );
   tree_->Branch("event", &eventNumber_, "event/I");
@@ -486,6 +504,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("met_electronEn_Px_down", &met_electronEn_Px_down, "met_electronEn_Px_down/D");
   tree_->Branch("met_electronEn_Py_down", &met_electronEn_Py_down, "met_electronEn_Py_down/D");
 
+  /// Do not need to give classname of buffsize for string
   tree_->Branch("CatVersion", &CatVersion_);  
 
   tree_->Branch("IsData", &IsData_ , "IsData/O");
@@ -496,166 +515,185 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("EcalDeadCellTriggerPrimitiveFilter", &Flag_EcalDeadCellTriggerPrimitiveFilter,"EcalDeadCellTriggerPrimitiveFilter/O");
 
   
-  tree_->Branch("muon_trigmatch", &muon_trigmatch);
-  tree_->Branch("electron_trigmatch", &electron_trigmatch);
+  tree_->Branch("genWeightQ", &genWeightQ_, "genWeightQ/F");
+  tree_->Branch("genWeightX1", &genWeightX1_,"genWeightX1/F");
+  tree_->Branch("genWeightX2", &genWeightX2_,"genWeightX2/F");
+  tree_->Branch("genWeight_id1", &genWeight_id1_,"genWeight_id1/I");
+  tree_->Branch("genWeight_id2", &genWeight_id2_,"genWeight_id2/I");
+  tree_->Branch("genWeight", &genWeight_,"genWeight/F");
+  tree_->Branch("lheWeight", &lheWeight_,"lheWeight/F");
 
+  /// Vectors (do not need to give classname but will)
 
-  tree_->Branch("vtrignames", &vtrignames);
-  tree_->Branch("vtrigps", &vtrigps);
+  //// strings
+  tree_->Branch("muon_trigmatch", "std::vector<std::string>", &muon_trigmatch);
+  tree_->Branch("electron_trigmatch","std::vector<std::string>", &electron_trigmatch);
+  tree_->Branch("vtrignames","std::vector<std::string>", &vtrignames);
 
-  tree_->Branch("gen_pt", &gen_pt_);
-  tree_->Branch("gen_eta", &gen_eta_);
-  tree_->Branch("gen_phi", &gen_phi_);
-  tree_->Branch("gen_energy", &gen_energy_);
-  tree_->Branch("gen_status", &gen_status_);
-  tree_->Branch("gen_pdgid", &gen_pdgid_);
-  tree_->Branch("gen_motherindex", &gen_motherindex_);
+  //// bools
+  
+  tree_->Branch("muon_isTracker",  "std::vector<bool>", &muon_isTrackerMuon);
+  tree_->Branch("muon_isGlobal",  "std::vector<bool>", &muon_isGlobalMuon);
+  tree_->Branch("muon_isLoose",  "std::vector<bool>", &muon_isLooseMuon);
+  tree_->Branch("muon_isMedium",  "std::vector<bool>", &muon_isMediumMuon);
+  tree_->Branch("muon_isTight",  "std::vector<bool>", &muon_isTightMuon);
+  tree_->Branch("muon_isSoft",  "std::vector<bool>", &muon_isSoftMuon);
+  tree_->Branch("muon_matched",  "std::vector<bool>", &muon_mcMatched);
+  tree_->Branch("muon_isPF",  "std::vector<bool>", &muon_isPFMuon);
 
-
-  tree_->Branch("gen_isprompt", &gen_isprompt_);
-  tree_->Branch("gen_isdecayedleptonhadron", &gen_isdecayedleptonhadron_);
-  tree_->Branch("gen_istaudecayproduct", &gen_istaudecayproduct_);
-  tree_->Branch("gen_isprompttaudecayproduct", &gen_isprompttaudecayproduct_);
-  tree_->Branch("gen_isdirecthadrondecayproduct", &gen_isdirecthadrondecayproduct_);
-  tree_->Branch("gen_ishardprocess", &gen_ishardprocess_);
-  tree_->Branch("gen_fromhardprocess", &gen_fromhardprocess_);
-  tree_->Branch("gen_fromhardprocess_beforeFSR", &gen_fromhardprocess_beforeFSR_);
-
-
-  tree_->Branch("genjet_pt", &GenJet_pt_);
-  tree_->Branch("genjet_eta", &GenJet_eta_);
-  tree_->Branch("genjet_phi", &GenJet_phi_);
-  tree_->Branch("genjet_energy", &GenJet_energy_);
-  tree_->Branch("genjet_emf", &GenJet_emf_);
-  tree_->Branch("genjet_hadf", &GenJet_hadf_);
-  tree_->Branch("genjet_pdgid", &GenJet_pdgid_);
-
- 
-  tree_->Branch("ScaleWeights", &ScaleWeight_);
-  tree_->Branch("PDFWeights", &PDFWeight_);
-
-  tree_->Branch("muon_isTracker", &muon_isTrackerMuon);
-  tree_->Branch("muon_isGlobal", &muon_isGlobalMuon);
-  tree_->Branch("muon_isLoose", &muon_isLooseMuon);
-  tree_->Branch("muon_isMedium", &muon_isMediumMuon);
-  tree_->Branch("muon_isTight", &muon_isTightMuon);
-  tree_->Branch("muon_isSoft", &muon_isSoftMuon);
-  tree_->Branch("muon_matched", &muon_mcMatched);
-  tree_->Branch("muon_isPF", &muon_isPFMuon);
-
-  tree_->Branch("electrons_electronID_loose", &electrons_electronID_loose);
-  tree_->Branch("electrons_electronID_medium", &electrons_electronID_medium);
-  tree_->Branch("electrons_electronID_tight", &electrons_electronID_tight);
-  tree_->Branch("electrons_electronID_veto", &electrons_electronID_veto);
-  tree_->Branch("electrons_electronID_mva_medium", &electrons_electronID_mva_medium);
-  tree_->Branch("electrons_electronID_mva_tight", &electrons_electronID_mva_tight);
-  tree_->Branch("electrons_electronID_mva_trig_medium", &electrons_electronID_mva_trig_medium);
-  tree_->Branch("electrons_electronID_mva_trig_tight", &electrons_electronID_mva_trig_tight);
-  tree_->Branch("electrons_electronID_heep", &electrons_electronID_heep);
-  tree_->Branch("electrons_mcMatched", &electrons_mcMatched);
-  tree_->Branch("electrons_isPF", &electrons_isPF);
-  tree_->Branch("electrons_passConversionVeto", &electrons_passConversionVeto);
-  tree_->Branch("electrons_isTrigMVAValid", &electrons_isTrigMVAValid);
+  tree_->Branch("electrons_electronID_loose",  "std::vector<bool>", &electrons_electronID_loose);
+  tree_->Branch("electrons_electronID_medium",  "std::vector<bool>", &electrons_electronID_medium);
+  tree_->Branch("electrons_electronID_tight",  "std::vector<bool>", &electrons_electronID_tight);
+  tree_->Branch("electrons_electronID_veto",  "std::vector<bool>", &electrons_electronID_veto);
+  tree_->Branch("electrons_electronID_mva_medium",  "std::vector<bool>", &electrons_electronID_mva_medium);
+  tree_->Branch("electrons_electronID_mva_tight",  "std::vector<bool>", &electrons_electronID_mva_tight);
+  tree_->Branch("electrons_electronID_mva_trig_medium",  "std::vector<bool>", &electrons_electronID_mva_trig_medium);
+  tree_->Branch("electrons_electronID_mva_trig_tight",  "std::vector<bool>", &electrons_electronID_mva_trig_tight);
+  tree_->Branch("electrons_electronID_heep",  "std::vector<bool>", &electrons_electronID_heep);
+  tree_->Branch("electrons_mcMatched",  "std::vector<bool>", &electrons_mcMatched);
+  tree_->Branch("electrons_isPF",  "std::vector<bool>", &electrons_isPF);
+  tree_->Branch("electrons_passConversionVeto",  "std::vector<bool>", &electrons_passConversionVeto);
+  tree_->Branch("electrons_isTrigMVAValid",  "std::vector<bool>", &electrons_isTrigMVAValid);
 
 
   /// Jets                                                                                                                                                                          
-  tree_->Branch("jets_isLoose", &jets_looseJetID);
-  tree_->Branch("jets_isTight", &jets_tightJetID);
-  tree_->Branch("jets_isTightLepVetoJetID", &jets_tightLepVetoJetID);
+  tree_->Branch("jets_isLoose",  "std::vector<bool>", &jets_looseJetID);
+  tree_->Branch("jets_isTight",  "std::vector<bool>", &jets_tightJetID);
+  tree_->Branch("jets_isTightLepVetoJetID",  "std::vector<bool>", &jets_tightLepVetoJetID);
+
+  tree_->Branch("gen_isprompt", "std::vector<bool>", &gen_isprompt_);
+  tree_->Branch("gen_isdecayedleptonhadron", "std::vector<bool>", &gen_isdecayedleptonhadron_);
+  tree_->Branch("gen_istaudecayproduct","std::vector<bool>", &gen_istaudecayproduct_);
+  tree_->Branch("gen_isprompttaudecayproduct", "std::vector<bool>",&gen_isprompttaudecayproduct_);
+  tree_->Branch("gen_isdirecthadrondecayproduct", "std::vector<bool>",&gen_isdirecthadrondecayproduct_);
+  tree_->Branch("gen_ishardprocess", "std::vector<bool>",&gen_ishardprocess_);
+  tree_->Branch("gen_fromhardprocess","std::vector<bool>", &gen_fromhardprocess_);
+  tree_->Branch("gen_fromhardprocess_beforeFSR", "std::vector<bool>",&gen_fromhardprocess_beforeFSR_);
+
+
 
   /////// ints                                                                                                                                                                      
+
+  tree_->Branch("vtrigps", "std::vector<int>", &vtrigps);
   ///// muon                                                                                                                                                                        
-  tree_->Branch("muon_validhits", &muon_numberOfValidHits);
-  tree_->Branch("muon_validmuonhits", &muon_numberOfValidMuonHits);
-  tree_->Branch("muon_matchedstations", &muon_numberOfMatchedStations);
-  tree_->Branch("muon_validpixhits", &muon_numberOfValidPixelHits);
-  tree_->Branch("muon_trackerlayers", &muon_trackerLayersWithMeasurement);
-  tree_->Branch("muon_q", &muon_charge);
+  tree_->Branch("muon_validhits",  "std::vector<int>", &muon_numberOfValidHits);
+  tree_->Branch("muon_validmuonhits",  "std::vector<int>", &muon_numberOfValidMuonHits);
+  tree_->Branch("muon_matchedstations",  "std::vector<int>", &muon_numberOfMatchedStations);
+  tree_->Branch("muon_validpixhits",  "std::vector<int>", &muon_numberOfValidPixelHits);
+  tree_->Branch("muon_trackerlayers",  "std::vector<int>", &muon_trackerLayersWithMeasurement);
+  tree_->Branch("muon_q",  "std::vector<int>", &muon_charge);
   /// electrons                                                                                                                                                                     
-  tree_->Branch("electrons_electronID_snu", &electrons_snuID);
-  tree_->Branch("electrons_q", &electrons_charge);
+  tree_->Branch("electrons_electronID_snu",  "std::vector<int>", &electrons_snuID);
+  tree_->Branch("electrons_q",  "std::vector<int>", &electrons_charge);
 
   /// jets                                                                                                                                                                          
   
-  tree_->Branch("jets_partonFlavour", &jets_partonFlavour);
-  tree_->Branch("jets_hadronFlavour", &jets_hadronFlavour);
-  tree_->Branch("jets_partonPdgId", &jets_partonPdgId);
-  tree_->Branch("jets_vtxNtracks", &jets_vtxNtracks);
+  tree_->Branch("jets_partonFlavour",  "std::vector<int>", &jets_partonFlavour);
+  tree_->Branch("jets_hadronFlavour",  "std::vector<int>", &jets_hadronFlavour);
+  tree_->Branch("jets_partonPdgId",  "std::vector<int>", &jets_partonPdgId);
+  tree_->Branch("jets_vtxNtracks",  "std::vector<int>", &jets_vtxNtracks);
 
-  //// floats                                                                                                                                                                       
+  tree_->Branch("gen_status", "std::vector<int>",  &gen_status_);
+  tree_->Branch("gen_pdgid", "std::vector<int>", &gen_pdgid_);
+  tree_->Branch("gen_motherindex", "std::vector<int>", &gen_motherindex_);
+
+  tree_->Branch("genjet_pdgid", "std::vector<int>", &GenJet_pdgid_);
+
+
+  //// doubles                                                                                                                                                                       
   //// muon                                                                                                                                                                         
 
-  tree_->Branch("muon_x", &muon_x);
-  tree_->Branch("muon_y", &muon_y);
-  tree_->Branch("muon_z", &muon_z);
-  tree_->Branch("muon_pt", &muon_pt);
-  tree_->Branch("muon_eta", &muon_eta);
-  tree_->Branch("muon_phi", &muon_phi);
-  tree_->Branch("muon_m", &muon_m);
-  tree_->Branch("muon_energy", &muon_energy);
-  tree_->Branch("muon_dxy", &muon_dxy);
-  tree_->Branch("muon_dz", &muon_dz);
-  tree_->Branch("muon_normchi" , &muon_normchi);
-  tree_->Branch("muon_relIso03", &muon_relIso03);
-  tree_->Branch("muon_relIso04", &muon_relIso04);
-  tree_->Branch("muon_shiftedEdown", &muon_shiftedEdown);
-  tree_->Branch("muon_shiftedEup", &muon_shiftedEup);
+  tree_->Branch("muon_x",  "std::vector<double>", &muon_x);
+  tree_->Branch("muon_y",  "std::vector<double>", &muon_y);
+  tree_->Branch("muon_z",  "std::vector<double>", &muon_z);
+  tree_->Branch("muon_pt",  "std::vector<double>", &muon_pt);
+  tree_->Branch("muon_eta",  "std::vector<double>", &muon_eta);
+  tree_->Branch("muon_phi",  "std::vector<double>", &muon_phi);
+  tree_->Branch("muon_m",  "std::vector<double>", &muon_m);
+  tree_->Branch("muon_energy",  "std::vector<double>", &muon_energy);
+  tree_->Branch("muon_dxy",  "std::vector<double>", &muon_dxy);
+  tree_->Branch("muon_dz",  "std::vector<double>", &muon_dz);
+  tree_->Branch("muon_normchi" ,  "std::vector<double>", &muon_normchi);
+  tree_->Branch("muon_relIso03",  "std::vector<double>", &muon_relIso03);
+  tree_->Branch("muon_relIso04",  "std::vector<double>", &muon_relIso04);
+  tree_->Branch("muon_shiftedEdown",  "std::vector<double>", &muon_shiftedEdown);
+  tree_->Branch("muon_shiftedEup",  "std::vector<double>", &muon_shiftedEup);
 
 
   //// electronss                                                                                                                                                                    
-  tree_->Branch("electrons_x", &electrons_x);
-  tree_->Branch("electrons_y", &electrons_y);
-  tree_->Branch("electrons_z", &electrons_z);
-  tree_->Branch("electrons_pt", &electrons_pt);
-  tree_->Branch("electrons_eta", &electrons_eta);
-  tree_->Branch("electrons_phi", &electrons_phi);
-  tree_->Branch("electrons_m", &electrons_m);
-  tree_->Branch("electrons_energy", &electrons_energy);
-  tree_->Branch("electrons_relIso03", &electrons_relIso03);
-  tree_->Branch("electrons_relIso04", &electrons_relIso04);
-  tree_->Branch("electrons_shiftedEnDown", &electrons_shiftedEnDown);
-  tree_->Branch("electrons_shiftedEnUp", &electrons_shiftedEnUp);
-  tree_->Branch("electrons_absIso03", &electrons_absIso03);
-  tree_->Branch("electrons_absIso04", &electrons_absIso04);
-  tree_->Branch("electrons_chIso03", &electrons_chIso03);
-  tree_->Branch("electrons_chIso04", &electrons_chIso04);
-  tree_->Branch("electrons_nhIso03", &electrons_nhIso03);
-  tree_->Branch("electrons_nhIso04", &electrons_nhIso04);
-  tree_->Branch("electrons_phIso03", &electrons_phIso03);
-  tree_->Branch("electrons_phIso04", &electrons_phIso04);
-  tree_->Branch("electrons_scEta", &electrons_scEta);
-  tree_->Branch("electrons_dxy", &electrons_dxy);
-  tree_->Branch("electrons_dz", &electrons_dz);
-  tree_->Branch("electrons_isGsfCtfScPixChargeConsistent", &electrons_isGsfCtfScPixChargeConsistent);
-  tree_->Branch("electrons_puChIso03", &electrons_puChIso03);
-  tree_->Branch("electrons_puChIso04", &electrons_puChIso04);
+  tree_->Branch("electrons_x",  "std::vector<double>", &electrons_x);
+  tree_->Branch("electrons_y",  "std::vector<double>", &electrons_y);
+  tree_->Branch("electrons_z",  "std::vector<double>", &electrons_z);
+  tree_->Branch("electrons_pt",  "std::vector<double>", &electrons_pt);
+  tree_->Branch("electrons_eta",  "std::vector<double>", &electrons_eta);
+  tree_->Branch("electrons_phi",  "std::vector<double>", &electrons_phi);
+  tree_->Branch("electrons_m",  "std::vector<double>", &electrons_m);
+  tree_->Branch("electrons_energy",  "std::vector<double>", &electrons_energy);
+  tree_->Branch("electrons_relIso03",  "std::vector<double>", &electrons_relIso03);
+  tree_->Branch("electrons_relIso04",  "std::vector<double>", &electrons_relIso04);
+  tree_->Branch("electrons_shiftedEnDown",  "std::vector<double>", &electrons_shiftedEnDown);
+  tree_->Branch("electrons_shiftedEnUp",  "std::vector<double>", &electrons_shiftedEnUp);
+  tree_->Branch("electrons_absIso03",  "std::vector<double>", &electrons_absIso03);
+  tree_->Branch("electrons_absIso04",  "std::vector<double>", &electrons_absIso04);
+  tree_->Branch("electrons_chIso03",  "std::vector<double>", &electrons_chIso03);
+  tree_->Branch("electrons_chIso04",  "std::vector<double>", &electrons_chIso04);
+  tree_->Branch("electrons_nhIso03",  "std::vector<double>", &electrons_nhIso03);
+  tree_->Branch("electrons_nhIso04",  "std::vector<double>", &electrons_nhIso04);
+  tree_->Branch("electrons_phIso03",  "std::vector<double>", &electrons_phIso03);
+  tree_->Branch("electrons_phIso04",  "std::vector<double>", &electrons_phIso04);
+  tree_->Branch("electrons_scEta",  "std::vector<double>", &electrons_scEta);
+  tree_->Branch("electrons_dxy",  "std::vector<double>", &electrons_dxy);
+  tree_->Branch("electrons_dz",  "std::vector<double>", &electrons_dz);
+  tree_->Branch("electrons_isGsfCtfScPixChargeConsistent",  "std::vector<double>", &electrons_isGsfCtfScPixChargeConsistent);
+  tree_->Branch("electrons_puChIso03",  "std::vector<double>", &electrons_puChIso03);
+  tree_->Branch("electrons_puChIso04",  "std::vector<double>", &electrons_puChIso04);
 
   //// jets                                                                                                                                                                         
-  tree_->Branch("jets_pt", &jets_pt);
-  tree_->Branch("jets_eta", &jets_eta);
-  tree_->Branch("jets_phi", &jets_phi);
-  tree_->Branch("jets_m", &jets_m);
-  tree_->Branch("jets_energy", &jets_energy);
-  tree_->Branch("jets_vtxMass", &jets_vtxMass);
-  tree_->Branch("jets_vtx3DVal", &jets_vtx3DVal);
-  tree_->Branch("jets_vtx3DSig", &jets_vtx3DSig);
-  tree_->Branch("jets_CSVInclV2", &jets_CSVInclV2);
-  tree_->Branch("jets_JetProbBJet", &jets_JetProbBJet);
-  tree_->Branch("jets_CMVAV2", &jets_CMVAV2);
-  tree_->Branch("jets_chargedEmEnergyFraction", &jets_chargedEmEnergyFraction);
-  tree_->Branch("jets_shiftedEnDown", &jets_shiftedEnDown);
-  tree_->Branch("jets_shiftedEnUp", &jets_shiftedEnUp);
-  tree_->Branch("jets_smearedRes", &jets_smearedRes);
-  tree_->Branch("jets_smearedResDown", &jets_smearedResDown);
-  tree_->Branch("jets_smearedResUp", &jets_smearedResUp);
-  tree_->Branch("jets_PileupJetId", &jets_PileupJetId);
+  tree_->Branch("jets_pt",  "std::vector<double>", &jets_pt);
+  tree_->Branch("jets_eta",  "std::vector<double>", &jets_eta);
+  tree_->Branch("jets_phi",  "std::vector<double>", &jets_phi);
+  tree_->Branch("jets_m",  "std::vector<double>", &jets_m);
+  tree_->Branch("jets_energy",  "std::vector<double>", &jets_energy);
+  tree_->Branch("jets_vtxMass",  "std::vector<double>", &jets_vtxMass);
+  tree_->Branch("jets_vtx3DVal",  "std::vector<double>", &jets_vtx3DVal);
+  tree_->Branch("jets_vtx3DSig",  "std::vector<double>", &jets_vtx3DSig);
+  tree_->Branch("jets_CSVInclV2",  "std::vector<double>", &jets_CSVInclV2);
+  tree_->Branch("jets_iCSVCvsL",  "std::vector<double>", &jets_iCSVCvsL);
+  tree_->Branch("jets_CCvsLT",  "std::vector<double>", &jets_CCvsLT);
+  tree_->Branch("jets_CCvsBT",  "std::vector<double>", &jets_CCvsBT);
+  tree_->Branch("jets_JetProbBJet",  "std::vector<double>", &jets_JetProbBJet);
+  tree_->Branch("jets_CMVAV2",  "std::vector<double>", &jets_CMVAV2);
+  tree_->Branch("jets_chargedEmEnergyFraction",  "std::vector<double>", &jets_chargedEmEnergyFraction);
+  tree_->Branch("jets_shiftedEnDown",  "std::vector<double>", &jets_shiftedEnDown);
+  tree_->Branch("jets_shiftedEnUp",  "std::vector<double>", &jets_shiftedEnUp);
+  tree_->Branch("jets_smearedRes",  "std::vector<double>", &jets_smearedRes);
+  tree_->Branch("jets_smearedResDown",  "std::vector<double>", &jets_smearedResDown);
+  tree_->Branch("jets_smearedResUp",  "std::vector<double>", &jets_smearedResUp);
+  tree_->Branch("jets_PileupJetId",  "std::vector<double>", &jets_PileupJetId);
 
   
+
+  tree_->Branch("gen_pt", "std::vector<float>", &gen_pt_);
+  tree_->Branch("gen_eta", "std::vector<float>",  &gen_eta_);
+  tree_->Branch("gen_phi", "std::vector<float>",  &gen_phi_);
+  tree_->Branch("gen_energy",  "std::vector<float>", &gen_energy_);
+
+  tree_->Branch("genjet_pt", "std::vector<float>", &GenJet_pt_);
+  tree_->Branch("genjet_eta", "std::vector<float>",&GenJet_eta_);
+  tree_->Branch("genjet_phi", "std::vector<float>",&GenJet_phi_);
+  tree_->Branch("genjet_energy", "std::vector<float>",&GenJet_energy_);
+  tree_->Branch("genjet_emf", "std::vector<float>",&GenJet_emf_);
+  tree_->Branch("genjet_hadf", "std::vector<float>",&GenJet_hadf_);
+
+  tree_->Branch("ScaleWeights", "std::vector<float>", &ScaleWeight_);
+  tree_->Branch("PDFWeights", "std::vector<float>",&PDFWeight_);
+
 
   boolCSet_.init(pset, "bool", consumesCollector(), tree_, "O");
   intCSet_.init(pset, "int", consumesCollector(), tree_, "I");
   doubleCSet_.init(pset, "double", consumesCollector(), tree_, "D");
   floatCSet_.init(pset, "float", consumesCollector(), tree_, "F");
+
   //stringCSet_.init(pset, "string", consumesCollector(), tree_, "F");
   vboolCSet_.init(pset, "bools", consumesCollector(), tree_);
   vintCSet_.init(pset, "ints", consumesCollector(), tree_);
@@ -834,31 +872,52 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   
   int nFailure = 0;
   
+  //// In case config is wrong set false for data
+  if(event.isRealData()) store_allweights=false;
   
-
-
-  //// Set weights
-  bool issignal=true;
-  if(issignal){  
+  /// since v7-6-4 store genweights using CAT class
+  if(!event.isRealData()) {
     edm::Handle<cat::GenWeights> genWeightHandle;
-    iEvent.getByToken(genWeightToken_, genWeightHandle);
+    event.getByToken(genWeightToken_, genWeightHandle);
     
-    // muR/muF Scale Weights
-    ScaleWeight_.push_back(genWeightHandle->scaleUpWeights()[0]);   // muR=Nom  muF=Up
-    ScaleWeight_.push_back(genWeightHandle->scaleDownWeights()[0]); // muR=Nom  muF=Down
-    ScaleWeight_.push_back(genWeightHandle->scaleUpWeights()[1]);   // muR=Up   muF=Nom
-    ScaleWeight_.push_back(genWeightHandle->scaleUpWeights()[2]);   // muR=Up   muF=Up
-    ScaleWeight_.push_back(genWeightHandle->scaleDownWeights()[1]); // muR=Down muF=Nom
-    ScaleWeight_.push_back(genWeightHandle->scaleDownWeights()[2]); // muR=Down muF=Down
-    
-    
-    for (unsigned int ipdf=0; ipdf < genWeightHandle->pdfWeights().size(); ipdf++){ 
-      PDFWeights_.push_back(genWeightHandle->pdfWeights()[ipdf]);
+    /// only store pdf/scale weights for specific MC
+    if(store_allweights){  
+      //cout << "genWeightHandle->scaleUpWeights().size() = " << genWeightHandle->scaleUpWeights().size() << endl; 
+      if (genWeightHandle->scaleUpWeights().size() > 0){
+	// muR/muF Scale Weights
+	ScaleWeight_.push_back(genWeightHandle->scaleUpWeights()[0]);   // muR=Nom  muF=Up
+	ScaleWeight_.push_back(genWeightHandle->scaleDownWeights()[0]); // muR=Nom  muF=Down
+	ScaleWeight_.push_back(genWeightHandle->scaleUpWeights()[1]);   // muR=Up   muF=Nom
+	ScaleWeight_.push_back(genWeightHandle->scaleUpWeights()[2]);   // muR=Up   muF=Up
+	ScaleWeight_.push_back(genWeightHandle->scaleDownWeights()[1]); // muR=Down muF=Nom
+	ScaleWeight_.push_back(genWeightHandle->scaleDownWeights()[2]); // muR=Down muF=Down
+      }
+      //cout << "genWeightHandle->pdfWeights().size() = " << genWeightHandle->pdfWeights().size() << endl;
+      for (unsigned int ipdf=0; ipdf < genWeightHandle->pdfWeights().size(); ipdf++){ 
+	PDFWeight_.push_back(genWeightHandle->pdfWeights()[ipdf]);
+      }
     }
+  
+    /// store these for all MC
+    genWeightQ_ = genWeightHandle->qScale();
+    genWeightX1_ = genWeightHandle->x1();
+    genWeightX2_ = genWeightHandle->x2();
+    genWeight_id1_ = genWeightHandle->id1();
+    genWeight_id2_ = genWeightHandle->id2();
+    genWeight_ = genWeightHandle->genWeight();
+    lheWeight_ = genWeightHandle->lheWeight();
+  }
+  else{
+    genWeightQ_ =  -999.;
+    genWeightX1_ =  -999.;
+    genWeightX2_ = -999.;
+    genWeight_id1_ = -999;
+    genWeight_id2_ = -999;
+    genWeight_ = -999.;
+    lheWeight_ = -999.;
   }// end of signal weights
   
-
-
+  
   ////// Fill vertex information
   edm::Handle<reco::VertexCollection> vertices;
   event.getByToken(vtxToken_, vertices);
@@ -1085,7 +1144,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     if(jt.pt() < j_pt_min) continue;
     if(fabs(jt.eta()) > j_eta_max) continue;
     
-    /// Jets                                                                                                                                                                                                                       
+
     jets_looseJetID.push_back(jt.looseJetID());
     jets_tightJetID.push_back(jt.tightJetID());
     jets_tightLepVetoJetID.push_back(jt.tightLepVetoJetID());
@@ -1104,6 +1163,9 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     jets_vtx3DVal.push_back(jt.vtx3DVal()); 
     jets_vtx3DSig.push_back(jt.vtx3DSig()); 
     jets_CSVInclV2.push_back(jt.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")); 
+    jets_iCSVCvsL.push_back(jt.bDiscriminator("inclusiveCandidateSecondaryVerticesCvsL"));
+    jets_CCvsLT.push_back(jt.bDiscriminator("pfCombinedCvsLJetTags"));
+    jets_CCvsBT.push_back(jt.bDiscriminator("pfCombinedCvsBJetTags"));
     jets_JetProbBJet.push_back(jt.bDiscriminator("pfJetProbabilityBJetTags")); 
     jets_CMVAV2.push_back(jt.bDiscriminator("pfCombinedMVAV2BJetTags")); 
     jets_chargedEmEnergyFraction.push_back(jt.chargedEmEnergyFraction()); 
@@ -1121,8 +1183,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   event.getByToken(metToken_, mets);
 
 
-  float px_shift_muon_up(0.), px_shift_muon_down(0.), py_shift_muon_up(0.), py_shift_muon_down(0.), px_muon(0.), py_muon(0.), px_electron(0.), py_electron(0.) ;
-  float  px_shift_electron_up(0.), px_shift_electron_down(0.), py_shift_electron_up(0.), py_shift_electron_down(0.);
+  double px_shift_muon_up(0.), px_shift_muon_down(0.), py_shift_muon_up(0.), py_shift_muon_down(0.), px_muon(0.), py_muon(0.), px_electron(0.), py_electron(0.) ;
+  double  px_shift_electron_up(0.), px_shift_electron_down(0.), py_shift_electron_up(0.), py_shift_electron_down(0.);
   for (auto mu : *muons) {
     std::string mutrig= "SKTriggerMatching[muon]:";
     for(unsigned int i =0; i< vtrignames_tomatch_muon.size(); i++){
@@ -1257,7 +1319,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	  break;
 	}
       }
-
+      
       gen_motherindex_.push_back( idx);
     }
     
@@ -1528,7 +1590,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   gen_fromhardprocess_beforeFSR_.clear();
 
   ScaleWeight_.clear();
-  PDFWeights_.clear();
+  PDFWeight_.clear();
 
   GenJet_pt_.clear();
   GenJet_eta_.clear();
@@ -1558,6 +1620,9 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   jets_vtx3DVal.clear();
   jets_vtx3DSig.clear();
   jets_CSVInclV2.clear();
+  jets_iCSVCvsL.clear();
+  jets_CCvsLT.clear();
+  jets_CCvsBT.clear();
   jets_JetProbBJet.clear();
   jets_CMVAV2.clear();
   jets_chargedEmEnergyFraction.clear();

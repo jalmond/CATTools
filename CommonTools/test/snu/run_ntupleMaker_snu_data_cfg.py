@@ -13,7 +13,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
-        "root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/v7-4-1_RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v3/150910_121351/0000/catTuple_366.root"
+        "root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v7-6-4_Run2015C_25ns-16Dec2015-v1/160325_072854/0000/catTuple_1.root"
       )
 )
 
@@ -41,6 +41,8 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     runFullTrig = cms.bool(False),
     keepAllGen= cms.bool(False),                      
     makeSlim= cms.bool(True),
+    genWeightLabel = cms.InputTag("genWeight"), 
+    allweights= cms.bool(False),                                
     metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                 
     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),                                                                                
                metFilterNames = cms.vstring(

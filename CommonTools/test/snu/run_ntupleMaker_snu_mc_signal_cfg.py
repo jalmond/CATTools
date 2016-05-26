@@ -14,7 +14,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
 #        'file:/cms/scratch/jalmond/privateCatuples/v7-6-3/EE/40/catTuple_1.root'
-        "root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/v7-6-3_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160221_150303/0000/catTuple_567.root"
+        "root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/ZZ_TuneCUETP8M1_13TeV-pythia8/v7-6-4_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160325_075601/0000/catTuple_12.root"
+
       )
 )
 
@@ -25,14 +26,13 @@ process.load("CATTools.CatProducer.pileupWeight_cff")                # loads pil
 from CATTools.CatProducer.pileupWeight_cff import pileupWeightMap
 process.pileupWeight.weightingMethod = "RedoWeight"                  # set mode to reweighting
 process.pileupWeight.pileupMC = pileupWeightMap["Startup2015_25ns"]  # MC pileup distrubition 
-
+ 
 process.pileupWeight.pileupRD = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON"] # new data PU distrubition
 process.pileupWeight.pileupUp = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Up"]
 process.pileupWeight.pileupDn = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Dn"]
 process.pileupWeight.pileupRD_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000"] # new data PU distrubition
 process.pileupWeight.pileupUp_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Up"]
 process.pileupWeight.pileupDn_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Dn"]
-
 
 
 process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
@@ -48,12 +48,12 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     jets = cms.InputTag("catJets"),                                
     vertices = cms.InputTag("catVertex"),
     met = cms.InputTag("catMETs"),
-    genWeightLabel = cms.InputTag("genWeight")
-
-
+    genWeightLabel = cms.InputTag("genWeight"),
     runFullTrig= cms.bool(True),
     keepAllGen= cms.bool(True),
-    makeSlim= cms.bool(True),
+    makeSlim= cms.bool(False),
+    allweights= cms.bool(True),                                
+
     metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                                     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),               metFilterNames = cms.vstring(                                               
     "HBHENoiseFilter",
     "CSCTightHaloFilter",
@@ -66,26 +66,25 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
         nPV               =  cms.InputTag("catVertex"   , "nPV"    ),
         nTrueInteraction  =  cms.InputTag("pileupWeight", "nTrueInteraction" ),
         
-        genWeight_id1   = cms.InputTag("genWeight" , "id1"),
-        genWeight_id2   = cms.InputTag("genWeight" , "id2"),
         
     ),
     float = cms.PSet(
-        genWeightQ   = cms.InputTag("genWeight" , "Q"),
-        genWeight   = cms.InputTag("genWeight", "genWeight"),
-        lheWeight   = cms.InputTag("genWeight", "lheWeight"),
-        genWeightX1   = cms.InputTag("genWeight" , "x2"),
-        genWeightX2   = cms.InputTag("genWeight" , "x1"),
-
         puWeightSilver   = cms.InputTag("pileupWeightSilver"),
         puWeightSilverUp = cms.InputTag("pileupWeightSilver", "up"),
         puWeightSilverDn = cms.InputTag("pileupWeightSilver", "dn"),
         puWeightGold   = cms.InputTag("pileupWeight"),
         puWeightGoldUp = cms.InputTag("pileupWeight", "up"),
         puWeightGoldDn = cms.InputTag("pileupWeight", "dn"),
+        puWeightGold_xs71000   = cms.InputTag("pileupWeight", "xs71000"),
+        puWeightGoldUp_xs71000 = cms.InputTag("pileupWeight", "xs71000up"),
+        puWeightGoldDn_xs71000 = cms.InputTag("pileupWeight", "xs71000dn"),
+
+
 
     ),
 
+    floats = cms.PSet(
+    ),
 
 cands_int= cms.PSet(
 ),
