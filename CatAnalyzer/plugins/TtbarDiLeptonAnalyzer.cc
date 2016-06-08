@@ -12,12 +12,12 @@
 #include "CATTools/DataFormats/interface/Electron.h"
 #include "CATTools/DataFormats/interface/Jet.h"
 #include "CATTools/DataFormats/interface/MET.h"
-#include "CATTools/DataFormats/interface/GenWeights.h"
 
 #include "CATTools/CommonTools/interface/TTbarModeDefs.h"
 #include "CATTools/CommonTools/interface/ScaleFactorEvaluator.h"
 #include "CATTools/CatAnalyzer/interface/BTagWeightEvaluator.h"
 //#include "TopQuarkAnalysis/TopKinFitter/interface/TtFullLepKinSolver.h"
+#include "CATTools/CatAnalyzer/interface/TopTriggerSF.h"
 #include "CATTools/CatAnalyzer/interface/KinematicSolvers.h"
 
 #include "CATTools/CommonTools/interface/AnalysisHelper.h"
@@ -91,9 +91,8 @@ private:
   BTagWeightEvaluator bTagWeightT;
 
   edm::EDGetTokenT<int> recoFiltersToken_, nGoodVertexToken_, lumiSelectionToken_;
-  //edm::EDGetTokenT<cat::GenWeights> genweightsToken_;
   edm::EDGetTokenT<float> genWeightToken_;
-  edm::EDGetTokenT<vector<float>> pdfweightToken_, scaleweightToken_;
+  edm::EDGetTokenT<vector<float>> pdfweightsToken_, scaleupweightsToken_, scaledownweightsToken_;
   edm::EDGetTokenT<float> puweightToken_, puweightToken_up_, puweightToken_dn_, topPtWeight_;
   edm::EDGetTokenT<int> trigTokenMUEL_, trigTokenMUMU_, trigTokenELEL_;
 
@@ -112,7 +111,7 @@ private:
   int b_run, b_lumi, b_event;
   int b_nvertex, b_step, b_channel, b_njet, b_nbjet;
   bool b_step1, b_step2, b_step3, b_step4, b_step5, b_step6, b_step7, b_filtered;
-  float b_tri;
+  float b_tri, b_tri_up, b_tri_dn;
   float b_met, b_weight, b_puweight, b_puweight_up, b_puweight_dn, b_genweight,
     b_mueffweight, b_mueffweight_up, b_mueffweight_dn,
     b_eleffweight, b_eleffweight_up, b_eleffweight_dn,
@@ -165,10 +164,10 @@ TtbarDiLeptonAnalyzer::TtbarDiLeptonAnalyzer(const edm::ParameterSet& iConfig)
   recoFiltersToken_ = consumes<int>(iConfig.getParameter<edm::InputTag>("recoFilters"));
   nGoodVertexToken_ = consumes<int>(iConfig.getParameter<edm::InputTag>("nGoodVertex"));
   lumiSelectionToken_ = consumes<int>(iConfig.getParameter<edm::InputTag>("lumiSelection"));
-  //genweightsToken_ = consumes<cat::GenWeights>(iConfig.getParameter<edm::InputTag>("genweight"));
   genWeightToken_ = consumes<float>(iConfig.getParameter<edm::InputTag>("genweight"));
-  pdfweightToken_ = consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("pdfweight"));	
-  scaleweightToken_ = consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("scaleweight"));
+  pdfweightsToken_ = consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("pdfweights"));	
+  scaleupweightsToken_ = consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("scaleupweights"));
+  scaledownweightsToken_ = consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("scaledownweights"));
   topPtWeight_ = consumes<float>(iConfig.getParameter<edm::InputTag>("topPtWeight"));
   puweightToken_ = consumes<float>(iConfig.getParameter<edm::InputTag>("puweight"));
   puweightToken_up_ = consumes<float>(iConfig.getParameter<edm::InputTag>("puweight_up"));
@@ -256,6 +255,8 @@ TtbarDiLeptonAnalyzer::TtbarDiLeptonAnalyzer(const edm::ParameterSet& iConfig)
     tr->Branch("step6", &b_step6, "step6/O");
     tr->Branch("step7", &b_step7, "step7/O");
     tr->Branch("tri", &b_tri, "tri/F");
+    tr->Branch("tri_up", &b_tri_up, "tri_up/F");
+    tr->Branch("tri_dn", &b_tri_dn, "tri_dn/F");
     tr->Branch("filtered", &b_filtered, "filtered/O");
     tr->Branch("met", &b_met, "met/F");
     tr->Branch("weight", &b_weight, "weight/F");
@@ -388,28 +389,21 @@ void TtbarDiLeptonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
       b_topPtWeight = *topPtWeightHandle;
 
       if (sys == sys_nom){
-        edm::Handle<vector<float>> pdfweightHandle;
-        iEvent.getByToken(pdfweightToken_, pdfweightHandle);
-        for (const float & aPdfWeight : *pdfweightHandle){
+        edm::Handle<vector<float>> pdfweightsHandle;
+        iEvent.getByToken(pdfweightsToken_, pdfweightsHandle);
+        for (const float & aPdfWeight : *pdfweightsHandle){
           b_pdfWeights.push_back(aPdfWeight);
         }
-        edm::Handle<vector<float>> scaleweightHandle;
-        iEvent.getByToken(scaleweightToken_, scaleweightHandle);
-        for (const float & aScaleWeight : *scaleweightHandle){
+        edm::Handle<vector<float>> scaleupweightsHandle;
+        iEvent.getByToken(scaleupweightsToken_, scaleupweightsHandle);
+        for (const float & aScaleWeight : *scaleupweightsHandle){
           b_scaleWeights.push_back(aScaleWeight);
-        }	
-        // edm::Handle<cat::GenWeights> genweightHandle;
-        // iEvent.getByToken(genweightsToken_, genweightHandle);
-
-        // for (const float & aPdfWeight : genweightHandle->pdfWeights() ){
-        //   b_pdfWeights.push_back(aPdfWeight);
-        // }
-        // for (const float & aScaleWeight : genweightHandle->scaleUpWeights() ){
-        //   b_scaleWeights_up.push_back(aScaleWeight);
-        // }
-        // for (const float & aScaleWeight : genweightHandle->scaleDownWeights() ){
-        //   b_scaleWeights_dn.push_back(aScaleWeight);
-        // }
+        }
+        edm::Handle<vector<float>> scaledownweightsHandle;
+        iEvent.getByToken(scaledownweightsToken_, scaledownweightsHandle);
+        for (const float & aScaleWeight : *scaledownweightsHandle){
+          b_scaleWeights.push_back(aScaleWeight);
+        }
       }
 
       edm::Handle<vector<int> > partonTop_modes;
@@ -584,11 +578,6 @@ void TtbarDiLeptonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
       iEvent.getByToken(genWeightToken_, genweightHandle);
       b_genweight = (*genweightHandle);
       b_weight = b_genweight*b_puweight;
-      
-      // edm::Handle<cat::GenWeights> genweightHandle;
-      // iEvent.getByToken(genweightsToken_, genweightHandle);
-      // b_genweight = genweightHandle->genWeight();
-      // b_weight = b_genweight*b_puweight;
     }
 
     if (sys == sys_nom) h_nevents->Fill(0.5,b_puweight*b_genweight);
@@ -661,20 +650,15 @@ void TtbarDiLeptonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
     b_eleffweight_dn = getElEffSF(recolep1, -1)*getElEffSF(recolep2, -1);
 
     // Trigger results
-    // Scale factors are from AN16-025 (v4) http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2016_025_v4.pdf
-    b_tri = 0;
+    b_tri = b_tri_up = b_tri_dn = 0;
     edm::Handle<int> trigHandle;
-    if ( b_channel == CH_ELEL ) {
-      iEvent.getByToken(trigTokenELEL_, trigHandle);
-      if ( *trigHandle != 0 ) b_tri = 0.953; // +- 0.009
-    }
-    else if ( b_channel == CH_MUMU ) {
-      iEvent.getByToken(trigTokenMUMU_, trigHandle);
-      if ( *trigHandle != 0 ) b_tri = 0.948; // +- 0.002
-    }
-    else if ( b_channel == CH_MUEL ) {
-      iEvent.getByToken(trigTokenMUEL_, trigHandle);
-      if ( *trigHandle != 0 ) b_tri = 0.975; // +- 0.004
+    if      ( b_channel == CH_ELEL ) iEvent.getByToken(trigTokenELEL_, trigHandle);
+    else if ( b_channel == CH_MUMU ) iEvent.getByToken(trigTokenMUMU_, trigHandle);
+    else if ( b_channel == CH_MUEL ) iEvent.getByToken(trigTokenMUEL_, trigHandle);
+    if ( *trigHandle != 0 ) {
+       b_tri = computeTrigSF(recolep1, recolep2);
+       b_tri_up = computeTrigSF(recolep1, recolep2,  1);
+       b_tri_dn = computeTrigSF(recolep1, recolep2, -1);
     }
 
     b_lep1 = recolep1.tlv(); b_lep1_pid = recolep1.pdgId();
