@@ -80,7 +80,7 @@ PileupWeightProducer::PileupWeightProducer(const edm::ParameterSet& pset)
     std::vector<double> pileupRD_71000 = pset.getParameter<std::vector<double> >("pileupRD_71000");
     std::vector<double> pileupUp_71000 = pset.getParameter<std::vector<double> >("pileupUp_71000");
     std::vector<double> pileupDn_71000 = pset.getParameter<std::vector<double> >("pileupDn_71000");
-    std::cout << "Size of pileupUp_71000 = " << pileupRD_71000.size() << std::endl;
+    //std::cout << "Size of pileupUp_71000 = " << pileupRD_71000.size() << std::endl;
     if(pileupRD_71000.size() == 0){
       std::vector<double> pileupRD_71000 = pset.getParameter<std::vector<double> >("pileupRD");
       std::vector<double> pileupUp_71000 = pset.getParameter<std::vector<double> >("pileupUp");
@@ -173,6 +173,7 @@ void PileupWeightProducer::produce(edm::Event& event, const edm::EventSetup& eve
       }
 
       if ( *nTrueIntr > 0 ) {
+	//std::cout << lumiWeights_.weight(*nTrueIntr) << std::endl;
         *weight   = lumiWeights_.weight(*nTrueIntr);
         *weightUp = lumiWeightsUp_.weight(*nTrueIntr);
         *weightDn = lumiWeightsDn_.weight(*nTrueIntr);

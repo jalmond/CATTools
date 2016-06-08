@@ -282,7 +282,6 @@ sampledir = ["QCD_DoubleEM_Pt_30to40", "QCD_DoubleEM_Pt_30toInf", "QCD_DoubleEM_
 
 sampledir = ["VBF_HToMuMu","WGtoLNuG","WJets","WW","WWTo2L2Nu_powheg","WWZ","WW_dps","WZ","WZTo2L2Q", "WZJets","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZ","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ"]
 
-
 #, "HN_ee_40", "HN_ee_100", "HN_ee_500", "HN_ee_1500","HN_mm_40","HN_mm_100","HN_mm_500","HN_mm_1500"]
 
 #sampledir = ["HN_ee_schan_lll_ss_40" , "HN_ee_schan_lll_ss_100", "HN_ee_schan_lll_ss_500", "HN_ee_schan_lll_ss_1500" ,"HN_mm_schan_lll_ss_40" , "HN_mm_schan_lll_ss_100", "HN_mm_schan_lll_ss_500", "HN_mm_schan_lll_ss_1500",   "HN_ee_schan_lll_os_40" , "HN_ee_schan_lll_os_100", "HN_ee_schan_lll_os_500", "HN_ee_schan_lll_os_1500", "HN_mm_schan_lll_os_40" , "HN_mm_schan_lll_os_100", "HN_mm_schan_lll_os_500", "HN_mm_schan_lll_os_1500","HN_ee_schan_ll_os_40" , "HN_ee_schan_ll_os_100", "HN_ee_schan_ll_os_500", "HN_ee_schan_ll_os_1500" ,"HN_mm_schan_ll_os_40" , "HN_mm_schan_ll_os_100", "HN_mm_schan_ll_os_500", "HN_mm_schan_ll_os_1500"]
@@ -292,7 +291,7 @@ sampledir = ["VBF_HToMuMu","WGtoLNuG","WJets","WW","WWTo2L2Nu_powheg","WWZ","WW_
 fullgen = ["QCD_"]
 
 ##### *name*
-signalsample = ["Major", "SNU", "HN", "DY"]
+signalsample = ["Major", "SNU", "HN"]
 allweights = ["DY"]
 
 if not ALLSamples == True:
@@ -347,6 +346,7 @@ for i in sampledir:
                 else:
                     AllWeights= False
             AllWeights= True
+
     output= dataset_tag
     kisti_output=kisti_output_default+output+"/"
     print "Making dir: " + kisti_output

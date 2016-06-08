@@ -24,7 +24,7 @@ process.nEventsTotal = cms.EDProducer("EventCountProducer")
 process.load("CATTools.CatProducer.pileupWeight_cff")                # loads pileup weighting tool
 from CATTools.CatProducer.pileupWeight_cff import pileupWeightMap
 process.pileupWeight.weightingMethod = "RedoWeight"                  # set mode to reweighting
-process.pileupWeight.pileupMC = pileupWeightMap["Startup2015_25ns"]  # MC pileup distrubition 
+process.pileupWeight.pileupMC = pileupWeightMap["2015_25ns_FallMC"]  # MC pileup distrubition 
  
 process.pileupWeight.pileupRD = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON"] # newdata PU distrubition
 process.pileupWeight.pileupUp = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Up"]
