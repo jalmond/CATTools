@@ -470,7 +470,9 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   vtxToken_  = consumes<reco::VertexCollection >(pset.getParameter<edm::InputTag>("vertices"));
   /// new weights
   genWeightToken_       = consumes<cat::GenWeights>              (pset.getParameter<edm::InputTag>("genWeightLabel"));
-  
+  pdfweightToken_ = consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("pdfweight"));
+  scaleupweightsToken_ = consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("scaleupweight"));
+  scaledownweightsToken_ = consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("scaledownweight"));
 
   //// bool to specify job
   runFullTrig = pset.getParameter<bool>("runFullTrig");
