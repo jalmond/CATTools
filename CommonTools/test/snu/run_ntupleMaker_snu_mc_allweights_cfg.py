@@ -14,7 +14,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
 #        'file:/cms/scratch/jalmond/privateCatuples/v7-6-3/EE/40/catTuple_1.root'
-        "root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/v7-6-3_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160221_150303/0000/catTuple_567.root"
+        "root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/v7-6-5_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160524_085249/0000/catTuple_558.root"
       )
 )
 
@@ -22,10 +22,7 @@ fileNames = cms.untracked.vstring(
 process.nEventsTotal = cms.EDProducer("EventCountProducer")
 
 
-process.load("CATTools.CatAnalyzer.filters_cff")
 process.load("CATTools.CatAnalyzer.flatGenWeights_cfi")
-
-
 process.load("CATTools.CatProducer.pileupWeight_cff")                # loads pileup weighting tool                                                                                                                                                                              
 process.redoPileupWeight = process.pileupWeight.clone()
 from CATTools.CatProducer.pileupWeight_cff import pileupWeightMap
@@ -35,12 +32,12 @@ process.redoPileupWeight.pileupMC = pileupWeightMap["2015_25ns_FallMC"]
 process.redoPileupWeight.pileupRD = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON"]
 process.redoPileupWeight.pileupUp = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Up"]
 process.redoPileupWeight.pileupDn = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Dn"]
-
-             
-
+          
 process.redoPileupWeight.pileupRD_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000"] # new data PU distrubition
 process.redoPileupWeight.pileupUp_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Up"]
 process.redoPileupWeight.pileupDn_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Dn"]
+
+pileupWeight = 'redoPileupWeight'
 
 process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     failureMode = cms.untracked.string("keep"), # choose one among keep/skip/error
@@ -55,7 +52,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     jets = cms.InputTag("catJets"),                                
     vertices = cms.InputTag("catVertex"),
     met = cms.InputTag("catMETs"),
-    genWeightLabel = cms.InputTag("flatGenWeights"),
+    genWeightLabel = cms.InputTag("genWeight"),
     pdfweights = cms.InputTag("flatGenWeights","pdf"),
     scaleupweights = cms.InputTag("flatGenWeights","scaleup"),
     scaledownweights = cms.InputTag("flatGenWeights","scaledown"),
@@ -81,12 +78,12 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
         puWeightSilver   = cms.InputTag("pileupWeightSilver"),
         puWeightSilverUp = cms.InputTag("pileupWeightSilver", "up"),
         puWeightSilverDn = cms.InputTag("pileupWeightSilver", "dn"),
-        puWeightGold   = cms.InputTag("pileupWeight"),
-        puWeightGoldUp = cms.InputTag("pileupWeight", "up"),
-        puWeightGoldDn = cms.InputTag("pileupWeight", "dn"),
-        puWeightGold_xs71000   = cms.InputTag("pileupWeight", "xs71000"),
-        puWeightGoldUp_xs71000 = cms.InputTag("pileupWeight", "xs71000up"),
-        puWeightGoldDn_xs71000 = cms.InputTag("pileupWeight", "xs71000dn"),
+        puWeightGold   = cms.InputTag(pileupWeight),
+        puWeightGoldUp = cms.InputTag(pileupWeight, "up"),
+        puWeightGoldDn = cms.InputTag(pileupWeight, "dn"),
+        puWeightGold_xs71000   = cms.InputTag(pileupWeight, "xs71000"),
+        puWeightGoldUp_xs71000 = cms.InputTag(pileupWeight, "xs71000up"),
+        puWeightGoldDn_xs71000 = cms.InputTag(pileupWeight, "xs71000dn"),
 
     ),
 
@@ -214,6 +211,7 @@ process.TFileService = cms.Service("TFileService",
 #process.load("CATTools.CatProducer.pseudoTop_cff")
 process.p = cms.Path(
     process.redoPileupWeight*
+    process.flatGenWeights*
     process.nEventsTotal*
     process.ntuple
 )

@@ -53,6 +53,7 @@
 using namespace std;
 using namespace edm;
 
+typedef std::vector<float> vfloat;
 
 template<typename T, typename S>
 class PairConsumers
@@ -333,12 +334,12 @@ private:
 
 //// double
   //// muon  15
-  std::vector<double>  muon_x,muon_y,muon_z, muon_relIso03,muon_relIso04, muon_dxy, muon_normchi, muon_dz, muon_shiftedEup,muon_shiftedEdown;
+  std::vector<double>  muon_x,muon_y,muon_z, muon_relIso03,muon_relIso04, muon_dxy,muon_sigdxy, muon_normchi, muon_dz, muon_shiftedEup,muon_shiftedEdown;
   
   std::vector<double> muon_pt, muon_eta,muon_phi, muon_m, muon_energy;
 
   //// electrons  26
-  std::vector<double>   electrons_x,electrons_y,electrons_z, electrons_relIso03,electrons_relIso04,electrons_shiftedEnDown, electrons_shiftedEnUp, electrons_absIso03, electrons_absIso04,electrons_chIso03, electrons_nhIso03, electrons_phIso03, electrons_puChIso03, electrons_chIso04, electrons_nhIso04, electrons_phIso04, electrons_puChIso04, electrons_scEta, electrons_dxy, electrons_dz, electrons_isGsfCtfScPixChargeConsistent;
+  std::vector<double>   electrons_x,electrons_y,electrons_z, electrons_relIso03,electrons_relIso04,electrons_shiftedEnDown, electrons_shiftedEnUp, electrons_absIso03, electrons_absIso04,electrons_chIso03, electrons_nhIso03, electrons_phIso03, electrons_puChIso03, electrons_chIso04, electrons_nhIso04, electrons_phIso04, electrons_puChIso04, electrons_scEta, electrons_dxy,electrons_sigdxy, electrons_dz, electrons_isGsfCtfScPixChargeConsistent;
   
   std::vector<double> electrons_pt, electrons_eta,electrons_phi, electrons_m, electrons_energy;
 
@@ -400,7 +401,8 @@ private:
   edm::EDGetTokenT<edm::View<cat::Jet> >     jetToken_;
   edm::EDGetTokenT<edm::View<cat::Electron> > elecToken_;
   edm::EDGetTokenT<cat::GenWeights>              genWeightToken_;
-  
+  edm::EDGetTokenT<vfloat> pdfweightsToken_, scaleupweightsToken_, scaledownweightsToken_;
+
 
   /// bool
   std::vector<std::vector<vbool*> > cand_boolVars_;
@@ -470,9 +472,10 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   vtxToken_  = consumes<reco::VertexCollection >(pset.getParameter<edm::InputTag>("vertices"));
   /// new weights
   genWeightToken_       = consumes<cat::GenWeights>              (pset.getParameter<edm::InputTag>("genWeightLabel"));
-  pdfweightToken_ = consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("pdfweight"));
-  scaleupweightsToken_ = consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("scaleupweight"));
-  scaledownweightsToken_ = consumes<vector<float>>(iConfig.getParameter<edm::InputTag>("scaledownweight"));
+
+  pdfweightsToken_ = consumes<vfloat>(pset.getParameter<edm::InputTag>("pdfweights"));
+  scaleupweightsToken_ = consumes<vfloat>(pset.getParameter<edm::InputTag>("scaleupweights"));
+  scaledownweightsToken_ = consumes<vfloat>(pset.getParameter<edm::InputTag>("scaledownweights"));
 
   //// bool to specify job
   runFullTrig = pset.getParameter<bool>("runFullTrig");
@@ -614,6 +617,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("muon_m",  "std::vector<double>", &muon_m);
   tree_->Branch("muon_energy",  "std::vector<double>", &muon_energy);
   tree_->Branch("muon_dxy",  "std::vector<double>", &muon_dxy);
+  tree_->Branch("muon_sigdxy",  "std::vector<double>", &muon_sigdxy);
   tree_->Branch("muon_dz",  "std::vector<double>", &muon_dz);
   tree_->Branch("muon_normchi" ,  "std::vector<double>", &muon_normchi);
   tree_->Branch("muon_relIso03",  "std::vector<double>", &muon_relIso03);
@@ -645,6 +649,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("electrons_phIso04",  "std::vector<double>", &electrons_phIso04);
   tree_->Branch("electrons_scEta",  "std::vector<double>", &electrons_scEta);
   tree_->Branch("electrons_dxy",  "std::vector<double>", &electrons_dxy);
+  tree_->Branch("electrons_sigdxy",  "std::vector<double>", &electrons_sigdxy);
   tree_->Branch("electrons_dz",  "std::vector<double>", &electrons_dz);
   tree_->Branch("electrons_isGsfCtfScPixChargeConsistent",  "std::vector<double>", &electrons_isGsfCtfScPixChargeConsistent);
   tree_->Branch("electrons_puChIso03",  "std::vector<double>", &electrons_puChIso03);
@@ -884,20 +889,18 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     
     /// only store pdf/scale weights for specific MC
     if(store_allweights){  
-      //cout << "genWeightHandle->scaleUpWeights().size() = " << genWeightHandle->scaleUpWeights().size() << endl; 
-      if (genWeightHandle->scaleUpWeights().size() > 0){
-	// muR/muF Scale Weights
-	ScaleWeight_.push_back(genWeightHandle->scaleUpWeights()[0]);   // muR=Nom  muF=Up
-	ScaleWeight_.push_back(genWeightHandle->scaleDownWeights()[0]); // muR=Nom  muF=Down
-	ScaleWeight_.push_back(genWeightHandle->scaleUpWeights()[1]);   // muR=Up   muF=Nom
-	ScaleWeight_.push_back(genWeightHandle->scaleUpWeights()[2]);   // muR=Up   muF=Up
-	ScaleWeight_.push_back(genWeightHandle->scaleDownWeights()[1]); // muR=Down muF=Nom
-	ScaleWeight_.push_back(genWeightHandle->scaleDownWeights()[2]); // muR=Down muF=Down
-      }
-      //cout << "genWeightHandle->pdfWeights().size() = " << genWeightHandle->pdfWeights().size() << endl;
-      for (unsigned int ipdf=0; ipdf < genWeightHandle->pdfWeights().size(); ipdf++){ 
-	PDFWeight_.push_back(genWeightHandle->pdfWeights()[ipdf]);
-      }
+      
+      edm::Handle<vfloat> pdfweightsHandle;
+      event.getByToken(pdfweightsToken_, pdfweightsHandle);
+      for ( auto& w : *pdfweightsHandle )  PDFWeight_.push_back(w);
+      
+      edm::Handle<vfloat> scaleupweightsHandle;
+      event.getByToken(scaleupweightsToken_,scaleupweightsHandle);
+      for ( auto& w :*scaleupweightsHandle) ScaleWeight_.push_back(w);
+      
+      edm::Handle<vfloat> scaledownweightsHandle;
+      event.getByToken(scaledownweightsToken_,scaledownweightsHandle);
+      for ( auto& w :*scaledownweightsHandle) ScaleWeight_.push_back(w);
     }
   
     /// store these for all MC
@@ -1101,6 +1104,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     electrons_puChIso04.push_back(el.puChargedHadronIso(0.4)); 
     electrons_scEta.push_back(el.scEta()); 
     electrons_dxy.push_back(el.dxy()); 
+    electrons_sigdxy.push_back(el.ipsignificance());
     electrons_dz.push_back(el.dz());
     electrons_isGsfCtfScPixChargeConsistent.push_back(el.isGsfCtfScPixChargeConsistent());
     
@@ -1135,6 +1139,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     muon_relIso03.push_back(mu.relIso(0.3));
     muon_relIso04.push_back(mu.relIso(0.4));
     muon_dxy.push_back(mu.dxy());
+    muon_sigdxy.push_back(mu.ipsignificance());
     muon_normchi.push_back(mu.normalizedChi2());
     muon_dz.push_back(mu.dz()); 
     muon_shiftedEup.push_back(mu.shiftedEnUp());
@@ -1660,6 +1665,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   muon_relIso03.clear();
   muon_relIso04.clear();
   muon_dxy.clear();
+  muon_sigdxy.clear();
   muon_normchi.clear();
   muon_dz.clear();
   muon_shiftedEup.clear();
@@ -1704,6 +1710,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   electrons_puChIso04.clear();
   electrons_scEta.clear();
   electrons_dxy.clear();
+  electrons_sigdxy.clear();
   electrons_dz.clear();
   electrons_isGsfCtfScPixChargeConsistent.clear();
 

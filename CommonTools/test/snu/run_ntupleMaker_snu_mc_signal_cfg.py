@@ -22,17 +22,24 @@ fileNames = cms.untracked.vstring(
 
 process.nEventsTotal = cms.EDProducer("EventCountProducer")
 
+process.load("CATTools.CatAnalyzer.flatGenWeights_cfi")
 process.load("CATTools.CatProducer.pileupWeight_cff")                # loads pileup weighting tool
+
+process.redoPileupWeight = process.pileupWeight.clone()
 from CATTools.CatProducer.pileupWeight_cff import pileupWeightMap
-process.pileupWeight.weightingMethod = "RedoWeight"                  # set mode to reweighting
-process.pileupWeight.pileupMC = pileupWeightMap["2015_25ns_FallMC"]  # MC pileup distrubition 
- 
-process.pileupWeight.pileupRD = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON"] # new data PU distrubition
-process.pileupWeight.pileupUp = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Up"]
-process.pileupWeight.pileupDn = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Dn"]
-process.pileupWeight.pileupRD_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000"] # new data PU distrubition
-process.pileupWeight.pileupUp_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Up"]
-process.pileupWeight.pileupDn_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Dn"]
+
+process.redoPileupWeight.weightingMethod = "RedoWeight"
+process.redoPileupWeight.pileupMC = pileupWeightMap["2015_25ns_FallMC"]
+process.redoPileupWeight.pileupRD = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON"]
+process.redoPileupWeight.pileupUp = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Up"]
+process.redoPileupWeight.pileupDn = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Dn"]
+
+process.redoPileupWeight.pileupRD_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000"] # new data PU distrubition                                      
+process.redoPileupWeight.pileupUp_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Up"]
+process.redoPileupWeight.pileupDn_71000 = pileupWeightMap["Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_71000_Dn"]
+
+pileupWeight = 'redoPileupWeight'
+
 
 
 process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
@@ -49,6 +56,10 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     vertices = cms.InputTag("catVertex"),
     met = cms.InputTag("catMETs"),
     genWeightLabel = cms.InputTag("genWeight"),
+    pdfweights = cms.InputTag("flatGenWeights","pdf"),
+    scaleupweights = cms.InputTag("flatGenWeights","scaleup"),
+    scaledownweights = cms.InputTag("flatGenWeights","scaledown"),
+
     runFullTrig= cms.bool(True),
     keepAllGen= cms.bool(True),
     makeSlim= cms.bool(False),
@@ -72,12 +83,12 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
         puWeightSilver   = cms.InputTag("pileupWeightSilver"),
         puWeightSilverUp = cms.InputTag("pileupWeightSilver", "up"),
         puWeightSilverDn = cms.InputTag("pileupWeightSilver", "dn"),
-        puWeightGold   = cms.InputTag("pileupWeight"),
-        puWeightGoldUp = cms.InputTag("pileupWeight", "up"),
-        puWeightGoldDn = cms.InputTag("pileupWeight", "dn"),
-        puWeightGold_xs71000   = cms.InputTag("pileupWeight", "xs71000"),
-        puWeightGoldUp_xs71000 = cms.InputTag("pileupWeight", "xs71000up"),
-        puWeightGoldDn_xs71000 = cms.InputTag("pileupWeight", "xs71000dn"),
+        puWeightGold   = cms.InputTag(pileupWeight),
+        puWeightGoldUp = cms.InputTag(pileupWeight, "up"),
+        puWeightGoldDn = cms.InputTag(pileupWeight, "dn"),
+        puWeightGold_xs71000   = cms.InputTag(pileupWeight, "xs71000"),
+        puWeightGoldUp_xs71000 = cms.InputTag(pileupWeight, "xs71000up"),
+        puWeightGoldDn_xs71000 = cms.InputTag(pileupWeight, "xs71000dn"),
 
 
 
@@ -206,7 +217,8 @@ process.TFileService = cms.Service("TFileService",
 
 #process.load("CATTools.CatProducer.pseudoTop_cff")
 process.p = cms.Path(
-    process.pileupWeight* 
+    process.redoPileupWeight*
+    process.flatGenWeights*
     process.nEventsTotal*
     process.ntuple
 )

@@ -221,6 +221,7 @@ if connected_cms3 == False:
 
 sampledir = ["SingleMuon","DoubleMuon", "MuonEG", "SinglePhoton", "DoubleEG", "SingleElectron"]
 
+sampledir = ["SingleMuon",  "MuonEG", "SinglePhoton",  "SingleElectron"]
 periods = ["C", "D"]
 
 if not ALLSamples == True:

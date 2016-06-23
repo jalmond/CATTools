@@ -17,7 +17,11 @@ fileNames = cms.untracked.vstring(
       )
 )
 
-lumiFile = 'Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Silver.txt' 
+lumiFile = 'Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Silver_v2.txt'
+
+process.load("CATTools.CatAnalyzer.filters_cff")
+
+
 
 from FWCore.PythonUtilities.LumiList import LumiList
 lumiList = LumiList(os.environ["CMSSW_BASE"]+'/src/CATTools/CatProducer/data/LumiMask/'+lumiFile)
@@ -42,6 +46,9 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     keepAllGen= cms.bool(False), 
     makeSlim= cms.bool(True),
     genWeightLabel = cms.InputTag("genWeight"),
+  pdfweights = cms.InputTag("flatGenWeights","pdf"),
+    scaleupweights = cms.InputTag("flatGenWeights","scaleup"),
+    scaledownweights = cms.InputTag("flatGenWeights","scaledown"),
     allweights= cms.bool(False),                    
     metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                 
     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),                                                                                
@@ -186,6 +193,8 @@ process.TFileService = cms.Service("TFileService",
 #process.load("CATTools.CatProducer.pseudoTop_cff")
 process.p = cms.Path(
     process.nEventsTotal*
+    process.removeUncheckedLumis765Prod2015 * process.removeLumisWithBadBS*
+
     process.ntuple
 )
 
