@@ -125,16 +125,33 @@ def CheckJobStatus(submitted_list, v):
         if int(nfinishedjobs) == int(njobs_x):
             print "Job " + i + " is finished. Copying to SNU"
 
-            print "ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + v + "/" + period_split_list[0]
-            os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(v))
-            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0])
-            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
-            os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
-            
 
-            print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
+            if copy_cluster:
+       
+                print "ssh " + username_snu  + "@147.47.242.67  mkdir/data4/DATA/FlatCatuples/Data/" + v + "/" + period_split_list[0]  
+                os.system("ssh " +  username_snu +"@147.47.242.67 mkdir/data4/DATA/FlatCatuples/Data/" + str(v))
+                os.system("ssh " + username_snu  + "@147.47.242.67 mkdir/data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0])
+                os.system("ssh " + username_snu  + "@147.47.242.67 rm -r/data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1])
+                os.system("ssh " + username_snu  + "@147.47.242.67 mkdir/data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1])
 
-            os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] )
+
+                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
+
+                os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] )
+
+
+
+            else:
+                print "ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + v + "/" + period_split_list[0]
+                os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(v))
+                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0])
+                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
+                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
+                
+
+                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
+                
+                os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] )
 
             print "submitted_list = " + submitted_list + " is set to: "
             new_submitted_list = string.replace(submitted_list, i+"!" , "")
@@ -221,7 +238,7 @@ if connected_cms3 == False:
 
 sampledir = ["SingleMuon","DoubleMuon", "MuonEG", "SinglePhoton", "DoubleEG", "SingleElectron"]
 
-sampledir = ["SingleMuon",  "MuonEG", "SinglePhoton",  "SingleElectron"]
+sampledir = ["DoubleEG"]
 periods = ["C", "D"]
 
 if not ALLSamples == True:
@@ -264,7 +281,7 @@ for i in sampledir:
         else:
             os.system("rm " + kisti_output + "/*")
 
-        datasetpath = cmssw_dir+"/src/CATTools/CatAnalyzer/data/dataset/dataset_" + i + "_Run2015"+ period + ".txt"                              
+        datasetpath = cmssw_dir+"/src/CATTools/CatAnalyzer/data/dataset_v763/dataset_" + i + "_Run2015"+ period + ".txt"                              
     
         datasetfile = open(datasetpath, 'r')
         for line in datasetfile:

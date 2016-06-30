@@ -10,7 +10,7 @@ RunALLSamples=True
 PrivateSample=False
 
 ####### For now keep these the same  #########
-copy_cluster=False
+copy_cluster=True
 copy_cms1=True
 ##############################################
 #RunALLSamples=False
