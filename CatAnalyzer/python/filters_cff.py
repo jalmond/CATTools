@@ -15,11 +15,12 @@ filterRECO = cms.EDFilter("CATTriggerBitCombiner",
     triggerPrescales = cms.InputTag("patTrigger"),
     combineBy = cms.string("and"),
     triggersToMatch = cms.vstring(
-        "CSCTightHaloFilter",
-        #"EcalDeadCellTriggerPrimitiveFilter",
-        #"HBHENoiseFilter",
-        "eeBadScFilter",
-        "goodVertices",
+      "HBHENoiseFilter",
+      "HBHENoiseIsoFilter",
+      "CSCTightHalo2015Filter",
+      "EcalDeadCellTriggerPrimitiveFilter",
+      "goodVertices",
+      "eeBadScFilter"
     ),
     doFilter = cms.bool(False),
 )
@@ -47,6 +48,17 @@ filterTrigMUMU = filterTrigMUEL.clone(
         "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
     ),
 )
+filterTrigMUJET = filterTrigMUEL.clone(
+    triggersToMatch = cms.vstring(
+        "HLT_IsoMu18_v",
+    ),
+)
+filterTrigELJET = filterTrigMUEL.clone(
+    triggersToMatch = cms.vstring(
+        "HLT_Ele23_WPLoose_Gsf_v",
+    ),
+)
+
 
 removeLumisWithBadBS = cms.EDFilter("LumiMaskFilter",
     LumiSections = cms.untracked.VLuminosityBlockRange(
