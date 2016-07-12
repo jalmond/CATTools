@@ -280,8 +280,8 @@ for i in sampledir:
         else:
             os.system("rm " + kisti_output + "/*")
 
-        datasetpath = cmssw_dir+"/src/CATTools/CatAnalyzer/data/dataset_v763/dataset_" + i + "_Run2015"+ period + ".txt"                              
-    
+        datasetpath = "/cms/scratch/SNU/datasets_" +version + "/dataset_" + i + "_Run2015"+ period + ".txt"
+
         datasetfile = open(datasetpath, 'r')
         for line in datasetfile:
             if "DataSetName" in line:
@@ -296,8 +296,7 @@ for i in sampledir:
 
 
         os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output + " > " + kisti_output+ "/"+ output + "_getversion.txt")
-        os.system("sed -r 's/^.{43}//' " +  kisti_output+ "/"+output + "_getversion.txt  > " +kisti_output+ "/"+output + "_getversion_skim.tx\
-t")
+        os.system("sed -r 's/^.{43}//' " +  kisti_output+ "/"+output + "_getversion.txt  > " +kisti_output+ "/"+output + "_getversion_skim.txt")
 
         fr_1end = open(kisti_output+ "/"+output+"_getversion_skim.txt",'r')
         versionpath =""
@@ -440,7 +439,8 @@ t")
             continue
 
         print "CheckJobStatusAfterCrash = False"
-        runcommand="create-batch  --jobName " + jobname + " --fileList  ../../../../CatAnalyzer/data/dataset/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /xrootd/store/user/" + k_user + "/"
+
+        runcommand="create-batch  --jobName " + jobname + " --fileList  /cms/scratch/SNU/datasets_" +version + "/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /xrootd/store/user/" + k_user + "/"
         
         print runcommand
         os.system(runcommand)

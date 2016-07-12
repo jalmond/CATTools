@@ -32,7 +32,7 @@ datasampledir = ["DoubleMuon"]
 
                 
 #### For MC only
-mcsampledir = ["HN_ee_40"]
+mcsampledir = ["hntest"]
 
 
 
@@ -62,3 +62,5 @@ if version != latest_version:
         quit()
 
 
+def updateinput(datasetpath, version):
+    os.system('mail  -s "new sample '+ version + '"  jalmond@cern.ch < ' + datasetpath)

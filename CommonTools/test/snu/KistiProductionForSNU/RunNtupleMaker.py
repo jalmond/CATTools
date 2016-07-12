@@ -277,13 +277,9 @@ if copy_cluster:
 
 ## Make a list of samples to process
 
-validation_sampledir=["DYJets" , "DYJets_10to50" , "TTJets_MG5" ,"WW","WZ", "ZZ", "SingleTbar_t","SingleTbar_tW","SingleTop_s","SingleTop_t","SingleTop_tW"]
+validation_sampledir=["DYJets" , "DYJets_10to50" , "TTJets_MG5" ,"WW","WZ", "ZZ", "SingleTbar_t","SingleTbar_tW","SingleTop_s","SingleTop_t","SingleTop_tW", "ttH_bb", "QCD_DoubleEM_Pt_30to40", "QCD_DoubleEM_Pt_30toInf", "QCD_DoubleEM_Pt_40toInf", "QCD_Pt-1000toInf_MuEnriched" , "QCD_Pt-120to170_EMEnriched", "QCD_Pt-120to170_MuEnriched", "QCD_Pt-15to20_EMEnriched", "QCD_Pt-15to20_MuEnriched", "QCD_Pt-170to300_EMEnriched" , "QCD_Pt-170to300_MuEnriched" , "QCD_Pt-20to30_EMEnriched" , "QCD_Pt-20to30_MuEnriched", "QCD_Pt-300to470_MuEnriched", "QCD_Pt-300toInf_EMEnriched", "QCD_Pt-30to50_EMEnriched", "QCD_Pt-30to50_MuEnriched" , "QCD_Pt-470to600_MuEnriched", "QCD_Pt-50to80_EMEnriched", "QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched","QCD_Pt-800to1000_MuEnriched" ,"QCD_Pt-80to120_MuEnriched" ,"QCD_Pt-80to120_EMEnriched", "QCD_Pt-170to250_bcToE","QCD_Pt-15to20_bcToE", "QCD_Pt-20to30_bcToE" , "QCD_Pt-250toINF_bcToE", "QCD_Pt-30to80_bcToE", "QCD_Pt-80to170_bcToE" , "DYJets_MG_5to50", "DYJets_MG","GG_HToMuMu" ,"GJets_Pt20to40","GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","TTG","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WWTo2L2Nu_powheg","WWZ","WW_dps", "WZTo2L2Q", "WZJets","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ" ]
 
-sampledir = ["ttH_bb", "QCD_DoubleEM_Pt_30to40", "QCD_DoubleEM_Pt_30toInf", "QCD_DoubleEM_Pt_40toInf", "QCD_Pt-1000toInf_MuEnriched" , "QCD_Pt-120to170_EMEnriched", "QCD_Pt-120to170_MuEnriched", "QCD_Pt-15to20_EMEnriched", "QCD_Pt-15to20_MuEnriched", "QCD_Pt-170to300_EMEnriched" , "QCD_Pt-170to300_MuEnriched" , "QCD_Pt-20to30_EMEnriched" , "QCD_Pt-20to30_MuEnriched", "QCD_Pt-300to470_MuEnriched", "QCD_Pt-300toInf_EMEnriched", "QCD_Pt-30to50_EMEnriched", "QCD_Pt-30to50_MuEnriched" ]
-
-sampledir = ["QCD_Pt-470to600_MuEnriched", "QCD_Pt-50to80_EMEnriched", "QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched","QCD_Pt-800to1000_MuEnriched" ,"QCD_Pt-80to120_MuEnriched" ,"QCD_Pt-80to120_EMEnriched", "QCD_Pt-170to250_bcToE","QCD_Pt-15to20_bcToE", "QCD_Pt-20to30_bcToE" , "QCD_Pt-250toINF_bcToE", "QCD_Pt-30to80_bcToE", "QCD_Pt-80to170_bcToE" , "DYJets_MG_5to50", "DYJets_MG","GG_HToMuMu" ,"GJets_Pt20to40","GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","TTG","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WWTo2L2Nu_powheg","WWZ","WW_dps", "WZTo2L2Q", "WZJets","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ" , "QCD_Pt-80to170_bcToE" , "DYJets_MG_5to50", "DYJets_MG","GG_HToMuMu" ,"GJets_Pt20to40"]
-
-sampledir = ["GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","TTG","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WWTo2L2Nu_powheg","WWZ","WW_dps", "WZTo2L2Q", "WZJets","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ" ]
+sampledir = ["ZZZ"]
 
 #sampledir=validation_sampledir
 
@@ -319,7 +315,7 @@ for i in sampledir:
         njob=200
     else:
         njob=100
-    datasetpath = cmssw_dir+"/src/CATTools/CatAnalyzer/data/dataset/dataset_" + i + ".txt"
+    datasetpath = "/cms/scratch/SNU/datasets_" +version + "/dataset_" + i + ".txt"
     
     datasetfile = open(datasetpath, 'r')
     for line in datasetfile:
@@ -589,7 +585,7 @@ for i in sampledir:
 
     print "CheckJobStatusAfterCrash = False"
 
-    runcommand="create-batch  --jobName " + jobname + " --fileList  ../../../../CatAnalyzer/data/dataset/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /xrootd/store/user/"+k_user
+    runcommand="create-batch  --jobName " + jobname + " --fileList   /cms/scratch/SNU/datasets_" +version + "/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /xrootd/store/user/"+k_user
     print "Running:"
     print  runcommand
     os.system(runcommand)
