@@ -71,7 +71,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     int = cms.PSet(
         nGoodPV           =  cms.InputTag("catVertex"   , "nGoodPV"),
         nPV               =  cms.InputTag("catVertex"   , "nPV"    ),
-        nTrueInteraction  =  cms.InputTag("pileupWeight", "nTrueInteraction" ),
+        nTrueInteraction  =  cms.InputTag(pileupWeight, "nTrueInteraction" ),
         
     ),
     float = cms.PSet(

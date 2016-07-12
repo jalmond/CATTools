@@ -176,14 +176,13 @@ def CheckJobStatus(submitted_list, v):
 
             
             if copy_cluster:
+                print "ssh " + username_snu  + "@147.47.242.67 mkdir  /data4/DATA/FlatCatuples/MC/" + v + "/" + i
+                os.system("ssh " + username_snu  + "@147.47.242.67 rm -r  /data4/DATA/FlatCatuples/MC/" + v +"/" + i )
+                os.system("ssh " + username_snu  + "@147.47.242.67 mkdir  /data4/DATA/FlatCatuples/MC/" + v)
+                os.system("ssh " + username_snu  + "@147.47.242.67 mkdir  /data4/DATA/FlatCatuples/MC/" + v + "/" + i )
 
-                print "ssh " + username_snu  + "@147.47.242.67 mkdir  /data4/LocalNtuples/SKTrees13TeV/MC/" + v + "/" + i
-                os.system("ssh " + username_snu  + "@147.47.242.67 rm -r  /data4/LocalNtuples/SKTrees13TeV/MC/" + v +"/" + i )
-                os.system("ssh " + username_snu  + "@147.47.242.67 mkdir  /data4/LocalNtuples/SKTrees13TeV/MC/" + v)
-                os.system("ssh " + username_snu  + "@147.47.242.67 mkdir  /data4/LocalNtuples/SKTrees13TeV/MC/" + v + "/" + i )
-
-                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/LocalNtuples/SKTrees13TeV/MC/" + v + "/"  +i
-                os.system("scp SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@147.47.242.67:/data4/LocalNtuples/SKTrees13TeV/MC/"  + v + "/" +i)
+                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/MC/" + v + "/"  +i
+                os.system("scp SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/MC/"  + v + "/" +i)
 
 
             if copy_cms1:
@@ -278,9 +277,15 @@ if copy_cluster:
 
 ## Make a list of samples to process
 
-sampledir = ["QCD_DoubleEM_Pt_30to40", "QCD_DoubleEM_Pt_30toInf", "QCD_DoubleEM_Pt_40toInf", "QCD_Pt-1000toInf_MuEnriched" , "QCD_Pt-120to170_EMEnriched", "QCD_Pt-120to170_MuEnriched", "QCD_Pt-15to20_EMEnriched", "QCD_Pt-15to20_MuEnriched", "QCD_Pt-170to300_EMEnriched" , "QCD_Pt-170to300_MuEnriched" , "QCD_Pt-20to30_EMEnriched" , "QCD_Pt-20to30_MuEnriched", "QCD_Pt-300to470_MuEnriched", "QCD_Pt-300toInf_EMEnriched", "QCD_Pt-30to50_EMEnriched", "QCD_Pt-30to50_MuEnriched" , "QCD_Pt-470to600_MuEnriched", "QCD_Pt-50to80_EMEnriched", "QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched","QCD_Pt-800to1000_MuEnriched" ,"QCD_Pt-80to120_MuEnriched" ,"QCD_Pt-80to120_EMEnriched", "QCD_Pt-170to250_bcToE","QCD_Pt-15to20_bcToE", "QCD_Pt-20to30_bcToE"]
+validation_sampledir=["DYJets" , "DYJets_10to50" , "TTJets_MG5" ,"WW","WZ", "ZZ", "SingleTbar_t","SingleTbar_tW","SingleTop_s","SingleTop_t","SingleTop_tW"]
 
-sampledir = [ "QCD_Pt-250toINF_bcToE", "QCD_Pt-30to80_bcToE", "QCD_Pt-80to170_bcToE" ,"DYJets" , "DYJets_10to50", "DYJets_MG_5to50", "DYJets_MG","GG_HToMuMu" ,"GJets_Pt20to40","GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","SingleTbar_t","SingleTbar_tW","SingleTop_s","SingleTop_t","SingleTop_tW","TTG","TTJets_MG5","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WW","WWTo2L2Nu_powheg","WWZ","WW_dps","WZ","WZTo2L2Q", "WZJets","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZ","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ" ]
+sampledir = ["ttH_bb", "QCD_DoubleEM_Pt_30to40", "QCD_DoubleEM_Pt_30toInf", "QCD_DoubleEM_Pt_40toInf", "QCD_Pt-1000toInf_MuEnriched" , "QCD_Pt-120to170_EMEnriched", "QCD_Pt-120to170_MuEnriched", "QCD_Pt-15to20_EMEnriched", "QCD_Pt-15to20_MuEnriched", "QCD_Pt-170to300_EMEnriched" , "QCD_Pt-170to300_MuEnriched" , "QCD_Pt-20to30_EMEnriched" , "QCD_Pt-20to30_MuEnriched", "QCD_Pt-300to470_MuEnriched", "QCD_Pt-300toInf_EMEnriched", "QCD_Pt-30to50_EMEnriched", "QCD_Pt-30to50_MuEnriched" ]
+
+sampledir = ["QCD_Pt-470to600_MuEnriched", "QCD_Pt-50to80_EMEnriched", "QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched","QCD_Pt-800to1000_MuEnriched" ,"QCD_Pt-80to120_MuEnriched" ,"QCD_Pt-80to120_EMEnriched", "QCD_Pt-170to250_bcToE","QCD_Pt-15to20_bcToE", "QCD_Pt-20to30_bcToE" , "QCD_Pt-250toINF_bcToE", "QCD_Pt-30to80_bcToE", "QCD_Pt-80to170_bcToE" , "DYJets_MG_5to50", "DYJets_MG","GG_HToMuMu" ,"GJets_Pt20to40","GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","TTG","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WWTo2L2Nu_powheg","WWZ","WW_dps", "WZTo2L2Q", "WZJets","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ" , "QCD_Pt-80to170_bcToE" , "DYJets_MG_5to50", "DYJets_MG","GG_HToMuMu" ,"GJets_Pt20to40"]
+
+sampledir = ["GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","TTG","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WWTo2L2Nu_powheg","WWZ","WW_dps", "WZTo2L2Q", "WZJets","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ" ]
+
+#sampledir=validation_sampledir
 
 
 #, "HN_ee_40", "HN_ee_100", "HN_ee_500", "HN_ee_1500","HN_mm_40","HN_mm_100","HN_mm_500","HN_mm_1500"]

@@ -128,11 +128,11 @@ def CheckJobStatus(submitted_list, v):
 
             if copy_cluster:
        
-                print "ssh " + username_snu  + "@147.47.242.67  mkdir/data4/DATA/FlatCatuples/Data/" + v + "/" + period_split_list[0]  
-                os.system("ssh " +  username_snu +"@147.47.242.67 mkdir/data4/DATA/FlatCatuples/Data/" + str(v))
-                os.system("ssh " + username_snu  + "@147.47.242.67 mkdir/data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0])
-                os.system("ssh " + username_snu  + "@147.47.242.67 rm -r/data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1])
-                os.system("ssh " + username_snu  + "@147.47.242.67 mkdir/data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1])
+                print "ssh " + username_snu  + "@147.47.242.67  mkdir /data4/DATA/FlatCatuples/Data/" + v + "/" + period_split_list[0]  
+                os.system("ssh " +  username_snu +"@147.47.242.67 mkdir /data4/DATA/FlatCatuples/Data/" + str(v))
+                os.system("ssh " + username_snu  + "@147.47.242.67 mkdir /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0])
+                os.system("ssh " + username_snu  + "@147.47.242.67 rm -r /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1])
+                os.system("ssh " + username_snu  + "@147.47.242.67 mkdir /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1])
 
 
                 print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
@@ -141,7 +141,7 @@ def CheckJobStatus(submitted_list, v):
 
 
 
-            else:
+            if copy_cms1:   
                 print "ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + v + "/" + period_split_list[0]
                 os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(v))
                 os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0])
@@ -238,7 +238,6 @@ if connected_cms3 == False:
 
 sampledir = ["SingleMuon","DoubleMuon", "MuonEG", "SinglePhoton", "DoubleEG", "SingleElectron"]
 
-sampledir = ["DoubleEG"]
 periods = ["C", "D"]
 
 if not ALLSamples == True:

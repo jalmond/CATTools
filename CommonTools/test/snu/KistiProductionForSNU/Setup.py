@@ -6,11 +6,11 @@ import os
 ##########################################                                                                                                                                                                                                    
 
 ##### Set RunALLSamples=True true to simply add ALL samples to production list                                                                                                                                        
-RunALLSamples=True
-PrivateSample=False
+RunALLSamples=False
+PrivateSample=True
 
 ####### For now keep these the same  #########
-copy_cluster=True
+copy_cluster=False
 copy_cms1=True
 ##############################################
 #RunALLSamples=False
@@ -21,7 +21,7 @@ copy_cms1=True
 KeepWorkDir=False
 
 #### WHAT VERSION OF CATUPLES ARE YOU RUNNING 
-version = "v7-6-5"
+version = "v7-6-6"
 
 
 #### For data only:
@@ -54,7 +54,7 @@ username_snu=os.getenv("USER")
 ##########################################
 host=os.getenv("HOSTNAME")
 k_user=os.getenv("USER") 
-latest_version="v7-6-5"
+latest_version="v7-6-6"
 
 if version != latest_version:
     update = raw_input("You requested to run on old version of catuples. " + latest_version + " is the latest version while you are running on " + version + ". To continue type Y")

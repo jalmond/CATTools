@@ -13,7 +13,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
-        "root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v7-6-4_Run2015C_25ns-16Dec2015-v1/160325_072854/0000/catTuple_1.root"
+        "root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v7-6-6_Run2015D-16Dec2015-v1/160625_133653/0000/catTuple_45.root"
       )
 )
 
