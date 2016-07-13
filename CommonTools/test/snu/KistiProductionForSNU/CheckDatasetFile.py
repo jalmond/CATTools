@@ -2,8 +2,9 @@ import os,sys
 
 from Setup import *
 
-datasetpath="/cms/scratch/SNU/datasets_v7-6-6/dataset_hntest.txt"
-
+datasetpath="/cms/scratch/SNU/datasets_v7-6-6/"
+datasetfilename="dataset_hntest.txt"
+datasetpath=datasetpath+datasetfilename
 
 path=open(datasetpath,'r')
 
@@ -38,6 +39,24 @@ if not valid_cv:
     print "Check catversion in " + datasetpath + " this disagrees with version in Setup.py"
     sys.exit()
 
-print datasetpath + " passes checks."
-updateinput(datasetpath, version)
 
+os.system("ls /tmp/ > check_snu_connection.txt")
+snu_connect = open("check_snu_connection.txt",'r')
+connected_cms3=False
+for line in snu_connect:
+    if "ssh-"+k_user+"@cms3" in line:
+        connected_cms3=True
+        
+if not connected_cms3:
+    print "Script needs a connection to cms3 machine. Follow instructions on twiki to make this connection."
+    os.system("rm check_snu_connection.txt")
+    sys.exit()
+else:
+    os.system("rm check_snu_connection.txt")    
+
+mailfile=open("sendmail.sh","w")
+mailfile.write('mail  -s "new sample '+ version + '"  jalmond@cern.ch < ' + datasetfilename)
+mailfile.close()
+print datasetpath + " passes checks."
+updateinput(datasetpath,datasetfilename, version)
+os.system("rm sendmail.sh")

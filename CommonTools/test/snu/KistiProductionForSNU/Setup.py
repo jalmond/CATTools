@@ -1,5 +1,5 @@
 ### FILE TO SET UP VARIABLES USED IN Run*.py scripts
-import os
+import os,sys
 
 ##########################################
 #### VARIABLES THAT NEED TO BE SET BY USER
@@ -62,5 +62,17 @@ if version != latest_version:
         quit()
 
 
-def updateinput(datasetpath, version):
-    os.system('mail  -s "new sample '+ version + '"  jalmond@cern.ch < ' + datasetpath)
+def updateinput(datasetpath, datasetfile, version):
+    #os.system('mail  -s "new sample '+ version + '"  jalmond@cern.ch < ' + datasetpath)
+    os.system('scp ' + datasetpath + ' ' + username_snu + '@cms3.snu.ac.kr:~/')
+    os.system('scp  sendmail.sh  ' + username_snu + '@cms3.snu.ac.kr:~/')
+    print "ssh " + username_snu+ "@cms3.snu.ac.kr 'source sendmail.sh'"
+    currentdir=cmssw_dir+"/src/CATTools/CommonTools/test/snu/KistiProductionForSNU/"
+    forcesend = open(currentdir+"forcesend.sh","w")
+    forcesend.write("ssh " + username_snu+ "@cms3.snu.ac.kr 'source sendmail.sh' \n")
+    forcesend.write("ssh " + username_snu+ "@cms3.snu.ac.kr 'rm " + datasetfile+ "'\n")
+    forcesend.write("ssh " + username_snu+ "@cms3.snu.ac.kr 'rm sendmail.sh'\n")
+    forcesend.close()
+
+    os.system("source " + currentdir+"/forcesend.sh")
+    os.system("rm "  + currentdir+"/forcesend.sh")
