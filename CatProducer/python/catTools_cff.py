@@ -9,10 +9,16 @@ def catTool(process, runOnMC=True, useMiniAOD=True):
         process.pileupWeight.pileupRD = pileupWeightMap["%s"%cat.lumiJSON]
         process.pileupWeight.pileupUp = pileupWeightMap["%s_Up"%cat.lumiJSON]
         process.pileupWeight.pileupDn = pileupWeightMap["%s_Dn"%cat.lumiJSON]
+        process.pileupWeight.pileupRD_71000 = pileupWeightMap["%s"%cat.lumiJSON]
+        process.pileupWeight.pileupUp_71000 = pileupWeightMap["%s_Up"%cat.lumiJSON]
+        process.pileupWeight.pileupDn_71000 = pileupWeightMap["%s_Dn"%cat.lumiJSON]
         process.pileupWeightSilver = process.pileupWeight.clone()
         process.pileupWeightSilver.pileupRD = pileupWeightMap["%s"%cat.lumiJSONSilver]
         process.pileupWeightSilver.pileupUp = pileupWeightMap["%s_Up"%cat.lumiJSONSilver]
         process.pileupWeightSilver.pileupDn = pileupWeightMap["%s_Dn"%cat.lumiJSONSilver]
+        process.pileupWeightSilver.pileupRD_71000 = pileupWeightMap["%s"%cat.lumiJSONSilver]
+        process.pileupWeightSilver.pileupUp_71000 = pileupWeightMap["%s_Up"%cat.lumiJSONSilver]
+        process.pileupWeightSilver.pileupD _71000 = pileupWeightMap["%s_Dn"%cat.lumiJSONSilver]
     else:
         from FWCore.PythonUtilities.LumiList import LumiList
         lumiJSON = os.environ["CMSSW_BASE"]+("/src/CATTools/CatProducer/data/LumiMask/%s.txt"%cat.lumiJSON)
