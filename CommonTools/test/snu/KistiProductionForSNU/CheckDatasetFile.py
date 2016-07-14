@@ -51,6 +51,7 @@ for line in ch_connect:
             cpath="/tmp/"
         else:
             print "Modify the cms3 connection since  ControlPath in ~/.ssh/cofig is set to something other than tmp or home dir"
+            
 ch_connect.close()
 os.system("rm check_connection.txt")
 

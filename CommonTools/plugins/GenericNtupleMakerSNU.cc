@@ -1019,10 +1019,14 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   vtrignames_tomatch_muon.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v");
   vtrignames_tomatch_muon.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v");
   vtrignames_tomatch_muon.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v");
+  vtrignames_tomatch_muon.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v");
   vtrignames_tomatch_muon.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v");
   vtrignames_tomatch_muon.push_back("HLT_Ele12_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v");
   vtrignames_tomatch_muon.push_back("HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v");
   vtrignames_tomatch_muon.push_back("HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v");
+  vtrignames_tomatch_muon.push_back("HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v");
+  vtrignames_tomatch_muon.push_back("HLT_TripleMu_12_10_5_v");
+  vtrignames_tomatch_muon.push_back("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v");
   std::vector<string> vtrignames_tomatch_electron;
   vtrignames_tomatch_electron.push_back("HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_v");
   vtrignames_tomatch_electron.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v");
@@ -1032,6 +1036,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   vtrignames_tomatch_electron.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_");
   vtrignames_tomatch_electron.push_back("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v");
   vtrignames_tomatch_electron.push_back("HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v");
+  vtrignames_tomatch_electron.push_back("HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v");
+  vtrignames_tomatch_electron.push_back("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v");
 
   //vtrignames_tomatch_muon.push_back(CatVersion_);  
 
