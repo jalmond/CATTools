@@ -18,7 +18,7 @@ def catTool(process, runOnMC=True, useMiniAOD=True):
         process.pileupWeightSilver.pileupDn = pileupWeightMap["%s_Dn"%cat.lumiJSONSilver]
         process.pileupWeightSilver.pileupRD_71000 = pileupWeightMap["%s"%cat.lumiJSONSilver]
         process.pileupWeightSilver.pileupUp_71000 = pileupWeightMap["%s_Up"%cat.lumiJSONSilver]
-        process.pileupWeightSilver.pileupD _71000 = pileupWeightMap["%s_Dn"%cat.lumiJSONSilver]
+        process.pileupWeightSilver.pileupDn_71000 = pileupWeightMap["%s_Dn"%cat.lumiJSONSilver]
     else:
         from FWCore.PythonUtilities.LumiList import LumiList
         lumiJSON = os.environ["CMSSW_BASE"]+("/src/CATTools/CatProducer/data/LumiMask/%s.txt"%cat.lumiJSON)

@@ -142,16 +142,16 @@ def CheckJobStatus(submitted_list, v):
 
 
             if copy_cms1:   
-                print "ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + v + "/" + period_split_list[0]
-                os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(v))
-                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0])
-                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr rm -r /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
-                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
+                print "ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data4/DATA/FlatCatuples/Data/" + v + "/" + period_split_list[0]
+                os.system("ssh " +  username_snu +"@cms3.snu.ac.kr mkdir /data4/DATA/FlatCatuples/Data/" + str(v))
+                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0])
+                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr rm -r /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
+                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
                 
 
-                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
+                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
                 
-                os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] )
+                os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] )
 
             print "submitted_list = " + submitted_list + " is set to: "
             new_submitted_list = string.replace(submitted_list, i+"!" , "")
