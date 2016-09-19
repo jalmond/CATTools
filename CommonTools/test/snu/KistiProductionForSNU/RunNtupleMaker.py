@@ -45,7 +45,7 @@ def CheckJobStatusAfterCrash(dirname, v):
         return True
     else: 
         print "Removing dir since no jobs are running"
-        #os.system("rm -r " + dirname)
+        os.system("rm -r " + dirname)
         return True
     
         
@@ -186,19 +186,20 @@ def CheckJobStatus(submitted_list, v):
 
 
             if copy_cms1:
-                print "ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data4/DATA/FlatCatuples/MC/" + v + "/" + i
-                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr rm -r /data4/DATA/FlatCatuples/MC/" + v +"/" + i )
-                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data4/DATA/FlatCatuples/MC/" + v)
-                os.system("ssh " + username_snu  + "@cms3.snu.ac.kr mkdir /data4/DATA/FlatCatuples/MC/" + v + "/" + i )
+                print "ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/MC/" + v + "/" + i
+                os.system("ssh " + username_snu  + "@147.47.242.42 rm -r /data2/DATA/cattoflat/MC/" + v +"/" + i )
+                os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/MC/" + v)
+                os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/MC/" + v + "/" + i )
 
-                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@cms3.snu.ac.kr:/data4/DATA/FlatCatuples/MC/" + v + "/"  +i
-                os.system("scp SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@cms3.snu.ac.kr:/data4/DATA/FlatCatuples/MC/"  + v + "/" +i) 
+                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/MC/" + v + "/"  +i
+                os.system("scp SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/MC/"  + v + "/" +i)
+
              
             print "submitted_list = " + submitted_list + " is ammended to: "
             new_submitted_list = string.replace(submitted_list, i+"!" , "")
             print new_submitted_list
             print "Deleting directory SNU_" + v+ "_" +i +"/"
-            os.system("rm -r   SNU_" + v+ "_" +i +"/")
+            #os.system("rm -r   SNU_" + v+ "_" +i +"/")
             return new_submitted_list
                                       
         os.system("rm SNU_" + v+ "_" +i +"/check_finished2.txt")
@@ -258,7 +259,7 @@ snu_connect = open("check_snu_connection.txt",'r')
 connected_cms3=False
 connected_cluster=False
 for line in snu_connect:
-    if "ssh-"+k_user+"@cms3" in line:
+    if "ssh-"+k_user+"@147.47.242.42" in line:
         connected_cms3=True
     if "ssh-"+k_user+"@147.47.242.67" in line:
         connected_cluster=True
@@ -277,7 +278,8 @@ if copy_cluster:
 
 ## Make a list of samples to process
 
-validation_sampledir=["DYJets" , "DYJets_10to50" , "TTJets_MG5" ,"WW","WZ", "ZZ", "SingleTbar_t","SingleTbar_tW","SingleTop_s","SingleTop_t","SingleTop_tW", "ttH_bb", "QCD_DoubleEM_Pt_30to40", "QCD_DoubleEM_Pt_30toInf", "QCD_DoubleEM_Pt_40toInf", "QCD_Pt-1000toInf_MuEnriched" , "QCD_Pt-120to170_EMEnriched", "QCD_Pt-120to170_MuEnriched", "QCD_Pt-15to20_EMEnriched", "QCD_Pt-15to20_MuEnriched", "QCD_Pt-170to300_EMEnriched" , "QCD_Pt-170to300_MuEnriched" , "QCD_Pt-20to30_EMEnriched" , "QCD_Pt-20to30_MuEnriched", "QCD_Pt-300to470_MuEnriched", "QCD_Pt-300toInf_EMEnriched", "QCD_Pt-30to50_EMEnriched", "QCD_Pt-30to50_MuEnriched" , "QCD_Pt-470to600_MuEnriched", "QCD_Pt-50to80_EMEnriched", "QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched","QCD_Pt-800to1000_MuEnriched" ,"QCD_Pt-80to120_MuEnriched" ,"QCD_Pt-80to120_EMEnriched", "QCD_Pt-170to250_bcToE","QCD_Pt-15to20_bcToE", "QCD_Pt-20to30_bcToE" , "QCD_Pt-250toINF_bcToE", "QCD_Pt-30to80_bcToE", "QCD_Pt-80to170_bcToE" , "DYJets_MG_5to50", "DYJets_MG","GG_HToMuMu" ,"GJets_Pt20to40","GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","TTG","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WWTo2L2Nu_powheg","WWZ","WW_dps", "WZTo2L2Q", "WZJets","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ" ]
+validation_sampledir=["DYJets" , "DYJets_10to50" , "TTJets_MG5" ,"WW","WZ", "ZZ", "SingleTbar_t","SingleTbar_tW","SingleTop_s","SingleTop_t","SingleTop_tW", "ttH_bb", "QCD_DoubleEM_Pt_30to40", "QCD_DoubleEM_Pt_30toInf", "QCD_DoubleEM_Pt_40toInf", "QCD_Pt-1000toInf_MuEnriched" , "QCD_Pt-120to170_EMEnriched", "QCD_Pt-120to170_MuEnriched", "QCD_Pt-15to20_EMEnriched", "QCD_Pt-15to20_MuEnriched", "QCD_Pt-170to300_EMEnriched" , "QCD_Pt-170to300_MuEnriched" , "QCD_Pt-20to30_EMEnriched" , "QCD_Pt-20to30_MuEnriched", "QCD_Pt-300to470_MuEnriched", "QCD_Pt-300toInf_EMEnriched", "QCD_Pt-30to50_EMEnriched", "QCD_Pt-30to50_MuEnriched" , "QCD_Pt-470to600_MuEnriched", "QCD_Pt-50to80_EMEnriched", "QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched","QCD_Pt-800to1000_MuEnriched" ,"QCD_Pt-80to120_MuEnriched" ,"QCD_Pt-80to120_EMEnriched", "QCD_Pt-170to250_bcToE","QCD_Pt-15to20_bcToE", "QCD_Pt-20to30_bcToE" , "QCD_Pt-250toINF_bcToE", "QCD_Pt-30to80_bcToE", "QCD_Pt-80to170_bcToE" , "DYJets_MG_5to50", "DYJets_MG","GG_HToMuMu" ,"GJets_Pt20to40","GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","TTG","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WWTo2L2Nu_powheg","WWZ","WW_dps", "WZTo2L2Q", "WZJets","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ" ,"TTLL_powheg"]
+
 
 sampledir=validation_sampledir
 

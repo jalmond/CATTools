@@ -10,8 +10,8 @@ RunALLSamples=False
 PrivateSample=True
 
 ####### For now keep these the same  #########
-copy_cluster=True
-copy_cms1=False
+copy_cluster=False
+copy_cms1=True
 ##############################################
 #RunALLSamples=False
 #PrivateSample=True
@@ -32,7 +32,7 @@ datasampledir = ["DoubleMuon"]
 
                 
 #### For MC only
-mcsampledir = ["hntest"]
+mcsampledir = ["13TeV_HN40_mumumu_width_AUTO_VmuN_0p1"]
 
 
 

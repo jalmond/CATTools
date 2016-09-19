@@ -944,7 +944,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 
   const edm::TriggerNames &trigNames = event.triggerNames(*triggerBits);  
 
-
+  
   for( unsigned int i=0; i<trigNames.size(); ++i ){
     TString tname = TString(trigNames.triggerName(i));
     if( (! (trigNames.triggerName(i).find("HLT_DoublePhoton") == 0 || trigNames.triggerName(i).find("HLT_Photon") == 0))
@@ -1198,6 +1198,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 
   double px_shift_muon_up(0.), px_shift_muon_down(0.), py_shift_muon_up(0.), py_shift_muon_down(0.), px_muon(0.), py_muon(0.), px_electron(0.), py_electron(0.) ;
   double  px_shift_electron_up(0.), px_shift_electron_down(0.), py_shift_electron_up(0.), py_shift_electron_down(0.);
+
   for (auto mu : *muons) {
     std::string mutrig= "SKTriggerMatching[muon]:";
     for(unsigned int i =0; i< vtrignames_tomatch_muon.size(); i++){
