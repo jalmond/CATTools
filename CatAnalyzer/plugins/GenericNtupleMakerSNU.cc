@@ -257,7 +257,6 @@ private:
   typedef std::vector<int> vint;
   typedef std::vector<bool> vbool;
   typedef std::vector<std::string> strings;
-
   
 
   std::vector<std::vector<vdouble*> > candVars_;
