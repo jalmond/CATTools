@@ -32,6 +32,15 @@ namespace cat {
     float unclusteredEnPt(int dir) const { return hypotf(unclusteredEnPx(dir), unclusteredEnPy(dir));}
     float unclusteredEnPhi(int dir) const { return std::atan2(unclusteredEnPy(dir), unclusteredEnPx(dir));}
     
+
+    
+    float JetEnPx(int dir) const { if (dir > 0) return jetEnUp_px_; else return jetEnDown_px_;}
+    float JetEnPy(int dir) const { if (dir > 0) return jetEnUp_py_; else return jetEnDown_py_;}
+    float JetEnSumEt(int dir) const { if (dir > 0) return jetEnUp_sumet_; else return jetEnDown_sumet_;}
+    float JetResPx(int dir) const { if (dir > 0) return jetResUp_px_; else return jetResDown_px_;}
+    float JetResPy(int dir) const { if (dir > 0) return jetResUp_py_; else return jetResDown_py_;}
+    float JetResSumEt(int dir) const { if (dir > 0) return jetResUp_sumet_; else return jetResDown_sumet_;}
+
     void setRawMET(float m) {rawMET_=m;}
     void setUnclusteredEnUp (float x, float y, float s) {unclusteredEnUp_px_=x; unclusteredEnUp_py_=y; unclusteredEnUp_sumet_=s;}
     void setUnclusteredEnDown (float x, float y, float s) {unclusteredEnDown_px_=x; unclusteredEnDown_py_=y; unclusteredEnDown_sumet_=s;}

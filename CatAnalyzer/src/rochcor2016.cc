@@ -223,8 +223,10 @@ rochcor2016::~rochcor2016(){
 }
 
 rochcor2016::rochcor2016(){
-
-  muresol1.init("./RoccoR_13tev.txt");
+  
+  string cmsswdir = getenv("CMSSW_BASE");
+  
+  muresol1.init(cmsswdir+"/src/CATTools/CatAnalyzer/src/RoccoR_13tev.txt");
   muresol1.dumpParams();
   
   eran.SetSeed(123456);
@@ -246,7 +248,9 @@ rochcor2016::rochcor2016(){
 
 rochcor2016::rochcor2016(int seed){
 
-  muresol1.init("./RoccoR_13tev.txt");
+
+  string cmsswdir = getenv("CMSSW_BASE");
+  muresol1.init(cmsswdir+"/src/CATTools/CatAnalyzer/src/RoccoR_13tev.txt");
   muresol1.dumpParams();
 
   eran.SetSeed(123456);

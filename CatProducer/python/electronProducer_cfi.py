@@ -17,5 +17,17 @@ catElectrons = cms.EDProducer("CATElectronProducer",
         "mvaEleID-Spring15-25ns-nonTrig-V1-wp90",
         "mvaEleID-Spring15-25ns-Trig-V1-wp80",
         "mvaEleID-Spring15-25ns-Trig-V1-wp90"
-        )
+         ),
+    electronIDs_alt = cms.vstring(
+        "cutBasedElectronID_Spring15_25ns_V1_standalone_loose",
+        "cutBasedElectronID_Spring15_25ns_V1_standalone_medium",
+        "cutBasedElectronID_Spring15_25ns_V1_standalone_tight",
+        "cutBasedElectronID_Spring15_25ns_V1_standalone_veto",
+        "heepElectronID_HEEPV60",
+        "mvaEleID_Spring15_25ns_nonTrig_V1_wp80",
+        "mvaEleID_Spring15_25ns_nonTrig_V1_wp90",
+        "mvaEleID_Spring15_25ns_Trig_V1_wp80",
+        "mvaEleID_Spring15_25ns_Trig_V1_wp90"
+      )
+
 )
