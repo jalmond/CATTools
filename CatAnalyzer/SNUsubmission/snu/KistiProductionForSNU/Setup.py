@@ -36,7 +36,8 @@ datasampledir = ["DoubleMuon"]
 #### For MC only
 mcsampledir = ["HNTChannel_mummum_500"]
 
-TChannel=True
+### Loop to run multipl Signal MC
+TChannel=False
 if TChannel:
     mcsampledir=[]
     hn_mass=["100","200","500","1100"]
