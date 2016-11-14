@@ -1,0 +1,532 @@
+#!/usr/bin/env python
+
+import sys, os
+# Check necessary envvars
+if 'CMSSW_VERSION' not in os.environ:
+    print "ERROR: You have to set up CMSSW. Run cmsenv in your working directory."
+    sys.exit()
+
+import stat, shutil
+from getopt import gnu_getopt as getopt
+from math import ceil
+from datetime import datetime
+
+def usage():
+    print sys.argv[0], " : create pbs jobs"
+    print "  Mandatory options :"
+    print "   --jobName  NAME                  Name of job"
+    print "   --cfg      CONFIG_FILE_cfg.py    Configuration file"
+    print "   --maxFiles N                     Maximum number of files per job"
+    print "   --fileList DATA_FILES            File list text file"
+    print "  Optional :"
+    print "   --queue QUEUE_NAME               Set the batch queue name"
+    print "   -n                               Do not submit jobs to batch"
+    print "   --transferDest OUTPUT_LOCATION   OUTPUT DIRECTORY (/store will be assumed to SE)"
+    print "   -g                               Grid certificate is required"
+    print "   --maxEvent N                     Maximum number of events per job (-1 by default)"
+    print "   --transferFiles                  Additional files to transfer"
+    print "   --njobs                          No. of jobs, for jobs with no input files, i.e. gen jobs"
+    print "   --args                           general arguments"
+    print "   --pileup filelist                add pileup from filelist"
+    sys.exit()
+
+# Parse arguments
+if len(sys.argv) < 2: usage()
+try:
+    opts, args = getopt(sys.argv[1:], 'ng', ['jobName=', 'fileList=', 'maxFiles=', 'queue=', 'transferDest=', 'cfg=', 'maxEvent=', 'njobs=', 'transferFiles=','args=', 'pileup='])
+    opts = dict(opts)
+except:
+    print "!!! Error parsing arguments"
+    usage()
+
+
+class TheJobConfig():
+    def __init__(self, opts):
+        ## Initialise configuration, set site-dependent default values
+        self.site = ""
+        self.scheduler = ""
+        self.doGrid = False
+        self.doSubmit = True
+        self.maxEvent = -1
+        self.additional_options=""
+        self.fileList=""
+        self.maxFiles=1
+        self.njobs=0
+        self.addpileup = False
+        self.pileupfilelist = ""
+        hostName = os.environ['HOSTNAME']
+        if hostName.startswith("lxplus") or hostName.endswith("cern.ch"):
+            self.site = "CERN"
+            self.scheduler = "LSB"
+            queue = "8nh"
+        elif 'sscc.uos' in hostName:
+            self.site = "UOS"
+            self.scheduler = "CONDOR"
+            opts['-g'] = True ## Enforce to carry grid certificate
+            #queue = "batch"
+        elif hostName.startswith('ccp'): ## CCP should be BEFORE KNU T2/T3
+            self.site = "CCP"
+            self.scheduler = "PBS"
+            queue = "long"
+        elif 'knu.ac.kr' in hostName: ## KNU T2/T3
+            self.site = "KNU"
+            self.scheduler = "PBS"
+            queue = "cms"
+        elif hostName.endswith('sdfarm.kr'):
+            self.site = "KISTI"
+            self.scheduler = "CONDOR"
+        else:
+            self.site = "NONE"
+            self.scheculer = "NONE"
+            print "!!! This site is not supported"
+            sys.exit()
+
+        ## Override by options
+        try:
+            self.jobName = opts['--jobName']
+            self.jobDir = os.path.abspath(self.jobName)
+            self.cmsswBase = os.environ["CMSSW_BASE"]
+            self.jobBase =  self.jobDir.replace(os.path.dirname(self.cmsswBase), '').strip('/')
+
+            self.cfgFileName = opts['--cfg']
+            if not self.cfgFileName.endswith('.py'):
+                print "ERROR: Python config file is needed"
+                usage()
+            if not os.path.exists(self.cfgFileName):
+                print "ERROR: Cannot find config file", self.cfgFileName
+                sys.exit()
+
+            if os.path.isdir(self.jobDir):
+                print "ERROR: Output directory already exists."
+                sys.exit()
+        except:
+            print "!!! Error parsing options"
+            usage()
+
+        if '--fileList' in opts:
+            self.fileList = opts['--fileList']
+        if '--maxFiles' in opts:
+            self.maxFiles = int(opts['--maxFiles'])
+        if '--njobs' in opts:
+            self.njobs = int(opts['--njobs'])
+        if '--pileup' in opts:
+            self.addpileup = True
+            self.pileupfilelist = opts['--pileup']
+
+        ## Override options if they are given
+        if '-n' in opts: self.doSubmit = False
+        if '-g' in opts: self.doGrid   = True
+        if '--queue' in opts: queue = opts['--queue']
+        if '--maxEvent' in opts: self.maxEvent = int(opts['--maxEvent'])
+        if '--args' in opts : self.additional_options = opts['--args']
+        ## Determine submit command
+        if self.scheduler == "LSB":
+            self.submitCmd = 'bsub -q %s' % queue
+        elif self.scheduler == "PBS":
+            self.submitCmd = 'qsub -q %s -N' % queue
+        elif self.scheduler == "CONDOR":
+            self.submitCmd = 'condor_submit submit.jds'
+
+        ## Determine transfer command by hostname and transfer self.destination option
+        if '--transferDest' not in opts: self.dest = self.jobDir ## Default destination to the workdir
+        else: self.dest = opts['--transferDest']
+        ## Make absolute path
+        if not self.dest.startswith('/') and '://' not in self.dest:
+            self.dest = os.path.abspath(self.dest)
+        if self.site == "CERN":
+            if self.dest.startswith('/store/'):
+                self.transferCmd = 'eos cp '
+            #elif self.dest != os.path.abspath(self.jobDir):
+            else:
+                self.transferCmd = "mv "
+        elif self.site == "KISTI":
+            if self.dest.startswith('/xrootd/'): self.dest = '%s' % self.dest
+            if self.dest.startswith('root://'):
+                self.transferCmd = 'xrdcp '
+            else:
+                self.transferCmd = "" ## Output file transfer to working directory is done by CONDOR. /cms/scratch is not supporting now.
+        else:
+            ## Default transfer command by simple copy command
+            self.transferCmd = "mv "
+
+        ## Set output files
+        self.outFileNames = []
+        if '--transferFiles' in opts:
+            self.outFileNames = opts['--transferFiles'].split(',')
+
+        ## Collect root files
+        self.files = []
+        if self.fileList:
+            for f in open(self.fileList).readlines():
+                f = f.strip()
+                f = f.strip('\',"')
+                if '#' == f[0]: continue
+                #if len(f) < 4: continue
+                #if '.lhe' != f[-4:]: continue
+                #if len(f) < 5: continue
+                #if '.root' != f[-5:]: continue
+                self.files.append(f)
+            nFiles = len(self.files)
+
+        #if nFiles == 0:
+        #    print "ERROR: Empty dataset."
+        #    sys.exit()
+        ## Sort files by its key "i", filename_[i]_[j]_hash.root
+        #files.sort(key=lambda f: int(f.split('/')[-1].split('_')[1]))
+
+    def initialiseWorkspace(self):
+        ## Prepare working directory
+        print "@@ Preparing batch jobs in", self.jobName, "..."
+        os.makedirs(self.jobDir)
+        if self.transferCmd.startswith('mv') and not os.path.exists(self.dest):
+            print "@@ Preparing output scratch directory in", self.dest, "..."
+            os.makedirs(self.dest)
+            if self.site == "KISTI":
+                os.system("chmod go+w %s" % self.dest)
+        elif self.transferCmd.startswith('eos'):
+            print "@@ Preparing output eos directory in", self.dest, "..."
+            os.system("eos mkdir -p %s" % self.dest)
+
+        ## Load cfg file
+        print "@@ Loading python cfg..."
+        sys.path.append('.')
+        cout = sys.stdout
+        sys.stdout = open("%s/log.txt" % self.jobDir, "w")
+        sys.argv=[]
+        sys.argv.append(".py")
+        sys.argv.extend( self.additional_options.split())
+        process = __import__('.'.join(self.cfgFileName.split('.')[:-1])).process
+        process.maxEvents.input = self.maxEvent
+        sys.stdout = cout
+
+        ## Memorise to modify output file names
+        print "@@ Setting output modules..."
+        outFileModes = {}
+        if hasattr(process, 'TFileService'):
+            outFileModes['TFileService'] = process.TFileService.fileName.value()
+
+        for modName in process.outputModules_():
+            outFileModes[modName] = getattr(process, modName).fileName.value()
+
+        for f in outFileModes.values():
+            self.outFileNames.append(f)
+
+        ## Split files into jobs and write python cfg
+        print "@@ Splitting jobs..."
+        nFiles = len(self.files)
+        self.nSection = int(ceil(1.0*nFiles/self.maxFiles))
+
+        for section in range(self.nSection):
+            begin = section*self.maxFiles
+            end = min(begin+self.maxFiles, nFiles)
+            process.source.fileNames = self.files[begin:end]
+            cfgFileName = "%s/job_%03d_cfg.py" % (self.jobDir, section)
+            #open(cfgFileName, "w").write(process.dumpPython())
+
+            ## pick MinBias samples randomly
+            if self.addpileup:
+              from random import randint
+              fp = open(self.pileupfilelist)
+              lines = fp.readlines()
+              print 'MinBias Samples for job_%03d' % section
+              pulist1 = lines[randint(0,11411)].strip()
+              pulist2 = lines[randint(0,11411)].strip()
+              pulist3 = lines[randint(0,11411)].strip()
+              pulist4 = lines[randint(0,11411)].strip()
+              pulist5 = lines[randint(0,11411)].strip()
+              pulist6 = lines[randint(0,11411)].strip()
+              pulist7 = lines[randint(0,11411)].strip()
+              pulist8 = lines[randint(0,11411)].strip()
+              pulist9 = lines[randint(0,11411)].strip()
+              pulist10 = lines[randint(0,11411)].strip()
+              process.mix.input.fileNames = [pulist1, pulist2, pulist3, pulist4, pulist5, pulist6, pulist7, pulist8, pulist9, pulist10]
+              open(cfgFileName, "w").write(process.dumpPython())
+            else:
+              open(cfgFileName, "w").write(process.dumpPython())
+
+        # for jobs with no input files, i.e. gen jobs
+        if self.njobs > 0:
+            self.nSection = self.njobs
+            for section in range(self.nSection):
+                process.RandomNumberGeneratorService.generator.initialSeed = section
+                cfgFileName = "%s/job_%03d_cfg.py" % (self.jobDir, section)
+                open(cfgFileName, "w").write(process.dumpPython())
+
+        ## Checking voms proxy
+        if self.doGrid:
+            print "@@ Checking grid certificate to access files..."
+            if os.system("voms-proxy-info -exists --valid 8:00") != 0:
+                os.system("voms-proxy-init -voms cms --valid 144:00")
+            uid = os.getuid()
+            shutil.copy2("/tmp/x509up_u%d" % uid, "%s/x509up_u%d" % (self.jobDir, uid))
+
+        ## Make scripts
+        if   self.scheduler == "LSB": self.makeLSBJob()
+        elif self.scheduler == "PBS": self.makePBSJob()
+        elif self.scheduler == "CONDOR": self.makeCondorJob()
+
+    def makeLSBJob(self):
+
+        ## Write run script
+        print "@@ Writing run script..."
+        runFileName = "%s/run.sh" % self.jobDir
+        fout = open(runFileName, "w")
+
+        print>>fout, """#!/bin/bash
+if [ $# != 1 ]; then
+    echo "JOB SECTION NUMBER IS MISSING!!!"
+    exit 1
+fi
+SECTION=`printf %03d $1`
+
+if [ _$CMS_PATH == _ ]; then
+  export CMS_PATH={2}
+  source $CMS_PATH/cmsset_default.sh
+fi
+
+tar xzf {0}/job.tgz
+cd {1}
+scram build ProjectRename
+eval `scram runtime -sh`
+echo BEGIN `date` cmsRun job_${{SECTION}}_cfg.py >> {0}/submit.log
+time cmsRun job_${{SECTION}}_cfg.py {3}
+EXITCODE=$?
+if [ $EXITCODE == 0 ]; then
+    echo ENDED `date` cmsRun job_${{SECTION}}_cfg.py >> {0}/submit.log
+else
+    rm -f core.*
+    echo TERMINATED_$EXITCODE `date` cmsRun job_${{SECTION}}_cfg.py >> {0}/submit.log
+    exit 1
+fi""".format(self.jobDir, self.jobBase, os.environ['CMS_PATH'],self.additional_options)
+        print>>fout, """
+for FILE in %s; do
+    EXT=${FILE##*.}
+    PREFIX=${FILE%%.${EXT}}
+    %s$FILE %s/${PREFIX}_${SECTION}.${EXT}
+done""" % (' '.join(self.outFileNames), self.transferCmd, self.dest)
+        print>>fout, "echo FINISHED `date` >> %s/submit.log" % self.jobDir
+        fout = None
+        os.chmod(runFileName, 0755)
+
+        if jobConfig.doGrid:
+            uid = os.getuid()
+            print>>fout, "cp -f x509up_u%d /tmp/" % (uid)
+
+        ## Write submit script
+        fout = open("%s/submit.log" % self.jobDir, "w")
+        print>>fout, "SUBMIT STARTED", self.jobName
+        fout = None
+        os.chmod("%s/submit.log" % self.jobDir, 0666)
+
+        print "@@ Writing submit script..."
+        submitFileName = "%s/submit.sh" % self.jobDir
+        fout = open(submitFileName, "w")
+        print>>fout, "#!/bin/bash"
+        for section in range(self.nSection):
+            print>>fout, "{0} -J {1}.{2} -oo {3}/job_{2:03d}.log run.sh {2}".format(self.submitCmd, self.jobName, section, self.jobDir)
+        fout = None
+        os.chmod(submitFileName, 0755)
+
+    def makePBSJob(self):
+        ## Write run script
+        print "@@ Writing run script..."
+        runFileName = "%s/run.sh" % self.jobDir
+        fout = open(runFileName, "w")
+
+        print>>fout, """#!/bin/bash
+if [ _$PBS_ARRAYID != '_' ]; then
+    SECTION=`printf %03d $PBS_ARRAYID`
+elif [ _$SECTION != '_' ]; then
+    SECTION=`printf %03d $SECTION`
+else
+    echo "JOB SECTION NUMBER IS MISSING!!!"
+    exit 1
+fi
+
+if [ _$CMS_PATH == _ ]; then
+  export CMS_PATH={2}
+  source $CMS_PATH/cmsset_default.sh
+fi
+
+hostname
+## Prepare workdirectory
+mkdir -p /tmp/${{USER}}/PBS_${{PBS_JOBID}}
+cd /tmp/${{USER}}/PBS_${{PBS_JOBID}}
+tar xzf {0}/job.tgz
+cd {1}
+PROXY_CA=/tmp/${{USER}}/PBS_${{PBS_JOBID}}/{1}/x509up_u`id -u`
+echo ${{PROXY_CA}}
+voms-proxy-info -exists --valid 8:00
+TIMEVALID=$?
+if [ -f ${{PROXY_CA}} ] && [ ${{TIMEVALID}} -eq 1 ]; then
+  echo "copy proxy ca to /tmp"
+  cp -f ${{PROXY_CA}} /tmp
+else
+  if [ ! -f ${{PROXY_CA}} ]; then
+    echo "Can not find proxy CA"
+  fi
+  if [ ${{TIMEVALID}} -eq 1 ]; then
+    echo "Sufficient valid time"
+  fi
+fi
+scram build ProjectRename
+eval `scram runtime -sh`
+echo BEGIN `date` cmsRun job_${{SECTION}}_cfg.py >> {0}/submit.log
+time cmsRun job_${{SECTION}}_cfg.py {3}
+EXITCODE=$?
+if [ $EXITCODE == 0 ]; then
+    echo ENDED `date` cmsRun job_${{SECTION}}_cfg.py >> {0}/submit.log
+else
+    rm -f core.*
+    echo TERMINATED_$EXITCODE `date` cmsRun job_${{SECTION}}_cfg.py >> {0}/submit.log
+    exit 1
+fi""".format(self.jobDir, self.jobBase, os.environ['CMS_PATH'],self.additional_options)
+        print>>fout, """
+for FILE in %s; do
+    EXT=${FILE##*.}
+    PREFIX=${FILE%%.${EXT}}
+    %s$FILE %s/${PREFIX}_${SECTION}.${EXT}
+done""" % (' '.join(self.outFileNames), self.transferCmd, self.dest)
+        print>>fout, "echo FINISHED `date` >> %s/submit.log" % self.jobDir
+        fout = None
+        os.chmod(runFileName, 0755)
+
+        ## Write submit script
+        fout = open("%s/submit.log" % self.jobDir, "w")
+        print>>fout, "SUBMIT STARTED", self.jobName
+        fout = None
+        os.chmod("%s/submit.log" % self.jobDir, 0666)
+
+        print "@@ Writing submit script..."
+        submitFileName = "%s/submit.sh" % self.jobDir
+        fout = open(submitFileName, "w")
+        print>>fout, "#!/bin/bash"
+        for section in range(self.nSection):
+            print>>fout, "{0} {1}_{2} run.sh -vSECTION={2}".format(self.submitCmd, self.jobName, section)
+        fout = None
+        os.chmod(submitFileName, 0755)
+
+    def makeCondorJob(self):
+        ## Write run script
+        print "@@ Writing run script..."
+        runFileName = "%s/run.sh" % self.jobDir
+        fout = open(runFileName, "w")
+
+        print>>fout, """#!/bin/bash
+if [ $# != 1 ]; then
+    echo "JOB SECTION NUMBER IS MISSING!!!"
+    exit 1
+fi
+SECTION=`printf %03d $1`
+
+if [ _$CMS_PATH == _ ]; then
+  export CMS_PATH={2}
+  source $CMS_PATH/cmsset_default.sh
+fi
+
+hostname
+tar xzf job.tgz
+cd {1}""".format(self.jobDir, self.jobBase, os.environ['CMS_PATH'],self.additional_options)
+        if (self.doGrid) :
+          print>>fout,"""
+cp x509up_u`id -u` /tmp/x509up_u`id -u`"""
+
+        print>>fout,"""
+scram build ProjectRename
+eval `scram runtime -sh`
+echo BEGIN `date` cmsRun job_${{SECTION}}_cfg.py #>> {0}/submit.log
+ls -al
+time cmsRun job_${{SECTION}}_cfg.py {3}
+EXITCODE=$?
+ls -al
+if [ $EXITCODE == 0 ]; then
+    echo ENDED `date` cmsRun job_${{SECTION}}_cfg.py #>> {0}/submit.log
+else
+    rm -f core.*
+    echo TERMINATED_$EXITCODE `date` cmsRun job_${{SECTION}}_cfg.py #>> {0}/submit.log
+    exit 1
+fi""".format(self.jobDir, self.jobBase, os.environ['CMS_PATH'],self.additional_options)
+        if self.transferCmd != '':
+            print>>fout, """
+for FILE in %s; do
+    EXT=${FILE##*.}
+    PREFIX=${FILE%%.${EXT}}
+    %s$FILE %s/${PREFIX}_${SECTION}.${EXT}
+done""" % (' '.join(self.outFileNames), self.transferCmd, self.dest)
+        print>>fout, "echo FINISHED `date` # >> %s/submit.log" % self.jobDir
+        fout = None
+        os.chmod(runFileName, 0755)
+
+        ## Write submit script
+        fout = open("%s/submit.log" % self.jobDir, "w")
+        print>>fout, "SUBMIT STARTED", self.jobName
+        fout = None
+        os.chmod("%s/submit.log" % self.jobDir, 0666)
+
+        print "@@ Writing submit script..."
+        submitFileName = "%s/submit.sh" % self.jobDir
+        fout = open(submitFileName, "w")
+        print>>fout, "#!/bin/bash"
+        print>>fout, self.submitCmd
+        fout = None
+        os.chmod(submitFileName, 0755)
+
+        # Condor jobs
+        jdlOut = open("%s/submit.jds" % self.jobDir, "w")
+        print>>jdlOut, "# Job description file for condor job", self.jobName
+        print>>jdlOut, """executable = run.sh
+universe   = vanilla
+arguments  = $(Process)
+requirements = OpSysMajorVer == 6
+
+log = condor.log
+
+getenv     = True
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+output = job_$(Process).log
+error = job_$(Process).err
+transfer_input_files = job.tgz"""
+        if self.transferCmd == '':
+            print>>jdlOut, "transfer_output_files = ", (",".join([os.path.join(self.jobBase, x) for x in self.outFileNames]))
+            remapStrs = ["{0}.{1}={0}_$(Process).{1}".format('.'.join(x.split('.')[:-1]), x.split('.')[-1]) for x in self.outFileNames]
+            print>>jdlOut, 'transfer_output_remaps = "%s"' % (';'.join(remapStrs))
+        print>>jdlOut, "queue",  self.nSection
+        jdlOut = None
+
+    def archive(self):
+        ## Archive libraries and other stuffs
+        archiveCmd = "tar czf {0}/job.tgz {1} --xform='s:{1}:{2}:' -P".format(self.jobDir, self.cmsswBase, os.path.basename(self.cmsswBase))
+        #archiveCmd += " --exclude tmp --exclude '*.root' --exclude 'job.tgz' --exclude .git --exclude-tag-all=.create-batch"
+        archiveCmd += " --exclude tmp --exclude 'job.tgz' --exclude .git --exclude-tag-all=.create-batch"
+        print "@@ Archive files for job submission..."
+        os.system(archiveCmd)
+        os.system("rm -f %s/job_*_cfg.py" % self.jobDir)
+
+        tmpFile = open("%s/.create-batch" % self.jobDir, "w")
+        tmpFile.close()
+
+    def submit(self):
+        if self.doSubmit:
+            print "@@ Submitting jobs..."
+            if self.site == "UOS":
+              if os.environ['HOSTNAME'].startswith("gate2") :
+                os.system("cd %s;./submit.sh; cd -" % self.jobDir)
+              else :
+                os.system("ssh uosaf0008 'cd %s;./submit.sh'" % self.jobDir)
+            elif self.site == "CERN" and not os.environ['HOSTNAME'].startswith("lxplus"):
+                os.system("ssh lxplus.cern.ch 'cd %s;./submit.sh'" % self.jobDir)
+            else:
+                os.system("cd %s;./submit.sh" % self.jobDir)
+        else:
+            print "@@ Jobs are prepared. You can submit jobs with following command:"
+            print "cd %s;./submit.sh" % (self.jobDir)
+
+## Create job configure
+jobConfig = TheJobConfig(opts)
+jobConfig.initialiseWorkspace()
+jobConfig.archive()
+jobConfig.submit()
+
+print "@@ Done."
+
