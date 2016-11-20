@@ -12,11 +12,12 @@ def CheckDatasetFile(samplename, SendEmail):
     path=open(datasetpath,'r')
 
     xsec_filled=False
-    validName=True
+    validName=False
     validAliasName=False
     valid_cv=True
     for line in path:
         if "DataSetName" in line:
+            validName=True
             splitline= line.split()
             if len(splitline) == 4:
                 if"/" in splitline[3]:
