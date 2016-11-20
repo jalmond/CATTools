@@ -6,8 +6,8 @@ import os,sys
 ##########################################                                                                                                                                                                                                    
 
 ##### Set RunALLSamples=True true to simply add ALL samples to production list                                                                                                                                        
-RunALLSamples=True
-PrivateSample=False
+RunALLSamples=False
+PrivateSample=True
 
 ####### For now keep these the same  #########
 copy_cluster=False
@@ -32,8 +32,7 @@ datasampledir = ["DoubleMuon"]
 
                 
 #### For MC only
-mcsampledir = ["13TeV_HN40_mumumu_width_AUTO_VmuN_0p1"]
-
+mcsampledir = ["MajoranaNeutrinoToEmEm_Schannel_V0p1_M-100_13TeV-amcatnlo"]
 
 
 if RunALLSamples:

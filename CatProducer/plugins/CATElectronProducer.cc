@@ -58,8 +58,8 @@ namespace cat {
     std::vector<NameTag> elecIDSrcs_;
     std::vector<edm::EDGetTokenT<edm::ValueMap<bool> > > elecIDTokens_;
     const std::vector<std::string> electronIDs_;
-    const std::vector<std::string> electronIDsJS_;
-
+    const std::vector<std::string> electronIDs_alt_;
+    
   };
 
 } // namespace
@@ -71,8 +71,8 @@ cat::CATElectronProducer::CATElectronProducer(const edm::ParameterSet & iConfig)
   beamLineSrc_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"))),
   rhoLabel_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoLabel"))),
   electronIDs_(iConfig.getParameter<std::vector<std::string> >("electronIDs")),
-  electronIDsJS_(iConfig.getParameter<std::vector<std::string> >("electronIDsJS"))
-
+  electronIDs_alt_(iConfig.getParameter<std::vector<std::string> >("electronIDs_alt"))
+  
 {
   produces<std::vector<cat::Electron> >();
   if (iConfig.existsAs<edm::ParameterSet>("electronIDSources")) {
@@ -81,7 +81,6 @@ cat::CATElectronProducer::CATElectronProducer(const edm::ParameterSet & iConfig)
     for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
       auto inputTag = idps.getParameter<edm::InputTag>(*it);
       elecIDSrcs_.push_back(NameTag(inputTag.instance(), inputTag));
-
     }
     elecIDTokens_ = edm::vector_transform(elecIDSrcs_, [this](NameTag const & tag){return mayConsume<edm::ValueMap<bool> >(tag.second);});
   }
@@ -168,7 +167,7 @@ cat::CATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
     aElectron.setscEta( aPatElectron.superCluster()->eta());
     aElectron.setPassConversionVeto( aPatElectron.passConversionVeto() );
-    
+
     if (elecIDSrcs_.size()){// for remade electron IDs
       for (size_t i = 0; i < elecIDSrcs_.size(); ++i){
 	ids[i].second = (*idhandles[i])[elecsRef];
@@ -177,14 +176,19 @@ cat::CATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     }
     else if (electronIDs_.size()){// for selected IDs in miniAOD
       for(unsigned int i = 0; i < electronIDs_.size(); i++){
-	//pat::Electron::IdPair pid(electronIDs_.at(i), aPatElectron.electronID(electronIDs_.at(i)));
-	pat::Electron::IdPair pid(electronIDsJS_.at(i), aPatElectron.electronID(electronIDs_.at(i)));
 
+	pat::Electron::IdPair pid;
+	if (aPatElectron.isElectronIDAvailable(electronIDs_.at(i))){
+	  pid = std::make_pair(electronIDs_.at(i), aPatElectron.electronID(electronIDs_.at(i)));
+	}
+	else if (aPatElectron.isElectronIDAvailable(electronIDs_alt_.at(i))){
+	  pid = std::make_pair(electronIDs_.at(i), aPatElectron.electronID(electronIDs_alt_.at(i)));
+
+	}
 	aElectron.setElectronID(pid);
       }
     }
     else {
-
       aElectron.setElectronIDs(aPatElectron.electronIDs());
     }
 

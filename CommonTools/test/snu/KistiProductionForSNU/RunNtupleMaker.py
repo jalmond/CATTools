@@ -5,17 +5,26 @@ import time
 from functions import *
 from Setup import *
 import string
+from CheckDatasetFile import *
+
+
+
+if os.path.exists("outputlog.txt"):
+    os.system("rm outputlog.txt")
 
 
 def CheckJobStatusAfterCrash(dirname, v):
     
+    outlogfile = open( "outputlog.txt", "w")
+
     if not os.path.exists(dirname):
+        outlogfile.close()    
         return
     
     if os.path.exists(dirname + "/check_list.txt"):
         os.system("rm " + dirname +"/check_list.txt")
 
-    print "ls " + dirname + "/* > " + dirname+ "/check_list.txt"
+    outlogfile.write("ls " + dirname + "/* > " + dirname+ "/check_list.txt\n")
     
     os.system("ls " + dirname + "/* > " + dirname+ "/check_list.txt")
     logfile = open( dirname+"/check_list.txt", "r")
@@ -24,7 +33,8 @@ def CheckJobStatusAfterCrash(dirname, v):
         if "_cfg.py" in i:
             njobs_x = njobs_x +1
     
-    print "Number of jobs =  " + str(njobs_x)
+            
+    outlogfile.write("Number of jobs =  " + str(njobs_x)+"\n")
     os.system("rm " + dirname+"/check_list.txt")
 
     if os.path.exists(dirname+"/check_finished.txt"):
@@ -37,33 +47,39 @@ def CheckJobStatusAfterCrash(dirname, v):
         for line in checkfile:
             if jobcheck in line:
                 nfinishedjobs=nfinishedjobs+1
-    print "Number of finished jobs = " + str(nfinishedjobs)
+
+    outlogfile.write("Number of finished jobs = " + str(nfinishedjobs)+"\n")
     os.system("rm " + dirname +"/check_finished.txt")
     
     if nfinishedjobs != njobs_x:
         "Job is running already. Adding to list"
+        outlogfile.close()    
         return True
     else: 
-        print "Removing dir since no jobs are running"
+        outlogfile.write("Removing dir since no jobs are running"+"\n")
         os.system("rm -r " + dirname)
+        outlogfile.close()    
         return True
     
-        
+    outlogfile.close()    
     return False
 
 def CheckFailedJobStatus(submitted_list, v, flist):
     mod_list =string.replace(submitted_list,"!", " ")
     split_list = mod_list.split()
-    print "List of jobs submitted = " 
+    outlogfile = open( "outputlog.txt", "w")
+
+    outlogfile.write("List of jobs submitted = "+"\n")
     for x in split_list:
-        print x
+         outlogfile.write("x"+"\n")
     
-    print "Checking submitted jobs:"
+    outlogfile.write("Checking submitted jobs:"+"\n")
+
     failed_list=flist
 
     anyFailed=False
     for i in split_list:
-        print "Sample " + i
+        outlogfile.write("Sample " + i+"\n")
         if os.path.exists("SNU_" + v+ "_" +i +"/check_list.txt"):
             os.system("rm SNU_" + v+ "_" +i +"/check_list.txt")
         
@@ -74,8 +90,9 @@ def CheckFailedJobStatus(submitted_list, v, flist):
         for j in logfile:
             if "_cfg.py" in j:
                 njobs_x = njobs_x +1
-        print "Number of jobs =  " + str(njobs_x)
-        os.system("rm SNU_" + v+ "_" +i +"/check_list.txt")
+        outlogfile.write("Number of jobs =  " + str(njobs_x)+"\n")
+
+        os.system("rm SNU_" + v+ "_" +i +"/check_list.txt"+"\n")
         os.system("grep TERMINATED " + "SNU_" + v+ "_" +i +"/*.log > SNU_" + v+ "_" +i +"/check_finished2.txt")
 
         if os.path.exists("SNU_" + v+ "_" +i +"/check_finished.txt"):
@@ -88,7 +105,8 @@ def CheckFailedJobStatus(submitted_list, v, flist):
             for line in checkfile:
                 if jobcheck in line:
                     nfinishedjobs=nfinishedjobs+1
-        print "Number of finished jobs = " + str(nfinishedjobs)
+        outlogfile.write("Number of finished jobs = " + str(nfinishedjobs)+"\n")
+
         os.system("rm SNU_" + v+ "_" +i +"/check_finished.txt")
 
         if int(nfinishedjobs) != int(njobs_x):
@@ -104,22 +122,30 @@ def CheckFailedJobStatus(submitted_list, v, flist):
                         
         os.system("rm SNU_" + v+ "_" +i +"/check_finished2.txt")
     if anyFailed == True:
-        print "Some jobs have failed. Full list printed at end"
+        outlogfile.write("Some jobs have failed. Full list printed at end"+"\n")
+
+    outlogfile.close()            
     return failed_list   
 
 
 def CheckJobStatus(submitted_list, v):
+    
+    outlogfile = open( "outputlog.txt", "w")
 
     mod_list =string.replace(submitted_list,"!", " ")
     split_list = mod_list.split()
-    print "List of jobs submitted = " 
-    for x in split_list:
-        print x
+    
+    outlogfile.write("List of jobs submitted = "+"\n")
 
-    print "Checking submitted jobs:"
+    for x in split_list:
+        outlogfile.write(x+"\n")
+
+    outlogfile.write("Checking submitted jobs:"+"\n")
+
     new_submitted_list=submitted_list
     for i in split_list:
-        print "Sample " + i
+        outlogfile.write("Sample " + i +"\n")
+         
         if os.path.exists("SNU_" + v+ "_" +i +"/check_list.txt"):
             os.system("rm SNU_" + v+ "_" +i +"/check_list.txt")
 
@@ -130,7 +156,8 @@ def CheckJobStatus(submitted_list, v):
         for j in logfile:
             if "_cfg.py" in j:
                 njobs_x = njobs_x +1
-        print "Number of jobs =  " + str(njobs_x)
+        outlogfile.write( "Number of jobs =  " + str(njobs_x)+"\n")
+
         os.system("rm SNU_" + v+ "_" +i +"/check_list.txt")
 
         if os.path.exists("SNU_" + v+ "_" +i +"/check_finished.txt"):
@@ -147,7 +174,7 @@ def CheckJobStatus(submitted_list, v):
                 if jobcheck in line:
                     nfinishedjobs=nfinishedjobs+1
 
-        print "Number of finished jobs = " + str(nfinishedjobs)
+        outlogfile.write("Number of finished jobs = " + str(nfinishedjobs)+"\n")
 
         FailedJobs=False
         if int(nfinishedjobs) != int(njobs_x):
@@ -163,7 +190,7 @@ def CheckJobStatus(submitted_list, v):
 
 
         if int(nfinishedjobs) == int(njobs_x):
-            print "Job " + i + " is finished. Copying to SNU"
+            outlogfile.write("Job " + i + " is finished. Copying to SNU"+"\n")
             
             if FailedJobs == True:
                 for k in range(0, njobs_x):
@@ -171,41 +198,45 @@ def CheckJobStatus(submitted_list, v):
                     checkfile2 = open("SNU_" + v+ "_" +i +"/check_finished2.txt", "r")
                     for line2 in checkfile2:
                         if jobcheck2 in line2:
-                            print "Deleting root file of failed job"
+                            outlogfile.write("Deleting root file of failed job" +"\n")
+
                             os.system("rm SNU_" + v+ "_" +i +"/ntuple_" +  str(k) + ".root")
 
             
             if copy_cluster:
-                print "ssh " + username_snu  + "@147.47.242.67 mkdir  /data4/DATA/FlatCatuples/MC/" + v + "/" + i
+                outlogfile.write("ssh " + username_snu  + "@147.47.242.67 mkdir  /data4/DATA/FlatCatuples/MC/" + v + "/" + i+"\n")
                 os.system("ssh " + username_snu  + "@147.47.242.67 rm -r  /data4/DATA/FlatCatuples/MC/" + v +"/" + i )
                 os.system("ssh " + username_snu  + "@147.47.242.67 mkdir  /data4/DATA/FlatCatuples/MC/" + v)
                 os.system("ssh " + username_snu  + "@147.47.242.67 mkdir  /data4/DATA/FlatCatuples/MC/" + v + "/" + i )
-
-                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/MC/" + v + "/"  +i
+                
+                outlogfile.write("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/MC/" + v + "/"  +i+"\n")
                 os.system("scp SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/MC/"  + v + "/" +i)
 
 
             if copy_cms1:
-                print "ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/MC/" + v + "/" + i
+                outlogfile.write("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/MC/" + v + "/" + i+"\n")
                 os.system("ssh " + username_snu  + "@147.47.242.42 rm -r /data2/DATA/cattoflat/MC/" + v +"/" + i )
                 os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/MC/" + v)
                 os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/MC/" + v + "/" + i )
 
-                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/MC/" + v + "/"  +i
-                os.system("scp SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/MC/"  + v + "/" +i)
-
+                outlogfile.write("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/MC/" + v + "/"  +i+"\n")
+                os.system("scp SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/MC/"  + v + "/" +i) 
              
-            print "submitted_list = " + submitted_list + " is ammended to: "
+            outlogfile.write("submitted_list = " + submitted_list + " is ammended to: "+"\n")
             new_submitted_list = string.replace(submitted_list, i+"!" , "")
-            print new_submitted_list
-            print "Deleting directory SNU_" + v+ "_" +i +"/"
-            #os.system("rm -r   SNU_" + v+ "_" +i +"/")
+            outlogfile.write(new_submitted_list+"\n")
+            outlogfile.write("Deleting directory SNU_" + v+ "_" +i +"/"+"\n")
+            os.system("rm -r   SNU_" + v+ "_" +i +"/")
+            outlogfile.close()    
             return new_submitted_list
                                       
         os.system("rm SNU_" + v+ "_" +i +"/check_finished2.txt")
 
-
+    outlogfile.close()    
     return new_submitted_list
+
+
+outlogfile = open( "outputlog.txt", "w")
 
 ######## True runs default list of all samples available
 ALLSamples= False
@@ -219,20 +250,13 @@ if not "ui10" in host:
 
 if os.path.exists("cat.txt"):
     os.system("rm cat.txt")
-os.system("source "+cmssw_dir+"/src/CATTools/CommonTools/test/snu/catversion.sh > cat.txt")
 
+if not os.path.exists(cmssw_dir+"/src/CATTools/CommonTools/test/snu/KistiProductionForSNU/jobcheck"):
+    os.system("mkdir " + str(cmssw_dir)+"/src/CATTools/CommonTools/test/snu/KistiProductionForSNU/jobcheck")
 
-
-catfile = open("cat.txt",'r')
-vcat=""
-for line in catfile:
-    vcat = line    
-    if vcat == "":
-        print "version not set"
-        quit()
-    if not "v7-" in vcat:
-        print "version does not have v7- in name " 
-        quit()
+if not "v7-" in version:
+    print "cat version does not have v7- in name " 
+    quit()
 
 print "Cat version = " + version 
 
@@ -254,7 +278,25 @@ else:
 print "Output directory is " + kisti_output_default        
 
 
-os.system("ls /tmp/ > check_snu_connection.txt")
+os.system("cat ~/.ssh/config > check_connection.txt")
+
+ch_connect = open("check_connection.txt",'r')
+
+cpath="/tmp/"
+for line in ch_connect:
+    if "ControlPath" in line:
+        if "~/ssh" in line:
+            cpath="~/"
+        elif "/tmp/" in line:
+            cpath="/tmp/"
+        else:
+            print "Modify the cms21 connection since  ControlPath in ~/.ssh/cofig is set to something other than tmp or home dir"
+            
+ch_connect.close()
+os.system("rm check_connection.txt")
+
+
+os.system("ls " + cpath + " > check_snu_connection.txt")
 snu_connect = open("check_snu_connection.txt",'r')
 connected_cms3=False
 connected_cluster=False
@@ -277,13 +319,32 @@ if copy_cluster:
 
 
 ## Make a list of samples to process
+validation_sampledir=["DYJets" , "DYJets_10to50" , "TTJets_MG5" ,"WW","WZ", "ZZ", "SingleTbar_t","SingleTbar_tW","SingleTop_s","SingleTop_t","SingleTop_tW", "ttH_bb", "QCD_DoubleEM_Pt_30to40", "QCD_DoubleEM_Pt_30toInf", "QCD_DoubleEM_Pt_40toInf", "QCD_Pt-1000toInf_MuEnriched" , "QCD_Pt-120to170_EMEnriched", "QCD_Pt-120to170_MuEnriched", "QCD_Pt-15to20_EMEnriched", "QCD_Pt-15to20_MuEnriched", "QCD_Pt-170to300_EMEnriched" , "QCD_Pt-170to300_MuEnriched" , "QCD_Pt-20to30_EMEnriched" , "QCD_Pt-20to30_MuEnriched", "QCD_Pt-300to470_MuEnriched", "QCD_Pt-300toInf_EMEnriched", "QCD_Pt-30to50_EMEnriched", "QCD_Pt-30to50_MuEnriched" , "QCD_Pt-470to600_MuEnriched", "QCD_Pt-50to80_EMEnriched", "QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched","QCD_Pt-800to1000_MuEnriched" ,"QCD_Pt-80to120_MuEnriched" ,"QCD_Pt-80to120_EMEnriched", "QCD_Pt-170to250_bcToE","QCD_Pt-15to20_bcToE", "QCD_Pt-20to30_bcToE" , "QCD_Pt-250toINF_bcToE", "QCD_Pt-30to80_bcToE", "QCD_Pt-80to170_bcToE" , "DYJets_MG_5to50", "DYJets_MG","GG_HToMuMu" ,"GJets_Pt20to40","GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","TTG","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WWTo2L2Nu_powheg","WWZ","WW_dps", "WZTo2L2Q", "WZJets","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ" ,"TTLL_powheg"]
 
-validation_sampledir=["DYJets" , "DYJets_10to50" , "TTJets_MG5" ,"WW","WZ", "ZZ", "SingleTbar_t","SingleTbar_tW","SingleTop_s","SingleTop_t","SingleTop_tW", "ttH_bb", "QCD_DoubleEM_Pt_30to40", "QCD_DoubleEM_Pt_30toInf", "QCD_DoubleEM_Pt_40toInf", "QCD_Pt-1000toInf_MuEnriched" , "QCD_Pt-120to170_EMEnriched", "QCD_Pt-120to170_MuEnriched", "QCD_Pt-15to20_EMEnriched", "QCD_Pt-15to20_MuEnriched", "QCD_Pt-170to300_EMEnriched" , "QCD_Pt-170to300_MuEnriched" , "QCD_Pt-20to30_EMEnriched" , "QCD_Pt-20to30_MuEnriched", "QCD_Pt-300to470_MuEnriched", "QCD_Pt-300toInf_EMEnriched", "QCD_Pt-30to50_EMEnriched", "QCD_Pt-30to50_MuEnriched" , "QCD_Pt-470to600_MuEnriched", "QCD_Pt-50to80_EMEnriched", "QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched","QCD_Pt-800to1000_MuEnriched" ,"QCD_Pt-80to120_MuEnriched" ,"QCD_Pt-80to120_EMEnriched", "QCD_Pt-170to250_bcToE","QCD_Pt-15to20_bcToE", "QCD_Pt-20to30_bcToE" , "QCD_Pt-250toINF_bcToE", "QCD_Pt-30to80_bcToE", "QCD_Pt-80to170_bcToE" , "DYJets_MG_5to50", "DYJets_MG","GG_HToMuMu" ,"GJets_Pt20to40","GJets_Pt40toInfo","GluGluToZZTo2e2mu","GluGluToZZTo2mu2tau","GluGluToZZTo4mu","TTG","TTJets_aMC","TT_powheg","VBF_HToMuMu","WGtoLNuG","WJets","WWTo2L2Nu_powheg","WWZ","WW_dps", "WZTo2L2Q", "WZJets","WZTo3LNu_powheg","WZZ","WpWpEWK","WpWpQCD","ZGto2LG","ZZTo2L2Nu_powheg","ZZTo2L2Q","ZZTo4L_powheg","ZZZ","ZZto4L","ttH_bb","ttH_nonbb","ttWJetsToQQ","ttWJetsToLNu","ttZToLLNuNu","ttZToQQ" ,"TTLL_powheg"]
-validation_sampledir=["TTLL_powheg","TTLJ_powheg"]
-validation_sampledir=["ZZZ"]
+
+runSYSTsamples=False
+if runSYSTsamples:
+    validation_sampledir += ["TTLL_powheg_scaledown","TTLL_powheg_scaleup","TT_powheg_mtop1695","TT_powheg_mtop1755", "TTLJ_powheg_scaledown","TTLJ_powheg_scaleup"]
+
+
+duplicate_samples=False
+samplelist_string=""
+for icheck in validation_sampledir:
+    additionstring="_"+icheck+"_:"
+    if additionstring in samplelist_string:
+        print "Sample " + icheck + " is in list twice"
+        quit()
+    else:   
+        samplelist_string+="_"+icheck+"_:"
+    
 
 sampledir=validation_sampledir
 
+for i in sampledir:
+    tmpdatasetpath = "/cms/scratch/SNU/datasets_" +version + "/dataset_" + i + ".txt"
+    if not os.path.exists(tmpdatasetpath):
+        print tmpdatasetpath + " does not exist"
+        quit()
 
 #, "HN_ee_40", "HN_ee_100", "HN_ee_500", "HN_ee_1500","HN_mm_40","HN_mm_100","HN_mm_500","HN_mm_1500"]
 
@@ -306,17 +367,25 @@ njobs_submitted=0
 string_of_submitted=""
 string_of_failed=""
 skip_first=0
-samples_processed=0
 dataset_tag=""
+
+if RunALLSamples:
+    if "jalmond" in username_snu:
+        os.system("scp -r /cms/scratch/SNU/datasets_" +version + "/ " + username_snu  + "@147.47.242.42:/data1/LQAnalyzer_rootfiles_for_analysis/DataSetLists2015/")
+        os.system("ssh " + username_snu  + "@147.47.242.42 chmod -R 777  /data1/LQAnalyzer_rootfiles_for_analysis/DataSetLists2015/datasets_" +version + "/")
+
+
 for i in sampledir:
-    
-    if "DY" in i:
-        njob=200
-    elif "TT" in i:
+
+    if not RunALLSamples:
+        CheckDatasetFile(i,False)
+                
+    if "DY" in i or "TT" in i:
         njob=200
     else:
         njob=100
     datasetpath = "/cms/scratch/SNU/datasets_" +version + "/dataset_" + i + ".txt"
+
     
     datasetfile = open(datasetpath, 'r')
     for line in datasetfile:
@@ -326,9 +395,6 @@ for i in sampledir:
             split_datasetname = datasetname.split()
             dataset_tag =split_datasetname[0]
     
-    samples_processed=samples_processed+1 
-    if samples_processed < skip_first+1:
-        continue
 
     runfullgen = True
     for j in fullgen:
@@ -466,6 +532,7 @@ for i in sampledir:
             count_txt+=1
     fr_txt.close()
 
+
     fr_xrd = open(datasetpath,'r')
     count_xrd=0
     for line_xrd in fr_xrd:
@@ -504,8 +571,6 @@ for i in sampledir:
         
         
     fr = open(file_to_run,'r')
-    
-
     count=0
     nfilesperjob=0
     for line in fr:
@@ -552,9 +617,7 @@ for i in sampledir:
 
 
     print "#job = " + str(njob) + " and nfilesperjob = " + str(nfilesperjob) + " : total number of files = " + str(count)
-
     print "Number of jobs to process is " + str(njob)
-
     print "Each job will process  " + str(nfilesperjob) + "/" + str(count) + " files"
     
     jobname = "SNU_" + version + "_" + dataset_tag
@@ -572,7 +635,7 @@ for i in sampledir:
          cfgfile="run_ntupleMaker_snu_mc_signal_cfg.py"
     if PrivateSample == True:
         cfgfile="run_ntupleMaker_snu_mc_signal_cfg.py"
-        
+    
     print "using " + cfgfile    
     isjobrunning=False
     print "Running : CheckJobStatusAfterCrash"
@@ -595,8 +658,9 @@ for i in sampledir:
     
     njobs_submitted= int(njobs_submitted)+int(njob)
     
-    if not os.path.exists("jobcheck"):
-        os.system("mkdir jobcheck")
+    if not os.path.exists(str(cmssw_dir)+"/src/CATTools/CatAnalyzer/SNUsubmission/snu/KistiProductionForSNU/jobcheck"):
+        os.system("mkdir " + str(cmssw_dir)+"/src/CATTools/CatAnalyzer/SNUsubmission/snu/KistiProductionForSNU/jobcheck")
+
     check_njob_submitted=0
     while check_njob_submitted == 0:
         import platform
@@ -611,15 +675,15 @@ for i in sampledir:
                     njobs_submitted = int(linesplit[0])
         print "Number of subjobs submitted = " + str(njobs_submitted)
     
-        if int(njobs_submitted) > 1000:
-            print "nsubjobs > 1000" 
-            print "waiting 1 minute before checking if #subjobs  < 1000. If this is true will submit more."
+        if int(njobs_submitted) > 700:
+            print "nsubjobs > 700" 
+            print "waiting 1 minute before checking if #subjobs  < 700. If this is true will submit more."
             time.sleep(60.)
             string_of_failed=CheckFailedJobStatus(string_of_submitted, version,string_of_failed)
             string_of_submitted=CheckJobStatus(string_of_submitted, version)
 
-        if int(njobs_submitted) < 1000:
-            print "Number of jobs < 1000. Will check if any jobs are finished"
+        if int(njobs_submitted) < 700:
+            print "Number of jobs < 700. Will check if any jobs are finished"
             check_njob_submitted = 1
             string_of_failed=CheckFailedJobStatus(string_of_submitted, version,string_of_failed)
             string_of_submitted=CheckJobStatus(string_of_submitted, version)
@@ -627,27 +691,28 @@ for i in sampledir:
     ###    check if jobs are complete: If true send to SNU and delete local dir 
 
 print "###############################################################################################"
-print "###############################################################################################"
-print "All samples are submitted. Now checking if jobs are finished."            
-print "###############################################################################################"
+print "All samples are submitted. Now checking if jobs are finished......."            
 print "###############################################################################################"
 FilesAllCopied=False
 while FilesAllCopied == False:
     string_of_failed=CheckFailedJobStatus(string_of_submitted, version,string_of_failed)
     tmp_string_of_submitted=string_of_submitted 
-    print "string_of_submitted " + string_of_submitted 
+    outlogfile.write("string_of_submitted " + string_of_submitted + "\n")
     string_of_submitted=CheckJobStatus(tmp_string_of_submitted, version)
-    print  "After job check: string_of_submitted " + string_of_submitted
+    outlogfile.write("After job check: string_of_submitted " + string_of_submitted+"\n")
   
     if string_of_submitted == "":
         FilesAllCopied = True
     else:
         time.sleep(10.)
+outlogfile.close()
 
 
 breakdown_failed_list =string.replace(string_of_failed,"!", " ")
 split_breakdown_failed_list=breakdown_failed_list.split() 
 for s in split_breakdown_failed_list:
     print "Job " + s + " Failed"
+
+
 
 

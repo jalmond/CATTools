@@ -884,6 +884,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   
   /// since v7-6-4 store genweights using CAT class
   if(!event.isRealData()) {
+    
     edm::Handle<cat::GenWeights> genWeightHandle;
     event.getByToken(genWeightToken_, genWeightHandle);
     
@@ -901,8 +902,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
       edm::Handle<vfloat> scaledownweightsHandle;
       event.getByToken(scaledownweightsToken_,scaledownweightsHandle);
       for ( auto& w :*scaledownweightsHandle) ScaleWeight_.push_back(w);
-    }
-  
+      }
+    
     /// store these for all MC
     genWeightQ_ = genWeightHandle->qScale();
     genWeightX1_ = genWeightHandle->x1();
@@ -923,6 +924,9 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   }// end of signal weights
   
   
+  
+  
+    
   ////// Fill vertex information
   edm::Handle<reco::VertexCollection> vertices;
   event.getByToken(vtxToken_, vertices);

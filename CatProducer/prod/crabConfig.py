@@ -1,4 +1,6 @@
 from WMCore.Configuration import Configuration
+from CRABClient.UserUtilities import  getUsernameFromSiteDB
+
 config = Configuration()
 
 config.section_("General")
@@ -21,5 +23,6 @@ config.section_("Site")
 #crab checkwrite --site=T3_KR_KISTI --lfn=/store/group/CAT/
 config.Site.storageSite = 'T3_KR_KISTI'
 #config.Site.storageSite = 'T3_KR_UOS'
-config.Data.outLFNDirBase = '/store/group/CAT/' 
+config.Data.outLFNDirBase = '/store/user/%s/' % (getUsernameFromSiteDB())
+#config.Data.outLFNDirBase = '/store/group/CAT/' 
 #config.Site.storageSite = 'T3_US_FNALLPC'
