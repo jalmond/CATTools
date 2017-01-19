@@ -29,6 +29,7 @@
 #include "CATTools/DataFormats/interface/MET.h"
 #include "CATTools/DataFormats/interface/Muon.h"
 #include "CATTools/DataFormats/interface/Jet.h"
+#include "CATTools/DataFormats/interface/FatJet.h"
 #include "CATTools/DataFormats/interface/Electron.h"
 #include "CATTools/DataFormats/interface/GenJet.h"
 #include "CATTools/DataFormats/interface/GenWeights.h"
@@ -38,6 +39,8 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
+#include "CATTools/DataFormats/interface/Trigger.h"
+
 
 #include "CATTools/CatAnalyzer/src/rochcor2016.h"
 #include "CATTools/CatAnalyzer/src/RoccoR.h"
@@ -251,6 +254,7 @@ private:
   
   vector<cat::Muon> selectMuons(const edm::View<cat::Muon>* muons );
   vector<cat::Jet> selectJets(const edm::View<cat::Jet>* jets );
+  vector<cat::FatJet> selectFatJets(const edm::View<cat::FatJet>* fatjets );
   vector<cat::Electron> selectElecs(const edm::View<cat::Electron>* electrons );
   
   typedef edm::ParameterSet PSet;
@@ -268,10 +272,16 @@ private:
   
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
   edm::EDGetTokenT<edm::TriggerResults> triggerBits2_;
+
   edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
   edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
+
   edm::EDGetTokenT<edm::TriggerResults> metFilterBitsPAT_;
   edm::EDGetTokenT<edm::TriggerResults> metFilterBitsRECO_;
+
+  edm::EDGetTokenT<cat::TriggerNames> trigNamesToken_;
+  edm::EDGetTokenT<cat::TriggerBits> trigBitsToken_;
+  
   edm::EDGetTokenT<reco::VertexCollection >   vtxToken_;
   
   /// Testing MET
@@ -330,6 +340,7 @@ private:
   vector<bool>  electrons_electronID_loose,electrons_electronID_medium,electrons_electronID_tight,electrons_electronID_veto,electrons_electronID_mva_medium,electrons_electronID_mva_tight,electrons_electronID_mva_trig_medium,electrons_electronID_mva_trig_tight,electrons_electronID_heep,  electrons_mcMatched,electrons_isPF,electrons_passConversionVeto,electrons_isTrigMVAValid;
   /// Jest 3
   vector<bool>  jets_looseJetID,jets_tightJetID,jets_tightLepVetoJetID;
+  vector<bool>  fatjets_looseJetID,fatjets_tightJetID,fatjets_tightLepVetoJetID;
   
   /////// ints
   ///// muon 6
@@ -340,6 +351,7 @@ private:
 
   /// jets 4
   std::vector<int>  jets_partonFlavour,jets_hadronFlavour,jets_partonPdgId,jets_vtxNtracks;
+  std::vector<int>  fatjets_partonFlavour,fatjets_hadronFlavour,fatjets_partonPdgId,fatjets_vtxNtracks;
 
 //// double
   //// muon  15
@@ -355,9 +367,13 @@ private:
 
   //// jets  21
   std::vector<double>   jets_vtxMass, jets_vtx3DVal, jets_vtx3DSig, jets_CSVInclV2, jets_JetProbBJet, jets_CMVAV2, jets_chargedEmEnergyFraction, jets_shiftedEnDown, jets_shiftedEnUp, jets_smearedRes, jets_smearedResDown, jets_smearedResUp, jets_PileupJetId, jets_iCSVCvsL,jets_CCvsLT, jets_CCvsBT;
-
-  std::vector<double> jets_pt, jets_eta,jets_phi, jets_m, jets_energy;
+  std::vector<double>   fatjets_vtxMass, fatjets_vtx3DVal, fatjets_vtx3DSig, fatjets_CSVInclV2, fatjets_JetProbBJet, fatjets_CMVAV2, fatjets_chargedEmEnergyFraction, fatjets_shiftedEnDown, fatjets_shiftedEnUp, fatjets_smearedRes, fatjets_smearedResDown, fatjets_smearedResUp, fatjets_PileupJetId, fatjets_iCSVCvsL,fatjets_CCvsLT, fatjets_CCvsBT , fatjets_tau1, fatjets_tau2,fatjets_tau3, fatjets_prunedmass, fatjets_softdropmass;
   
+  std::vector<double> jets_pt, jets_eta,jets_phi, jets_m, jets_energy;
+  std::vector<double> fatjets_pt, fatjets_eta,fatjets_phi, fatjets_m, fatjets_energy;
+  std::vector<double> fatjets_puppi_pt, fatjets_puppi_eta,fatjets_puppi_phi, fatjets_puppi_m;
+  std::vector<double> fatjets_puppi_tau1, fatjets_puppi_tau2,fatjets_puppi_tau3;;
+
   bool Flag_HBHENoiseIsoFilter, Flag_HBHENoiseFilter, Flag_CSCTightHaloFilter, Flag_goodVertices, Flag_eeBadScFilter, Flag_EcalDeadCellTriggerPrimitiveFilter,  Flag_globalTightHalo2016Filter;
 
   double met_muonEn_Px_up, met_muonEn_Px_down, met_muonEn_Py_up, met_muonEn_Py_down;
@@ -410,6 +426,7 @@ private:
   edm::EDGetTokenT<cat::METCollection>      metToken_;
   edm::EDGetTokenT<edm::View<cat::Muon> >     muonToken_;
   edm::EDGetTokenT<edm::View<cat::Jet> >     jetToken_;
+  edm::EDGetTokenT<edm::View<cat::FatJet> >     fatjetToken_;
   edm::EDGetTokenT<edm::View<cat::Electron> > elecToken_;
   edm::EDGetTokenT<cat::GenWeights>              genWeightToken_;
   edm::EDGetTokenT<vfloat> pdfweightsToken_, scaleupweightsToken_, scaledownweightsToken_;
@@ -476,14 +493,22 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   //  triggers_      = consumes<vector<pair<string, int> > >(pset.getParameter<edm::InputTag>("trigLabel"));
   genjet_    =consumes<reco::GenJetCollection>(pset.getParameter<edm::InputTag>("genjet"));
   mcLabel_   = consumes<reco::GenParticleCollection>(pset.getParameter<edm::InputTag>("genLabel"));
+
   triggerBits_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerBits"));
   triggerBits2_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerBits2"));
+
   triggerObjects_ = consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("triggerObjects"));
   triggerPrescales_ =consumes<pat::PackedTriggerPrescales>(pset.getParameter<edm::InputTag>("triggerPrescales"));
+
+  //  trigNamesToken_ = consumes<cat::TriggerNames, edm::InLumi>(pset.getParameter<edm::InputTag>("src"));
+  //trigBitsToken_ = consumes<cat::TriggerBits>(pset.getParameter<edm::InputTag>("src"));
+
+
   metToken_  = consumes<cat::METCollection>(pset.getParameter<edm::InputTag>("met"));
   muonToken_ = consumes<edm::View<cat::Muon> >(pset.getParameter<edm::InputTag>("muons"));
   elecToken_ = consumes<edm::View<cat::Electron> >(pset.getParameter<edm::InputTag>("electrons"));
   jetToken_ = consumes<edm::View<cat::Jet> >(pset.getParameter<edm::InputTag>("jets"));
+  fatjetToken_ = consumes<edm::View<cat::FatJet> >(pset.getParameter<edm::InputTag>("fatjets"));
   metFilterBitsPAT_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("metFilterBitsPAT"));
   metFilterBitsRECO_ = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("metFilterBitsRECO"));
   vtxToken_  = consumes<reco::VertexCollection >(pset.getParameter<edm::InputTag>("vertices"));
@@ -495,8 +520,6 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   scaledownweightsToken_ = consumes<vfloat>(pset.getParameter<edm::InputTag>("scaledownweights"));
 
   rmcor = new rochcor2016();
-
-
 
   //// bool to specify job
   runFullTrig = pset.getParameter<bool>("runFullTrig");
@@ -542,7 +565,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("eeBadScFilter", &Flag_eeBadScFilter,"eeBadScFilter/O");
   tree_->Branch("EcalDeadCellTriggerPrimitiveFilter", &Flag_EcalDeadCellTriggerPrimitiveFilter,"EcalDeadCellTriggerPrimitiveFilter/O");
   tree_->Branch("Flag_globalTightHalo2016Filter",&Flag_globalTightHalo2016Filter,"Flag_globalTightHalo2016Filter/O");
-  
+
   tree_->Branch("genWeightQ", &genWeightQ_, "genWeightQ/F");
   tree_->Branch("genWeightX1", &genWeightX1_,"genWeightX1/F");
   tree_->Branch("genWeightX2", &genWeightX2_,"genWeightX2/F");
@@ -588,6 +611,9 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("jets_isLoose",  "std::vector<bool>", &jets_looseJetID);
   tree_->Branch("jets_isTight",  "std::vector<bool>", &jets_tightJetID);
   tree_->Branch("jets_isTightLepVetoJetID",  "std::vector<bool>", &jets_tightLepVetoJetID);
+  tree_->Branch("fatjets_isLoose",  "std::vector<bool>", &fatjets_looseJetID);
+  tree_->Branch("fatjets_isTight",  "std::vector<bool>", &fatjets_tightJetID);
+  tree_->Branch("fatjets_isTightLepVetoJetID",  "std::vector<bool>", &jets_tightLepVetoJetID);
 
   tree_->Branch("gen_isprompt", "std::vector<bool>", &gen_isprompt_);
   tree_->Branch("gen_isdecayedleptonhadron", "std::vector<bool>", &gen_isdecayedleptonhadron_);
@@ -620,6 +646,12 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("jets_hadronFlavour",  "std::vector<int>", &jets_hadronFlavour);
   tree_->Branch("jets_partonPdgId",  "std::vector<int>", &jets_partonPdgId);
   tree_->Branch("jets_vtxNtracks",  "std::vector<int>", &jets_vtxNtracks);
+  tree_->Branch("fatjets_partonFlavour",  "std::vector<int>", &fatjets_partonFlavour);
+  tree_->Branch("fatjets_hadronFlavour",  "std::vector<int>", &fatjets_hadronFlavour);
+  tree_->Branch("fatjets_partonPdgId",  "std::vector<int>", &fatjets_partonPdgId);
+  tree_->Branch("fatjets_vtxNtracks",  "std::vector<int>", &fatjets_vtxNtracks);
+
+
 
   tree_->Branch("gen_status", "std::vector<int>",  &gen_status_);
   tree_->Branch("gen_pdgid", "std::vector<int>", &gen_pdgid_);
@@ -707,7 +739,42 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("jets_smearedResUp",  "std::vector<double>", &jets_smearedResUp);
   tree_->Branch("jets_PileupJetId",  "std::vector<double>", &jets_PileupJetId);
 
+
+  tree_->Branch("fatjets_pt",  "std::vector<double>", &fatjets_pt);
+  tree_->Branch("fatjets_eta",  "std::vector<double>", &fatjets_eta);
+  tree_->Branch("fatjets_phi",  "std::vector<double>", &fatjets_phi);
+  tree_->Branch("fatjets_m",  "std::vector<double>", &fatjets_m);
+  tree_->Branch("fatjets_energy",  "std::vector<double>", &fatjets_energy);
+  tree_->Branch("fatjets_vtxMass",  "std::vector<double>", &fatjets_vtxMass);
+  tree_->Branch("fatjets_vtx3DVal",  "std::vector<double>", &fatjets_vtx3DVal);
+  tree_->Branch("fatjets_vtx3DSig",  "std::vector<double>", &fatjets_vtx3DSig);
+  tree_->Branch("fatjets_CSVInclV2",  "std::vector<double>", &fatjets_CSVInclV2);
+  tree_->Branch("fatjets_iCSVCvsL",  "std::vector<double>", &fatjets_iCSVCvsL);
+  tree_->Branch("fatjets_CCvsLT",  "std::vector<double>", &fatjets_CCvsLT);
+  tree_->Branch("fatjets_CCvsBT",  "std::vector<double>", &fatjets_CCvsBT);
+  tree_->Branch("fatjets_JetProbBJet",  "std::vector<double>", &fatjets_JetProbBJet);
+  tree_->Branch("fatjets_CMVAV2",  "std::vector<double>", &fatjets_CMVAV2);
+  tree_->Branch("fatjets_chargedEmEnergyFraction",  "std::vector<double>", &fatjets_chargedEmEnergyFraction);
+  tree_->Branch("fatjets_shiftedEnDown",  "std::vector<double>", &fatjets_shiftedEnDown);
+  tree_->Branch("fatjets_shiftedEnUp",  "std::vector<double>", &fatjets_shiftedEnUp);
+  tree_->Branch("fatjets_smearedRes",  "std::vector<double>", &fatjets_smearedRes);
+  tree_->Branch("fatjets_smearedResDown",  "std::vector<double>", &fatjets_smearedResDown);
+  tree_->Branch("fatjets_smearedResUp",  "std::vector<double>", &fatjets_smearedResUp);
+  tree_->Branch("fatjets_PileupJetId",  "std::vector<double>", &fatjets_PileupJetId);
   
+  tree_->Branch("fatjets_tau1",  "std::vector<double>", &fatjets_tau1);
+  tree_->Branch("fatjets_tau2",  "std::vector<double>", &fatjets_tau2);
+  tree_->Branch("fatjets_tau3",  "std::vector<double>", &fatjets_tau3);
+  tree_->Branch("fatjets_prunedmass",  "std::vector<double>", &fatjets_prunedmass);
+  tree_->Branch("fatjets_softdropmass",  "std::vector<double>", &fatjets_softdropmass);
+
+  tree_->Branch("fatjets_puppi_pt",  "std::vector<double>", &fatjets_puppi_pt);
+  tree_->Branch("fatjets_puppi_eta",  "std::vector<double>", &fatjets_puppi_eta);
+  tree_->Branch("fatjets_puppi_phi",  "std::vector<double>", &fatjets_puppi_phi);
+  tree_->Branch("fatjets_puppi_m",  "std::vector<double>", &fatjets_puppi_m);
+  tree_->Branch("fatjets_puppi_tau1",  "std::vector<double>", &fatjets_puppi_tau1);
+  tree_->Branch("fatjets_puppi_tau2",  "std::vector<double>", &fatjets_puppi_tau2);
+  tree_->Branch("fatjets_puppi_tau3",  "std::vector<double>", &fatjets_puppi_tau3);
 
   tree_->Branch("gen_pt", "std::vector<float>", &gen_pt_);
   tree_->Branch("gen_eta", "std::vector<float>",  &gen_eta_);
@@ -737,11 +804,12 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   vfloatCSet_.init(pset, "floats", consumesCollector(), tree_);
   vstringCSet_.init(pset, "strings", consumesCollector(), tree_);
 
+  
   for ( auto& hltPath : pset.getParameter<strings>("metFilterNames") ){
     //    produces<bool >( hltPath );
     metFilterNames_.push_back(std::make_pair("Flag_"+hltPath, hltPath));
   }
-  
+
   
   PSet candPSets = pset.getParameter<PSet>("cands");
   const strings candNames = candPSets.getParameterNamesForType<PSet>();
@@ -965,28 +1033,26 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 
 
   //// Fill Trigger Information
+  //// Fill Trigger Information
   edm::Handle<edm::TriggerResults> triggerBits;
   edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
   edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
 
+
   if (! event.getByToken(triggerBits2_, triggerBits)){
     event.getByToken(triggerBits_, triggerBits);
   }
-
+  
   event.getByToken(triggerObjects_, triggerObjects);
-
-  //const edm::TriggerNames &triggerNames = event.triggerNames(*triggerBits);
-  //AnalysisHelper trigHelper = AnalysisHelper(triggerNames, triggerBits, triggerObjects);
-
-  //event.getByToken(triggerObjects_, triggerObjects);
   event.getByToken(triggerPrescales_, triggerPrescales);
-
 
   const edm::TriggerNames &trigNames = event.triggerNames(*triggerBits);  
 
-  
+  // save filter info                                                                                                                                                            //  const auto trigNames = trigNamesHandle->names();
+  //  for ( int index=0, nTrig=trigNames.size(); index<nTrig; ++index ) {
   for( unsigned int i=0; i<trigNames.size(); ++i ){
     TString tname = TString(trigNames.triggerName(i));
+
     if( (! (trigNames.triggerName(i).find("HLT_DoublePhoton") == 0 || trigNames.triggerName(i).find("HLT_Photon") == 0))
 	 && tname.Contains("Photon")) continue;
     if (trigNames.triggerName(i).find("HLT_Ele") == 0 
@@ -1038,6 +1104,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
       }
     }
   }
+
   std::vector<string> vtrignames_tomatch_muon;
   vtrignames_tomatch_muon.push_back("HLT_IsoMu24_eta2p1_v");
   vtrignames_tomatch_muon.push_back("HLT_Ele25_WPTight_Gsf_v");
@@ -1109,6 +1176,11 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   
   edm::Handle<edm::View<cat::Jet> > jets;
   event.getByToken(jetToken_, jets);
+  
+  
+  edm::Handle<edm::View<cat::FatJet> > fatjets;
+  event.getByToken(fatjetToken_, fatjets);
+
 
   double el_pt_min= 9.;
   double el_eta_max= 3.;
@@ -1130,14 +1202,14 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     if(fabs(el.eta()) > el_eta_max) continue;
     if(el.pt() != el.pt()) continue;
 
-    electrons_electronID_loose.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-loose"));
-    electrons_electronID_medium.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-medium"));
-    electrons_electronID_tight.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-tight"));
-    electrons_electronID_veto.push_back(el.electronID("cutBasedElectronID-Spring15-25ns-V1-standalone-veto"));
-    electrons_electronID_mva_medium.push_back(el.electronID("mvaEleID-Spring15-25ns-nonTrig-V1-wp90"));
-    electrons_electronID_mva_tight.push_back(el.electronID("mvaEleID-Spring15-25ns-nonTrig-V1-wp80"));
-    electrons_electronID_mva_trig_medium.push_back(el.electronID("mvaEleID-Spring15-25ns-Trig-V1-wp90"));
-    electrons_electronID_mva_trig_tight.push_back(el.electronID("mvaEleID-Spring15-25ns-Trig-V1-wp80"));
+    electrons_electronID_loose.push_back(el.electronID("cutBasedElectronID-Summer16-80X-V1-loose"));
+    electrons_electronID_medium.push_back(el.electronID("cutBasedElectronID-Summer16-80X-V1-medium"));
+    electrons_electronID_tight.push_back(el.electronID("cutBasedElectronID-Summer16-80X-V1-tight"));
+    electrons_electronID_veto.push_back(el.electronID("cutBasedElectronID-Summer16-80X-V1-veto"));
+    electrons_electronID_mva_medium.push_back(el.electronID("EleID-Spring16-GeneralPurpose-V1-wp90"));
+    electrons_electronID_mva_tight.push_back(el.electronID("EleID-Spring16-GeneralPurpose-V1-wp80"));
+    electrons_electronID_mva_trig_medium.push_back(el.electronID("EleID-Spring16-GeneralPurpose-V1-wp90"));
+    electrons_electronID_mva_trig_tight.push_back(el.electronID("EleID-Spring16-GeneralPurpose-V1-wp80"));
     electrons_electronID_heep.push_back(el.electronID("heepElectronID-HEEPV60"));
 
     electrons_mcMatched.push_back(el.mcMatched());
@@ -1270,15 +1342,70 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 
 
   }
+  
+  for (auto jt : *fatjets) {
+    if(jt.pt() < j_pt_min) continue;
+    if(fabs(jt.eta()) > j_eta_max) continue;
+
+
+    fatjets_looseJetID.push_back(jt.looseJetID());
+    fatjets_tightJetID.push_back(jt.tightJetID());
+    fatjets_tightLepVetoJetID.push_back(jt.tightLepVetoJetID());
+
+    fatjets_partonFlavour.push_back(jt.partonFlavour());
+    fatjets_hadronFlavour.push_back(jt.hadronFlavour());
+    fatjets_partonPdgId.push_back(jt.partonPdgId());
+    fatjets_vtxNtracks.push_back(jt.vtxNtracks());
+
+    fatjets_pt.push_back(jt.pt());
+    fatjets_eta.push_back(jt.eta());
+    fatjets_phi.push_back(jt.phi());
+    fatjets_m.push_back(jt.mass());
+    fatjets_energy.push_back(jt.energy());
+    fatjets_vtxMass.push_back(jt.vtxMass());
+    fatjets_vtx3DVal.push_back(jt.vtx3DVal());
+    fatjets_vtx3DSig.push_back(jt.vtx3DSig());
+    fatjets_CSVInclV2.push_back(jt.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+    fatjets_iCSVCvsL.push_back(jt.bDiscriminator("inclusiveCandidateSecondaryVerticesCvsL"));
+    fatjets_CCvsLT.push_back(jt.bDiscriminator("pfCombinedCvsLJetTags"));
+    fatjets_CCvsBT.push_back(jt.bDiscriminator("pfCombinedCvsBJetTags"));
+    fatjets_JetProbBJet.push_back(jt.bDiscriminator("pfJetProbabilityBJetTags"));
+    fatjets_CMVAV2.push_back(jt.bDiscriminator("pfCombinedMVAV2BJetTags"));
+    fatjets_chargedEmEnergyFraction.push_back(jt.chargedEmEnergyFraction());
+    fatjets_shiftedEnDown .push_back(jt.shiftedEnDown());
+    fatjets_shiftedEnUp.push_back(jt.shiftedEnUp());
+    fatjets_smearedRes.push_back(jt.smearedRes());
+    fatjets_smearedResDown.push_back(jt.smearedResDown());
+    fatjets_smearedResUp.push_back(jt.smearedResUp());
+    fatjets_PileupJetId.push_back(jt.pileupJetId());
+
+    fatjets_tau1.push_back(jt.tau1());
+    fatjets_tau2.push_back(jt.tau2());
+    fatjets_tau3.push_back(jt.tau3());
+    fatjets_prunedmass.push_back(jt.prunedmass());
+    fatjets_softdropmass.push_back(jt.softdropmass());
+
+    fatjets_puppi_pt.push_back(jt.puppi_pt());
+    fatjets_puppi_eta.push_back(jt.puppi_eta());
+    fatjets_puppi_phi.push_back(jt.puppi_phi());
+    fatjets_puppi_m.push_back(jt.puppi_mass());
+    fatjets_puppi_tau1.push_back(jt.puppi_tau1());
+    fatjets_puppi_tau2.push_back(jt.puppi_tau2());
+    fatjets_puppi_tau3.push_back(jt.puppi_tau3());
+
+
+  }
+
 
   edm::Handle<cat::METCollection> mets;         
   event.getByToken(metToken_, mets);
 
-
+  
   double px_shift_muon_up(0.), px_shift_muon_down(0.), py_shift_muon_up(0.), py_shift_muon_down(0.), px_muon(0.), py_muon(0.), px_electron(0.), py_electron(0.) ;
   double  px_shift_electron_up(0.), px_shift_electron_down(0.), py_shift_electron_up(0.), py_shift_electron_down(0.);
   for (auto mu : *muons) {
     std::string mutrig= "SKTriggerMatching[muon]:";
+
     for(unsigned int i =0; i< vtrignames_tomatch_muon.size(); i++){
       for (pat::TriggerObjectStandAlone trigObj : *triggerObjects) { 
 	trigObj.unpackPathNames(trigNames);
@@ -1316,7 +1443,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
 	  if ( pathNamesAll[h].find(vtrignames_tomatch_electron.at(i)) == 0 ){
 	    if (trigObj.hasPathName( pathNamesAll[h], true, true )){
-	      
+	            
 	      if ( reco::deltaR(trigObj, el) < 0.1){
 		eltrig+= vtrignames_tomatch_electron.at(i);
 	      }
@@ -1376,7 +1503,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
       }
     }
   }
-  
+
 
   ///// Fill GENParticle Info
   if(!event.isRealData()){
@@ -1729,6 +1856,52 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   jets_smearedResDown.clear();
   jets_smearedResUp.clear();
   jets_PileupJetId.clear();
+
+
+  fatjets_looseJetID.clear();
+  fatjets_tightJetID.clear();
+  fatjets_tightLepVetoJetID.clear();
+
+  fatjets_partonFlavour.clear();
+  fatjets_hadronFlavour.clear();
+  fatjets_partonPdgId.clear();
+  fatjets_vtxNtracks.clear();
+
+  fatjets_pt.clear();
+  fatjets_eta.clear();
+  fatjets_phi.clear();
+  fatjets_m.clear();
+  fatjets_energy.clear();
+  fatjets_vtxMass.clear();
+  fatjets_vtx3DVal.clear();
+  fatjets_vtx3DSig.clear();
+  fatjets_CSVInclV2.clear();
+  fatjets_iCSVCvsL.clear();
+  fatjets_CCvsLT.clear();
+  fatjets_CCvsBT.clear();
+  fatjets_JetProbBJet.clear();
+  fatjets_CMVAV2.clear();
+  fatjets_chargedEmEnergyFraction.clear();
+  fatjets_shiftedEnDown .clear();
+  fatjets_shiftedEnUp.clear();
+  fatjets_smearedRes.clear();
+  fatjets_smearedResDown.clear();
+  fatjets_smearedResUp.clear();
+  fatjets_PileupJetId.clear();
+
+  fatjets_tau1.clear();
+  fatjets_tau2.clear();
+  fatjets_tau3.clear();
+  fatjets_prunedmass.clear();
+  fatjets_softdropmass.clear();
+
+  fatjets_puppi_pt.clear();
+  fatjets_puppi_eta.clear();
+  fatjets_puppi_phi.clear();
+  fatjets_puppi_m.clear();
+  fatjets_puppi_tau1.clear();
+  fatjets_puppi_tau2.clear();
+  fatjets_puppi_tau3.clear();
 
   muon_isTrackerMuon.clear();
   muon_isGlobalMuon.clear();
