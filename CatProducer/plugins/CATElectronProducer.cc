@@ -59,8 +59,7 @@ namespace cat {
     std::vector<NameTag> elecIDSrcs_;
     std::vector<edm::EDGetTokenT<edm::ValueMap<bool> > > elecIDTokens_;
     const std::vector<std::string> electronIDs_;
-    const std::vector<std::string> electronIDs_alt_;
-    
+
   };
 
 } // namespace
@@ -72,9 +71,7 @@ cat::CATElectronProducer::CATElectronProducer(const edm::ParameterSet & iConfig)
   mcLabel_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("mcLabel"))),
   beamLineSrc_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"))),
   rhoLabel_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoLabel"))),
-  electronIDs_(iConfig.getParameter<std::vector<std::string> >("electronIDs")),
-  electronIDs_alt_(iConfig.getParameter<std::vector<std::string> >("electronIDs_alt"))
-  
+  electronIDs_(iConfig.getParameter<std::vector<std::string> >("electronIDs"))
 {
   produces<std::vector<cat::Electron> >();
   if (iConfig.existsAs<edm::ParameterSet>("electronIDSources")) {
@@ -185,16 +182,8 @@ cat::CATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     }
     else if (electronIDs_.size()){// for selected IDs in miniAOD
       for(unsigned int i = 0; i < electronIDs_.size(); i++){
-
-	pat::Electron::IdPair pid;
-	if (aPatElectron.isElectronIDAvailable(electronIDs_.at(i))){
-	  pid = std::make_pair(electronIDs_.at(i), aPatElectron.electronID(electronIDs_.at(i)));
-	}
-	else if (aPatElectron.isElectronIDAvailable(electronIDs_alt_.at(i))){
-	  pid = std::make_pair(electronIDs_.at(i), aPatElectron.electronID(electronIDs_alt_.at(i)));
-
-	}
-	aElectron.setElectronID(pid);
+        pat::Electron::IdPair pid(electronIDs_.at(i), aPatElectron.electronID(electronIDs_.at(i)));
+        aElectron.setElectronID(pid);
       }
     }
     else {
