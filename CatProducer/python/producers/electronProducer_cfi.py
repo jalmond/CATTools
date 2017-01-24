@@ -10,4 +10,5 @@ catElectrons = cms.EDProducer("CATElectronProducer",
     rhoLabel = cms.InputTag("fixedGridRhoAll"),
     electronIDSources = cms.PSet(),
     electronIDs = cms.vstring(), ## Defined in CatProducer/python/patTools/egmVersionedID_cff.py
+
 )

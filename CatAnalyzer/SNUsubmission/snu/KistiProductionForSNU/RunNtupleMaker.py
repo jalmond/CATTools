@@ -334,6 +334,12 @@ validation_sampledir=["ttH_nonbb", "ttbb",
                       "QCD_Pt-800to1000_MuEnriched","QCD_Pt-80to120_EMEnriched","QCD_Pt-80to120_MuEnriched",
                       "WGtoLNuG","ZGto2LG","WGToLNuEE","WGToLNuMM"]
 
+validation_sampledir=["DYJets" , "DYJets_10to50","TT_powheg", "TTLJ_powheg","TTLL_powheg","WW","WZ" "ZZ", "WWW","WZZ","WWZ","ZZZ", "SingleTbar_t","SingleTbar_tW",  "SingleTbar_tW_noHadron","SingleTop_tW_noHadron","ttH_nonbb", "ttH_bb","WJets" ]
+
+#validation_sampledir=["WJets",  "WJets_MG", "TTJets_aMC" , "WZTo3LNu_powheg", "WpWpEWK","WpWpQCD",
+
+validation_sampledir=["ZZTo4L_powheg", "ttW","ttZ" ,"GG_HToMuMu","VBF_HToMuMu", "QCD_Pt-1000toInf_MuEnriched","QCD_Pt-120to170_EMEnriched","QCD_Pt-120to170_MuEnriched","QCD_Pt-15to20_EMEnriched","QCD_Pt-15to20_MuEnriched",    "QCD_Pt-170to300_EMEnriched","QCD_Pt-170to300_MuEnriched","QCD_Pt-20to30_EMEnriched","QCD_Pt-20to30_MuEnriched","QCD_Pt-300to470_MuEnriched","QCD_Pt-300toInf_EMEnriched",     "QCD_Pt-30to50_EMEnriched","QCD_Pt-30to50_MuEnriched","QCD_Pt-470to600_MuEnriched","QCD_Pt-50to80_EMEnriched","QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched", "QCD_Pt-800to1000_MuEnriched","QCD_Pt-80to120_EMEnriched","QCD_Pt-80to120_MuEnriched"]
+
 
 runSYSTsamples=False
 if runSYSTsamples:
@@ -398,16 +404,19 @@ for i in sampledir:
     else:
         njob=100
     datasetpath = "/cms/scratch/SNU/datasets_" +version + "/dataset_" + i + ".txt"
-
     
     datasetfile = open(datasetpath, 'r')
+    nrootfiles=0
     for line in datasetfile:
+        if ".root" in line:
+            nrootfiles=nrootfiles+1
         if "DataSetName" in line:
             splitline  = line.split()
             datasetname= splitline[3].replace("/"," ")
             split_datasetname = datasetname.split()
             dataset_tag =split_datasetname[0]
-    
+    if nrootfiles ==0:
+        continue
 
     runfullgen = True
     for j in fullgen:
@@ -688,15 +697,15 @@ for i in sampledir:
                     njobs_submitted = int(linesplit[0])
         print "Number of subjobs submitted = " + str(njobs_submitted)
     
-        if int(njobs_submitted) > 700:
-            print "nsubjobs > 700" 
-            print "waiting 1 minute before checking if #subjobs  < 700. If this is true will submit more."
+        if int(njobs_submitted) > 400:
+            print "nsubjobs > 400" 
+            print "waiting 1 minute before checking if #subjobs  < 400. If this is true will submit more."
             time.sleep(60.)
             string_of_failed=CheckFailedJobStatus(string_of_submitted, version,string_of_failed)
             string_of_submitted=CheckJobStatus(string_of_submitted, version)
 
-        if int(njobs_submitted) < 700:
-            print "Number of jobs < 700. Will check if any jobs are finished"
+        if int(njobs_submitted) < 400:
+            print "Number of jobs < 400. Will check if any jobs are finished"
             check_njob_submitted = 1
             string_of_failed=CheckFailedJobStatus(string_of_submitted, version,string_of_failed)
             string_of_submitted=CheckJobStatus(string_of_submitted, version)

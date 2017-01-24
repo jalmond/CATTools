@@ -9,4 +9,5 @@ catPhotons = cms.EDProducer("CATPhotonProducer",
     beamLineSrc = cms.InputTag("offlineBeamSpot"),
     photonIDSources = cms.PSet(),
     photonIDs = cms.vstring(),  ## Defined in CatProducer/python/patTools/egmVersionedID_cff.py
+
 )

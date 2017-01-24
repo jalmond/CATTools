@@ -73,6 +73,7 @@ def CheckJobStatus(submitted_list, v):
         period_list =string.replace(i,"_", " ")
         period_split_list = period_list.split()
         
+        
         print period_split_list[0]
         print period_split_list[1]
 
@@ -119,7 +120,7 @@ def CheckJobStatus(submitted_list, v):
 
         if FailedJobs == True:
             print "Quiting script cos a job failed"
-            quit()
+            #quit()
 
   
         if int(nfinishedjobs) == int(njobs_x):
@@ -131,27 +132,39 @@ def CheckJobStatus(submitted_list, v):
                 print "ssh " + username_snu  + "@147.47.242.67  mkdir /data4/DATA/FlatCatuples/Data/" + v + "/" + period_split_list[0]  
                 os.system("ssh " +  username_snu +"@147.47.242.67 mkdir /data4/DATA/FlatCatuples/Data/" + str(v))
                 os.system("ssh " + username_snu  + "@147.47.242.67 mkdir /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0])
-                os.system("ssh " + username_snu  + "@147.47.242.67 rm -r /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1])
-                os.system("ssh " + username_snu  + "@147.47.242.67 mkdir /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1])
+                if period_split_list[1] == "H":
+                    #os.system("ssh " + username_snu  + "@147.47.242.67 rm -r /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2])
+                    os.system("ssh " + username_snu  + "@147.47.242.67 mkdir /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2])
 
 
-                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
+                    print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2]
+                    
+                    os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2] )
+                else:
+                    #os.system("ssh " + username_snu  + "@147.47.242.67 rm -r /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1])
+                    os.system("ssh " + username_snu  + "@147.47.242.67 mkdir /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1])
 
-                os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] )
-
-
-
+                    print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
+                    os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1])
             if copy_cms1:   
                 print "ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/Data/" + v + "/" + period_split_list[0]
                 os.system("ssh " +  username_snu +"@147.47.242.42 mkdir /data2/DATA/cattoflat/Data/" + str(v))
                 os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0])
-                os.system("ssh " + username_snu  + "@147.47.242.42 rm -r /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
-                os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
-                
 
-                print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
-                
-                os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] )
+                if period_split_list[1] == "H":
+                    #os.system("ssh " + username_snu  + "@147.47.242.42 rm -r /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2])
+                    os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2])
+                    print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2]
+                    
+                    os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] +"_"+period_split_list[2])
+
+                else:
+                    #os.system("ssh " + username_snu  + "@147.47.242.42 rm -r /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
+                    os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
+                    
+                    print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
+
+                    os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] )
 
             print "submitted_list = " + submitted_list + " is set to: "
             new_submitted_list = string.replace(submitted_list, i+"!" , "")
@@ -171,7 +184,7 @@ ALLSamples= False
 periods = []
 if len(datasampledir) == 0:
     ALLSamples=True
-    periods = ["B" , "C", "D", "E","F","G"]
+    periods = ["B" , "C", "D", "E","F","G","H_v2","H_v3"]
 else:
     periods = data_periods
     
@@ -238,8 +251,10 @@ if connected_cms3 == False:
 
 ## Make a list of samples to process
 
-sampledir = ["DoubleMuon", "SingleMuon", "MuonEG", "DoubleEG", "SingleElectron"]
-periods = ["B","C", "D","E","F","G"]
+sampledir = ["SingleMuon", "MuonEG", "DoubleEG", "SingleElectron"]
+sampledir = ["DoubleMuon"]
+periods = ["B","C", "D","E","F","G","H_v2","H_v3"]
+periods = ["H_v2"]
 
 
 if not ALLSamples == True:
@@ -292,94 +307,14 @@ for i in sampledir:
                 datasetname= splitline[3].replace("/"," ")
                 split_datasetname = datasetname.split()
                 dataset_tag =split_datasetname[0]
-
+        datasetfile.close()
         samples_processed=samples_processed+1 
         if samples_processed < skip_first+1:
             continue
 
 
-        os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output + " > " + kisti_output+ "/"+ output + "_getversion.txt")
-        os.system("sed -r 's/^.{43}//' " +  kisti_output+ "/"+output + "_getversion.txt  > " +kisti_output+ "/"+output + "_getversion_skim.txt")
-
-        fr_1end = open(kisti_output+ "/"+output+"_getversion_skim.txt",'r')
-        versionpath =""
-        iline_version=0
-        period_tag = "2016" + period
-
-        for linerp in fr_1end:
-            if version in linerp:
-                if period_tag in linerp:
-                    if rereco:
-                        if rereco_tag in linerp:
-                            if iline_version < 1:
-                                s = linerp.replace("/", " ")
-                                splitline  = s.split()
-    
-                                versionpath = splitline[5]
-                            iline_version= iline_version+1
-                    else:
-                        if not rereco_tag in linerp:
-                            if iline_version < 1:
-                                s = linerp.replace("/", " ")
-                                splitline  = s.split()
-                                versionpath = splitline[5]
-                                iline_version= iline_version+1
-        fr_1end.close()
-
-        os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output + "/" + versionpath + " > " + kisti_output+ "/"+ output + ".txt")
-        print "xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output + "/" + versionpath + " > " + kisti_output+ "/"+ output + ".txt"
-        os.system("sed -r 's/^.{43}//' " +  kisti_output+ "/"+output + ".txt  > " +kisti_output+ "/"+output + "_skim.txt")
-        os.system("cut -d/ -f 8 " + kisti_output+ "/"+output  + "_skim.txt  > " + kisti_output+ "/"+output + "_end.txt")
-
-
-        ## Get the tag of the production: using the newest tag of version, it is automatic                                                                     
-        fr_end = open(kisti_output+ "/"+output+"_end.txt",'r')
-        tagpath =""
-        iline=0
-        newest_check = 0
-        check_date=0
-        check_yr=0
-        check_m=0
-        check_d=0
-        check_tag=0
-        sample_exists=0
-        for linerp in fr_end:
-            tag=linerp.strip()
-            if "_" in tag:
-                sample_exists=1
-                rmstr = len(tag) - 7
-                split_tag_date = tag[:rmstr]
-                split_tag_tag = tag[7:]
-                split_tag_date_yr = split_tag_date[:4]
-                split_tag_date_m = split_tag_date[2:2]
-                split_tag_date_d = split_tag_date[4:]
-                if split_tag_date_yr >= check_yr:
-                    if split_tag_date_yr > check_yr:
-                        check_tag=0
-                    if split_tag_date_m >= check_m:
-                        if split_tag_date_m > check_m:
-                            check_tag=0
-                        if split_tag_date_d >= check_d:
-                            if split_tag_date_d > check_d:
-                                check_tag=0
-                            if split_tag_tag > check_tag:
-                                tagpath = linerp.strip()
-                                check_yr=split_tag_date_yr
-                                check_m=split_tag_date_m
-                                check_d=split_tag_date_d
-                                check_tag=split_tag_tag
-        fr_end.close()
-        print "tagpath = " + tagpath
-
-    
-
-        if sample_exists == 0:
-            continue
-        os.system("xrd cms-xrdr.sdfarm.kr ls /xrd/store/group/CAT/" + output  + "/" + versionpath + "/" + tagpath + "/0000/ > " + kisti_output+ "/"+output + "_tmpfull.txt")
-        os.system("sed -r 's/^.{43}//' " +  kisti_output+ "/"+output  + "_tmpfull.txt  > " +kisti_output+ "/"+output  + "_full.txt")
-        
         ## Set the number of jobs and files per job                                                                                                            
-        fr = open(kisti_output+ "/"+output +"_full.txt",'r')
+        fr = open(datasetpath,'r')
 
         count=0
         nfilesperjob=0

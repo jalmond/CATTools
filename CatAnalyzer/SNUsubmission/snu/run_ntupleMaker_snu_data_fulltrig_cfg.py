@@ -13,7 +13,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
-        "root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v7-6-6_Run2015D-16Dec2015-v1/160625_133653/0000/catTuple_45.root"
+        "root://cms-xrdr.sdfarm.kr:1094////xrd/store/group/CAT/DoubleEG/v8-0-3_Run2016D-23Sep2016-v1/161204_005041/0001/catTuple_1111.root",
+
       )
 )
 
@@ -26,10 +27,11 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     eventCounters = cms.vstring("nEventsTotal"), #"nEventsTotal", "nEventsClean", "nEventsPAT"),
     genjet = cms.InputTag("slimmedGenJets"),
     genLabel      = cms.InputTag("prunedGenParticles"),
-    triggerBits = cms.InputTag("TriggerResults::HLT"),
-    triggerBits2 = cms.InputTag("TriggerResults::HLT2"),
+    triggerBits = cms.InputTag("TriggerResults","","HLT"),
+    triggerBits2 = cms.InputTag("TriggerResults","","HLT2"),
     triggerObjects = cms.InputTag("catTrigger"),
     triggerPrescales = cms.InputTag("patTrigger"),
+    fatjets = cms.InputTag("catFatJets"),
     muons = cms.InputTag("catMuons"),
     electrons = cms.InputTag("catElectrons"),
     jets = cms.InputTag("catJets"),     
@@ -58,6 +60,10 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
                                 
                                 # Fill direct from Cattuple                                
                                 
+   bool = cms.PSet(
+        BadChargedCandidateFilter =  cms.InputTag("BadChargedCandidateFilter"),
+        BadPFMuonFilter=  cms.InputTag("BadPFMuonFilter"),
+        ),
     int = cms.PSet(
         nGoodPV           =  cms.InputTag("catVertex"   , "nGoodPV"),
         nPV               =  cms.InputTag("catVertex"   , "nPV"    ),

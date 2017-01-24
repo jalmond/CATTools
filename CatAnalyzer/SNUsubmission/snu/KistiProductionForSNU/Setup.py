@@ -6,8 +6,8 @@ import os,sys
 ##########################################                                                                                                                                                                                                    
 
 ##### Set RunALLSamples=True true to simply add ALL samples to production list                                                                                                                                        
-RunALLSamples=False
-PrivateSample=True
+RunALLSamples=True
+PrivateSample=False
 
 runSYSTsamples=False
 
@@ -23,7 +23,7 @@ copy_cms1=True
 KeepWorkDir=False
 
 #### WHAT VERSION OF CATUPLES ARE YOU RUNNING 
-version = "v8-0-2"
+version = "v8-0-3"
 
 
 #### For data only:
@@ -65,7 +65,7 @@ username_snu=os.getenv("USER")
 ##########################################
 host=os.getenv("HOSTNAME")
 k_user=os.getenv("USER") 
-latest_version="v8-0-2"
+latest_version="v8-0-3"
 
 if version != latest_version:
     update = raw_input("You requested to run on old version of catuples. " + latest_version + " is the latest version while you are running on " + version + ". To continue type Y")

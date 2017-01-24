@@ -41,6 +41,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     muons = cms.InputTag("catMuons"),
     electrons = cms.InputTag("catElectrons"),                                
     jets = cms.InputTag("catJets"),                                
+    fatjets = cms.InputTag("catFatJets"),                                
     vertices = cms.InputTag("catVertex"),
     met = cms.InputTag("catMETs"),
     genWeightLabel = cms.InputTag("genWeight"),
@@ -69,6 +70,11 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
         nTrueInteraction  =  cms.InputTag(pileupWeight, "nTrueInteraction" ),
         
     ),
+ bool  = cms.PSet(
+         BadChargedCandidateFilter =  cms.InputTag("BadChargedCandidateFilter"),
+         BadPFMuonFilter =  cms.InputTag("BadPFMuonFilter"),
+ ),
+
     float = cms.PSet(
   puWeightGold   = cms.InputTag(pileupWeight),
         puWeightGoldUp = cms.InputTag(pileupWeight, "up"),

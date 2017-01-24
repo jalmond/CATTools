@@ -13,7 +13,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
-        "root://cms-xrdr.sdfarm.kr:1094////xrootd/store/group/CAT/SingleMuon/v8-0-3_Run2016C-23Sep2016-v1/161204_002459/0000/catTuple_122.root"
+        "root://cms-xrdr.sdfarm.kr:1094////xrd/store/group/CAT/DoubleEG/v8-0-3_Run2016D-23Sep2016-v1/161204_005041/0001/catTuple_1111.root",
       )
 )
 
@@ -33,6 +33,7 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     muons = cms.InputTag("catMuons"),
     electrons = cms.InputTag("catElectrons"),
     jets = cms.InputTag("catJets"),     
+    fatjets = cms.InputTag("catFatJets"),     
     vertices = cms.InputTag("catVertex"),
     met = cms.InputTag("catMETs"),
     runFullTrig = cms.bool(False),
@@ -43,19 +44,19 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
     scaleupweights = cms.InputTag("flatGenWeights","scaleup"),
     scaledownweights = cms.InputTag("flatGenWeights","scaledown"),
 
-    allweights= cms.bool(False),                                
     metFilterBitsPAT = cms.InputTag("TriggerResults","","PAT"),                                                                                 
     metFilterBitsRECO = cms.InputTag("TriggerResults","","RECO"),                                                                                
     metFilterNames = cms.vstring(
         "HBHENoiseFilter",
-        "HBHENoiseIsoFilter",
-        "EcalDeadCellTriggerPrimitiveFilter",
-        "CSCTightHaloFilter",
-        "eeBadScFilter",
-        "globalTightHalo2016Filter",
-        "goodVertices",
-),
-                                
+         "HBHENoiseIsoFilter",
+         "EcalDeadCellTriggerPrimitiveFilter",
+         "CSCTightHaloFilter",
+         "eeBadScFilter",
+         "globalTightHalo2016Filter",
+         "goodVertices",
+         ),
+
+    allweights= cms.bool(False),                                
                                 # Fill direct from Cattuple                                
                                 
     int = cms.PSet(
@@ -63,6 +64,10 @@ process.ntuple = cms.EDAnalyzer("GenericNtupleMakerSNU",
         nPV               =  cms.InputTag("catVertex"   , "nPV"    ),
         nTrueInteraction  =  cms.InputTag("pileupWeight", "nTrueInteraction" ),
     ),
+    bool  = cms.PSet(
+        BadChargedCandidateFilter =  cms.InputTag("BadChargedCandidateFilter"),
+        BadPFMuonFilter =  cms.InputTag("BadPFMuonFilter"),
+),
     float = cms.PSet( ),
 
     floats = cms.PSet( ),
