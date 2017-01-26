@@ -13,7 +13,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
-        "root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/v8-0-2_RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14_ext1-v1/161104_203747/0000/catTuple_1.root"
+        #"root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/v8-0-2_RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14_ext1-v1/161104_203747/0000/catTuple_1.root"
+        "root://cluster142.knu.ac.kr//store/user/jalmond/MajoranaNeutrinoToMupMup_Schannel_M-60/CMSSW_8_0_21_CAT/170124_040002/0000/catTuple_1.root"
 
       )
 )
