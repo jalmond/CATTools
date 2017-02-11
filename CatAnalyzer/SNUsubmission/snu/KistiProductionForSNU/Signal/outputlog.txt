@@ -1,0 +1,10 @@
+string_of_submitted MajoranaNeutrinoToMupEm_Schannel_M-40!
+After job check: string_of_submitted MajoranaNeutrinoToMupEm_Schannel_M-40!
+string_of_submitted MajoranaNeutrinoToMupEm_Schannel_M-40!
+After job check: string_of_submitted 
+ished. Copying to SNU
+ssh jalmond@147.47.242.42 mkdir /data2/DATA/cattoflat/MC/v8-0-4/MajoranaNeutrinoToMupEm_Schannel_M-40
+scp SNU_v8-0-4_MajoranaNeutrinoToMupEm_Schannel_M-40/*.root  jalmond@147.47.242.42:/data2/DATA/cattoflat/MC/v8-0-4/MajoranaNeutrinoToMupEm_Schannel_M-40
+submitted_list = MajoranaNeutrinoToMupEm_Schannel_M-40! is ammended to: 
+
+Deleting directory SNU_v8-0-4_MajoranaNeutrinoToMupEm_Schannel_M-40/

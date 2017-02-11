@@ -13,6 +13,9 @@ def submitjob(requestName, dataset, globalTag, lumiMask, submit):
     if datatype == "MINIAOD" or datatype == "MINIAODSIM" :
         isMiniAOD="True"
 
+    if "MiniAOD" in dataset and datatype == "USER":
+        isMiniAOD="True"
+        
     if datatype == "AOD" or datatype == "MINIAOD" :
         isMC = False        
         if globalTag == None:
@@ -66,7 +69,7 @@ def submitjob(requestName, dataset, globalTag, lumiMask, submit):
     os.system(sendjob)
     #lines = open("crab.py")
     #print lines.read()
-    os.remove("crab.py")
+    #os.remove("crab.py")
     print '^'*80
 
     time.sleep(5)

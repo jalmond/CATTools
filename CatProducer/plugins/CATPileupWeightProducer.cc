@@ -31,6 +31,9 @@ public:
 private:
   edm::LumiReWeighting lumiWeights_, lumiWeightsUp_, lumiWeightsDn_;
 
+  edm::LumiReWeighting lumiWeights_periodB_, lumiWeights_periodC_, lumiWeights_periodD_, lumiWeights_periodE_,lumiWeights_periodF_,lumiWeights_periodG_,lumiWeights_periodH_;
+
+
   enum class WeightingMethod { Standard, RedoWeight, NVertex };
   WeightingMethod weightingMethod_;
 
@@ -41,10 +44,14 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 
   edm::EDGetTokenT<int> nTrueIntrToken_;
-};
 
+  bool doPeriodWeights_;
+};
 CATPileupWeightProducer::CATPileupWeightProducer(const edm::ParameterSet& pset)
 {
+  
+  doPeriodWeights_ = pset.getParameter<bool>("doPeriodWeights");
+
   const string methodName = pset.getParameter<string>("weightingMethod");
   if      ( methodName == "Standard" ) weightingMethod_ = WeightingMethod::Standard;
   else if ( methodName == "RedoWeight" ) weightingMethod_ = WeightingMethod::RedoWeight;
@@ -76,30 +83,82 @@ CATPileupWeightProducer::CATPileupWeightProducer(const edm::ParameterSet& pset)
     std::vector<double> pileupRD = pset.getParameter<std::vector<double> >("pileupRD");
     std::vector<double> pileupUp = pset.getParameter<std::vector<double> >("pileupUp");
     std::vector<double> pileupDn = pset.getParameter<std::vector<double> >("pileupDn");
+
+    std::vector<double> pileupRD_B = pset.getParameter<std::vector<double> >("pileupRD_B");
+    std::vector<double> pileupRD_C = pset.getParameter<std::vector<double> >("pileupRD_C");
+    std::vector<double> pileupRD_D = pset.getParameter<std::vector<double> >("pileupRD_D");
+    std::vector<double> pileupRD_E = pset.getParameter<std::vector<double> >("pileupRD_E");
+    std::vector<double> pileupRD_F = pset.getParameter<std::vector<double> >("pileupRD_F");
+    std::vector<double> pileupRD_G = pset.getParameter<std::vector<double> >("pileupRD_G");
+    std::vector<double> pileupRD_H = pset.getParameter<std::vector<double> >("pileupRD_H");
+
     const double sumWMC = std::accumulate(pileupMC.begin(), pileupMC.end(), 0.);
     const double sumWRD = std::accumulate(pileupRD.begin(), pileupRD.end(), 0.);
     const double sumWUp = std::accumulate(pileupUp.begin(), pileupUp.end(), 0.);
     const double sumWDn = std::accumulate(pileupDn.begin(), pileupDn.end(), 0.);
+    
+    const double sumWRD_B = std::accumulate(pileupRD_B.begin(), pileupRD_B.end(), 0.);
+    const double sumWRD_C = std::accumulate(pileupRD_C.begin(), pileupRD_C.end(), 0.);
+    const double sumWRD_D = std::accumulate(pileupRD_D.begin(), pileupRD_D.end(), 0.);
+    const double sumWRD_E = std::accumulate(pileupRD_E.begin(), pileupRD_E.end(), 0.);
+    const double sumWRD_F = std::accumulate(pileupRD_F.begin(), pileupRD_F.end(), 0.);
+    const double sumWRD_G = std::accumulate(pileupRD_G.begin(), pileupRD_G.end(), 0.);
+    const double sumWRD_H = std::accumulate(pileupRD_H.begin(), pileupRD_H.end(), 0.);
+
 
     std::vector<float> pileupMCTmp;
     std::vector<float> pileupRDTmp;
     std::vector<float> pileupUpTmp, pileupDnTmp;
+    std::vector<float> pileupRDTmp_B;
+    std::vector<float> pileupRDTmp_C;
+    std::vector<float> pileupRDTmp_D;
+    std::vector<float> pileupRDTmp_E;
+    std::vector<float> pileupRDTmp_F;
+    std::vector<float> pileupRDTmp_G;
+    std::vector<float> pileupRDTmp_H;
+
     for ( int i=0, n=min(pileupMC.size(), pileupRD.size()); i<n; ++i )
     {
       pileupMCTmp.push_back(pileupMC[i]/sumWMC);
       pileupRDTmp.push_back(pileupRD[i]/sumWRD);
       pileupUpTmp.push_back(pileupUp[i]/sumWUp);
       pileupDnTmp.push_back(pileupDn[i]/sumWDn);
+
+      pileupRDTmp_B.push_back(pileupRD_B[i]/sumWRD_B);
+      pileupRDTmp_C.push_back(pileupRD_C[i]/sumWRD_C);
+      pileupRDTmp_D.push_back(pileupRD_D[i]/sumWRD_D);
+      pileupRDTmp_E.push_back(pileupRD_E[i]/sumWRD_E);
+      pileupRDTmp_F.push_back(pileupRD_F[i]/sumWRD_F);
+      pileupRDTmp_G.push_back(pileupRD_G[i]/sumWRD_G);
+      pileupRDTmp_H.push_back(pileupRD_H[i]/sumWRD_H);
+
+
     }
     lumiWeights_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp);
     lumiWeightsUp_ = edm::LumiReWeighting(pileupMCTmp, pileupUpTmp);
     lumiWeightsDn_ = edm::LumiReWeighting(pileupMCTmp, pileupDnTmp);
+    lumiWeights_periodB_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_B);
+    lumiWeights_periodC_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_C);
+    lumiWeights_periodD_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_D);
+    lumiWeights_periodE_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_E);
+    lumiWeights_periodF_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_F);
+    lumiWeights_periodG_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_G);
+    lumiWeights_periodH_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_H);
   }
 
   produces<int>("nTrueInteraction");
   produces<float>("");
   produces<float>("up");
   produces<float>("dn");
+
+  produces<float>("periodB");
+  produces<float>("periodC");
+  produces<float>("periodD");
+  produces<float>("periodE");
+  produces<float>("periodF");
+  produces<float>("periodG");
+  produces<float>("periodH");
+
 
 }
 
@@ -109,6 +168,15 @@ void CATPileupWeightProducer::produce(edm::Event& event, const edm::EventSetup& 
   std::auto_ptr<float> weight(new float(1.));
   std::auto_ptr<float> weightUp(new float(1.));
   std::auto_ptr<float> weightDn(new float(1.));
+
+  std::auto_ptr<float> weight_B(new float(1.));
+  std::auto_ptr<float> weight_C(new float(1.));
+  std::auto_ptr<float> weight_D(new float(1.));
+  std::auto_ptr<float> weight_E(new float(1.));
+  std::auto_ptr<float> weight_F(new float(1.));
+  std::auto_ptr<float> weight_G(new float(1.));
+  std::auto_ptr<float> weight_H(new float(1.));
+
 
   if ( !event.isRealData() ){
     if ( weightingMethod_ == WeightingMethod::NVertex) {
@@ -147,6 +215,15 @@ void CATPileupWeightProducer::produce(edm::Event& event, const edm::EventSetup& 
         *weight   = lumiWeights_.weight(*nTrueIntr);
         *weightUp = lumiWeightsUp_.weight(*nTrueIntr);
         *weightDn = lumiWeightsDn_.weight(*nTrueIntr);
+
+	*weight_B   = lumiWeights_periodB_.weight(*nTrueIntr);
+	*weight_C   = lumiWeights_periodC_.weight(*nTrueIntr);
+	*weight_D   = lumiWeights_periodD_.weight(*nTrueIntr);
+	*weight_E   = lumiWeights_periodE_.weight(*nTrueIntr);
+	*weight_F   = lumiWeights_periodF_.weight(*nTrueIntr);
+	*weight_G   = lumiWeights_periodG_.weight(*nTrueIntr);
+	*weight_H   = lumiWeights_periodH_.weight(*nTrueIntr);
+
       }
     }
   }
@@ -155,6 +232,19 @@ void CATPileupWeightProducer::produce(edm::Event& event, const edm::EventSetup& 
   event.put(weight  , "");
   event.put(weightUp, "up");
   event.put(weightDn, "dn");
+
+
+  
+  if(doPeriodWeights_){
+    event.put(weight_B  , "periodB");
+    event.put(weight_C  , "periodC");
+    event.put(weight_D  , "periodD");
+    event.put(weight_E  , "periodE");
+    event.put(weight_F  , "periodF");
+    event.put(weight_G  , "periodG");
+    event.put(weight_H  , "periodH");
+  }
 }
+
 
 DEFINE_FWK_MODULE(CATPileupWeightProducer);
