@@ -8,7 +8,6 @@ import string
 from CheckDatasetFile import *
 
 
-
 if os.path.exists("outputlog.txt"):
     os.system("rm outputlog.txt")
 

@@ -6,8 +6,8 @@ import os,sys
 ##########################################                                                                                                                                                                                                    
 
 ##### Set RunALLSamples=True true to simply add ALL samples to production list                                                                                                                                        
-RunALLSamples=False
-PrivateSample=True
+RunALLSamples=True
+PrivateSample=False
 
 runSYSTsamples=False
 
@@ -48,7 +48,7 @@ if TChannel:
             mcsampledir.append("HNTChannel_"+lch +"_"+mass)
 
 
-PrivateSChannel=True
+PrivateSChannel=False
 if PrivateSChannel:
     mcsampledir=[]
     hn_mass=[ "40", "50" , "60", "100", "200","500", "1100","1500" ]
@@ -59,6 +59,17 @@ if PrivateSChannel:
     for lch in lep_channel:
         for mass in hn_mass:
             mcsampledir.append("HN"+lch +"_"+mass)
+
+OfficialSChannel=True
+if OfficialSChannel:
+    mcsampledir=[]
+    lep_channel = ["EpMup", "EpEp", "MupMup", "MupEp", "EmMum", "EmEm", "MumMum", "MumEm"]
+    
+    hn_mass = [ "50", "100", "200", "500", "1100"]
+    
+    for lch in lep_channel:
+        for mass in hn_mass:
+            mcsampledir.append("HNMoriondLL"+lch +"_"+mass)
 
 
 

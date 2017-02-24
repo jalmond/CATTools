@@ -252,9 +252,9 @@ if connected_cms3 == False:
 ## Make a list of samples to process
 
 sampledir = ["SingleMuon", "MuonEG", "DoubleEG", "SingleElectron"]
-sampledir = ["DoubleMuon"]
+sampledir = ["SingleElectron"]
 periods = ["B","C", "D","E","F","G","H_v2","H_v3"]
-periods = ["H_v2"]
+periods = ["B"]
 
 
 if not ALLSamples == True:

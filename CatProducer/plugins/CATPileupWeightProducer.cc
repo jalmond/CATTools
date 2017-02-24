@@ -84,6 +84,7 @@ CATPileupWeightProducer::CATPileupWeightProducer(const edm::ParameterSet& pset)
     std::vector<double> pileupUp = pset.getParameter<std::vector<double> >("pileupUp");
     std::vector<double> pileupDn = pset.getParameter<std::vector<double> >("pileupDn");
 
+    
     std::vector<double> pileupRD_B = pset.getParameter<std::vector<double> >("pileupRD_B");
     std::vector<double> pileupRD_C = pset.getParameter<std::vector<double> >("pileupRD_C");
     std::vector<double> pileupRD_D = pset.getParameter<std::vector<double> >("pileupRD_D");
@@ -124,26 +125,29 @@ CATPileupWeightProducer::CATPileupWeightProducer(const edm::ParameterSet& pset)
       pileupUpTmp.push_back(pileupUp[i]/sumWUp);
       pileupDnTmp.push_back(pileupDn[i]/sumWDn);
 
-      pileupRDTmp_B.push_back(pileupRD_B[i]/sumWRD_B);
-      pileupRDTmp_C.push_back(pileupRD_C[i]/sumWRD_C);
-      pileupRDTmp_D.push_back(pileupRD_D[i]/sumWRD_D);
-      pileupRDTmp_E.push_back(pileupRD_E[i]/sumWRD_E);
-      pileupRDTmp_F.push_back(pileupRD_F[i]/sumWRD_F);
-      pileupRDTmp_G.push_back(pileupRD_G[i]/sumWRD_G);
-      pileupRDTmp_H.push_back(pileupRD_H[i]/sumWRD_H);
-
+      if(doPeriodWeights_){
+	pileupRDTmp_B.push_back(pileupRD_B[i]/sumWRD_B);
+	pileupRDTmp_C.push_back(pileupRD_C[i]/sumWRD_C);
+	pileupRDTmp_D.push_back(pileupRD_D[i]/sumWRD_D);
+	pileupRDTmp_E.push_back(pileupRD_E[i]/sumWRD_E);
+	pileupRDTmp_F.push_back(pileupRD_F[i]/sumWRD_F);
+	pileupRDTmp_G.push_back(pileupRD_G[i]/sumWRD_G);
+	pileupRDTmp_H.push_back(pileupRD_H[i]/sumWRD_H);
+      }
 
     }
     lumiWeights_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp);
     lumiWeightsUp_ = edm::LumiReWeighting(pileupMCTmp, pileupUpTmp);
     lumiWeightsDn_ = edm::LumiReWeighting(pileupMCTmp, pileupDnTmp);
-    lumiWeights_periodB_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_B);
-    lumiWeights_periodC_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_C);
-    lumiWeights_periodD_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_D);
-    lumiWeights_periodE_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_E);
-    lumiWeights_periodF_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_F);
-    lumiWeights_periodG_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_G);
-    lumiWeights_periodH_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_H);
+    if(doPeriodWeights_){
+      lumiWeights_periodB_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_B);
+      lumiWeights_periodC_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_C);
+      lumiWeights_periodD_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_D);
+      lumiWeights_periodE_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_E);
+      lumiWeights_periodF_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_F);
+      lumiWeights_periodG_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_G);
+      lumiWeights_periodH_ = edm::LumiReWeighting(pileupMCTmp, pileupRDTmp_H);
+    }
   }
 
   produces<int>("nTrueInteraction");
@@ -216,14 +220,15 @@ void CATPileupWeightProducer::produce(edm::Event& event, const edm::EventSetup& 
         *weightUp = lumiWeightsUp_.weight(*nTrueIntr);
         *weightDn = lumiWeightsDn_.weight(*nTrueIntr);
 
-	*weight_B   = lumiWeights_periodB_.weight(*nTrueIntr);
-	*weight_C   = lumiWeights_periodC_.weight(*nTrueIntr);
-	*weight_D   = lumiWeights_periodD_.weight(*nTrueIntr);
-	*weight_E   = lumiWeights_periodE_.weight(*nTrueIntr);
-	*weight_F   = lumiWeights_periodF_.weight(*nTrueIntr);
-	*weight_G   = lumiWeights_periodG_.weight(*nTrueIntr);
-	*weight_H   = lumiWeights_periodH_.weight(*nTrueIntr);
-
+	if(doPeriodWeights_){
+	  *weight_B   = lumiWeights_periodB_.weight(*nTrueIntr);
+	  *weight_C   = lumiWeights_periodC_.weight(*nTrueIntr);
+	  *weight_D   = lumiWeights_periodD_.weight(*nTrueIntr);
+	  *weight_E   = lumiWeights_periodE_.weight(*nTrueIntr);
+	  *weight_F   = lumiWeights_periodF_.weight(*nTrueIntr);
+	  *weight_G   = lumiWeights_periodG_.weight(*nTrueIntr);
+	  *weight_H   = lumiWeights_periodH_.weight(*nTrueIntr);
+	}
       }
     }
   }

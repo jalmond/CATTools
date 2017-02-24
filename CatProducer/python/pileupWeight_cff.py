@@ -21,6 +21,14 @@ pileupWeight = cms.EDProducer("CATPileupWeightProducer",
     pileupInfo = cms.InputTag("slimmedAddPileupInfo"),
     vertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
     nTrueIntr = cms.InputTag("pileupWeight", "nTrueInteraction", "CAT"),
+    doPeriodWeights  = cms.bool(False),
+    pileupRD_B = cms.vdouble(),
+    pileupRD_C = cms.vdouble(),
+    pileupRD_D = cms.vdouble(),
+    pileupRD_E = cms.vdouble(),
+    pileupRD_F = cms.vdouble(),
+    pileupRD_G = cms.vdouble(),
+    pileupRD_H = cms.vdouble(),
     #LuminositySectionsBlockRange = LumiList('LumiMask/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt').getVLuminosityBlockRange()
 )
 

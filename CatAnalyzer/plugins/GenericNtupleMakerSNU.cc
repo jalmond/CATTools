@@ -1079,7 +1079,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	   || tname.Contains("EBOnly_VBF")
 	   || tname.Contains("dEta18"))) {
 	if(runFullTrig){
-	  if( (!(tname.Contains("PF")|| tname.Contains("WP"))) || (tname.Contains("PFJet")|| tname.Contains("WPLoose") )) {
+	  if( (!(tname.Contains("PF")|| tname.Contains("WP"))) || (tname.Contains("PFJet")|| tname.Contains("WPLoose") ||  tname.Contains("WPTight" )) {
 	    vtrignames.push_back(trigNames.triggerName(i));
 	    if(trigHelper.triggerFired(string(tname))){
 	      vtrigps.push_back(1);

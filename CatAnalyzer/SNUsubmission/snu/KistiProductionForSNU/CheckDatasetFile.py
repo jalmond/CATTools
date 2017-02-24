@@ -87,6 +87,7 @@ def CheckDatasetFile(samplename, SendEmail):
 
 
     os.system("scp -r " + datasetpath + " " + k_user+"@147.47.242.42://data1/LQAnalyzer_rootfiles_for_analysis/DataSetLists/datasets_"+version+"/")
+    os.system("ssh " + username_snu  + "@147.47.242.42 chmod -R 777  /data1/LQAnalyzer_rootfiles_for_analysis/DataSetLists/datasets_" +version + "/"+datasetfilename)
 
     if SendEmail:
         mailfile=open("sendmail.sh","w")
