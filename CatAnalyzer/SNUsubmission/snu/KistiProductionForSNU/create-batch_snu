@@ -554,6 +554,9 @@ universe   = vanilla
 arguments  = $(Process)
 requirements = OpSysMajorVer == 6
 requirements = (Machine != "cms-t3-wn1005.sdfarm.kr")
+request_memory = 2944 
+request_disk = 2097000 
+
 log = condor.log
 
 getenv     = True

@@ -133,6 +133,16 @@ double cat::CATElectronProducer::getMiniRelIso(edm::Handle<pat::PackedCandidateC
   
   iso = ( iso_ch  + std::max(0.0, iso_nh + iso_ph - rhoIso*AEff*conesize_correction) )/ ptcl.pt();
 
+  if(rhoIso == -999.){
+    iso = iso_ph + iso_nh;
+    iso -= 0.5*iso_pu;
+    if (iso>0) iso += iso_ch;
+    else iso = iso_ch;
+    
+    iso = iso/ptcl.pt();
+    return iso;
+
+  }
   return iso;
 }
 
@@ -252,6 +262,8 @@ cat::CATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       aElectron.setSmearedScale(aElectron.pt()/unsmearedElecRef->pt());
     }
     aElectron.setIsGsfCtfScPixChargeConsistent( aPatElectron.isGsfCtfScPixChargeConsistent() );
+    aElectron.setIsGsfScPixChargeConsistent( aPatElectron.isGsfScPixChargeConsistent());
+    aElectron.setIsGsfCtfChargeConsistent( aPatElectron.isGsfCtfChargeConsistent());
     aElectron.setIsEB( aPatElectron.isEB() );
 
     aElectron.setChargedHadronIso04( aPatElectron.chargedHadronIso() );
@@ -285,7 +297,8 @@ cat::CATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     double nhIso03 = aElectron.neutralHadronIso(0.3);
     double phIso03 = aElectron.photonIso(0.3);
     aElectron.setrelIso(0.3, chIso03, nhIso03, phIso03, elEffArea03, rhoIso, ecalpt);
-    aElectron.setMiniRelIso(getMiniRelIso( pfcands, aElectron.p4(), 0.05, 0.2, 10., rhoIso,elEffArea03));
+    aElectron.setMiniRelIsoBeta(getMiniRelIso( pfcands, aElectron.p4(), 0.05, 0.2, 10., rhoIso,elEffArea03));
+    aElectron.setMiniRelIsoRho(getMiniRelIso( pfcands, aElectron.p4(), 0.05, 0.2, 10., -999.,-999.));
 
 
     aElectron.setscEta( aPatElectron.superCluster()->eta());
@@ -321,16 +334,9 @@ cat::CATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     aElectron.setVertex(Point(theTrack->vx(),theTrack->vy(),theTrack->vz()));
 
 
-
-    TrajectoryStateOnSurface eleTSOS;
-    reco::TransientTrack eletranstrack = trackBuilder->build(theTrack);
-    eleTSOS = IPTools::transverseExtrapolate(eletranstrack.impactPointState(), pVertex, eletranstrack.field());
-    if (eleTSOS.isValid()) {
-      std::pair<bool, Measurement1D>     eleIPpair = IPTools::signedTransverseImpactParameter(eletranstrack, eleTSOS.globalDirection(), pv);
-      
-      float eleSignificanceIP = eleIPpair.second.significance();
-      aElectron.setIpSignficance(eleSignificanceIP);
-    }
+    
+    aElectron.setIp3DSignficance(aPatElectron.dB(pat::Electron::PV3D)/aPatElectron.edB(pat::Electron::PV3D) );
+    aElectron.setIp2DSignficance(aPatElectron.dB(pat::Electron::PV2D)/aPatElectron.edB(pat::Electron::PV2D) );
 
     
     float eoverp = -999.;

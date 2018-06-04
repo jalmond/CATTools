@@ -23,14 +23,14 @@ copy_cms1=True
 KeepWorkDir=False
 
 #### WHAT VERSION OF CATUPLES ARE YOU RUNNING 
-version = "v8-0-6"
+version = "v8-0-7"
 
 
 #### For data only:
 ###### Set periods to be processed. IF datasampledir is empty then all periods are automatically ran
-data_periods = ["C" ]
+data_periods = [ ]
 ###### this overwrites sampledir in Run*data*.py (if this is empty ALL datasets are run
-datasampledir = ["DoubleMuon"]
+datasampledir = []
 
                 
 #### For MC only
@@ -105,7 +105,7 @@ username_snu=os.getenv("USER")
 ##########################################
 host=os.getenv("HOSTNAME")
 k_user=os.getenv("USER") 
-latest_version="v8-0-6"
+latest_version="v8-0-7"
 
 if version != latest_version:
     update = raw_input("You requested to run on old version of catuples. " + latest_version + " is the latest version while you are running on " + version + ". To continue type Y")

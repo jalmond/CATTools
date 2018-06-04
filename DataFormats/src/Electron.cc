@@ -11,16 +11,25 @@ Electron::Electron(const reco::LeafCandidate & aElectron) :
   smearedScale_(1),
   relIso03_(0),
   relIso04_(0),
-  ipsig_(0),
+  ip2Dsig_(0),
+  ip3Dsig_(0),
   scEta_(0),
   passConversionVeto_(false),
   isGsfCtfScPixChargeConsistent_(false),
+  isGsfScPixChargeConsistent_(false),
+  isGsfCtfChargeConsistent_(false),
   isEB_(false),
   snuID_(0),
   nhitsmiss_(-1),
   isTrigMVAValid_(false),
   mva_(-999.),
-  zzmva_(-999.)
+  zzmva_(-999.),
+  ecal_energy_(-999.),
+  r9_(-999.),
+  sc_energy_(-999.),
+  scraw_energy_(-999.),
+  pterr_(-999.),
+  unsmear_energy_(-999.)
 {}
 
 /// destructor

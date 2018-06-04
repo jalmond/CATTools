@@ -7,6 +7,12 @@ from Setup import *
 import string
 from CheckDatasetFile import *
 
+import datetime
+
+
+timestamp=datetime.datetime.now()
+timestamp=(str(timestamp).split())
+timestamp=timestamp[0]
 
 if os.path.exists("outputlog.txt"):
     os.system("rm outputlog.txt")
@@ -218,14 +224,15 @@ def CheckJobStatus(submitted_list, v):
                 os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/MC/" + v)
                 os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/MC/" + v + "/" + i )
 
-                outlogfile.write("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/MC/" + v + "/"  +i+"\n")
-                os.system("scp SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/MC/"  + v + "/" +i) 
+                outlogfile.write("scp  /xrootd/store/user/" + k_user + "/flatcat/SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/MC/" + v + "/"  +i+"\n")
+                os.system("scp  /xrootd/store/user/" + k_user + "/flatcat/SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/MC/"  + v + "/" +i) 
              
             outlogfile.write("submitted_list = " + submitted_list + " is ammended to: "+"\n")
             new_submitted_list = string.replace(submitted_list, i+"!" , "")
             outlogfile.write(new_submitted_list+"\n")
             outlogfile.write("Deleting directory SNU_" + v+ "_" +i +"/"+"\n")
-            os.system("rm -r   SNU_" + v+ "_" +i +"/")
+            print "mv   SNU_" + v+ "_" +i +"/  SNU_" + v+ "_" +i + str(timestamp)+"/"
+            os.system("mv   SNU_" + v+ "_" +i +"/  SNU_" + v+ "_" +i + str(timestamp)+"/")
             outlogfile.close()    
             return new_submitted_list
                                       
@@ -651,7 +658,9 @@ for i in sampledir:
 
     print "CheckJobStatusAfterCrash = False"
     
-    runcommand="./create-batch_snu   --jobName " + jobname + " --fileList   /cms/scratch/SNU/datasets_" +version + "/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /xrootd/store/user/"+k_user
+    os.system("mkdir  /xrootd/store/user/" + k_user + "/flatcat/")
+    
+    runcommand="./create-batch_snu   --jobName " + jobname + " --fileList   /cms/scratch/SNU/datasets_" +version + "/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /store/user/"+k_user+"/flatcat/"+ jobname 
     print "Running:"
     print  runcommand
     os.system(runcommand)

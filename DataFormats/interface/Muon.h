@@ -36,8 +36,9 @@ namespace cat {
     int numberOfValidPixelHits() const { return numberOfValidPixelHits_; }
     int trackerLayersWithMeasurement() const { return trackerLayersWithMeasurement_; }
 
-    float ipsignificance() const { return ipsig_;}
-
+    float ip2Dsignificance() const { return ip2Dsig_;}
+    float ip3Dsignificance() const { return ip3Dsig_;}
+    float trackIso() const {return trkIso_;}
 
     float shiftedEn() const { if (this->pt() < 100) return 0.002; else return 0.05; }
     float shiftedEnDown() const {return 1-shiftedEn();}
@@ -53,8 +54,9 @@ namespace cat {
     void setNumberOfValidPixelHits(int i) { numberOfValidPixelHits_ = i; }
     void setTackerLayersWithMeasurement(int i) { trackerLayersWithMeasurement_ = i; }
 
-    void setIpSignficance(float ipsig) {ipsig_ = ipsig;}
-
+    void setIp2DSignficance(float ip2Dsig) {ip2Dsig_ = ip2Dsig;}
+    void setIp3DSignficance(float ip3Dsig) {ip3Dsig_ = ip3Dsig;}
+    void settrkIso(float trkIso) {trkIso_ = trkIso;}
     float scaleFactor(const std::string& name, int sign = 0) const;
     
   private:
@@ -63,7 +65,9 @@ namespace cat {
     bool isSoftMuon_;
 
     float normalizedChi2_;
-    float ipsig_;
+    float ip2Dsig_;
+    float ip3Dsig_;
+    float trkIso_;
 
     int numberOfValidHits_;
     int numberOfValidMuonHits_;

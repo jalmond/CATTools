@@ -178,35 +178,30 @@ def CheckJobStatus(submitted_list, v):
                     #os.system("ssh " + username_snu  + "@147.47.242.67 rm -r /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2])
                     os.system("ssh " + username_snu  + "@147.47.242.67 mkdir /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2])
 
-
-                    print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2]
+                    print "scp /xrootd/store/user/" + k_user + "/flatcat/SNU_" + v+ "_" +i +"/*.root" + " " + username_snu  + "@147.47.242.42:/data7/DATA/cattoflat/Data/"  + str(v) + "/" +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2]
                     
-                    os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2] )
-                else:
-                    #os.system("ssh " + username_snu  + "@147.47.242.67 rm -r /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1])
-                    os.system("ssh " + username_snu  + "@147.47.242.67 mkdir /data4/DATA/FlatCatuples/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1])
+                    os.system("scp /xrootd/store/user/" + k_user + "/flatcat/SNU_" + v+ "_" +i +"/*.root" + " " + username_snu  + "@147.47.242.42:/data7/DATA/cattoflat/Data/"  + str(v) + "/" +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2] )
 
-                    print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
-                    os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.67:/data4/DATA/FlatCatuples/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1])
+
             if copy_cms1:   
-                print "ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/Data/" + v + "/" + period_split_list[0]
-                os.system("ssh " +  username_snu +"@147.47.242.42 mkdir /data2/DATA/cattoflat/Data/" + str(v))
-                os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0])
+                print "ssh " + username_snu  + "@147.47.242.42 mkdir /data7/DATA/cattoflat/Data/" + v + "/" + period_split_list[0]
+                os.system("ssh " +  username_snu +"@147.47.242.42 mkdir /data7/DATA/cattoflat/Data/" + str(v))
+                os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data7/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0])
 
                 if period_split_list[1] == "H":
                     #os.system("ssh " + username_snu  + "@147.47.242.42 rm -r /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2])
-                    os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2])
-                    print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2]
+                    os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data7/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2])
+                    print "scp /xrootd/store/user/" + k_user + "/flatcat/SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data7/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]+"_"+period_split_list[2]
                     
-                    os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] +"_"+period_split_list[2])
+                    os.system("scp /xrootd/store/user/" + k_user + "/flatcat/SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data7/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] +"_"+period_split_list[2])
 
                 else:
                     #os.system("ssh " + username_snu  + "@147.47.242.42 rm -r /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
-                    os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
+                    os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data7/DATA/cattoflat/Data/" + str(v) +"/" + period_split_list[0] + "/period" + period_split_list[1] )
                     
-                    print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
+                    print "scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data7/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1]
 
-                    os.system("scp SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] )
+                    os.system("scp /xrootd/store/user/" + k_user + "/flatcat/SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data7/DATA/cattoflat/Data/"  + str(v) + "/"  +"/" + period_split_list[0] + "/period" + period_split_list[1] )
 
             print "submitted_list = " + submitted_list + " is set to: "
             new_submitted_list = string.replace(submitted_list, i+"!" , "")
@@ -293,16 +288,14 @@ if connected_cms3 == False:
 
 ## Make a list of samples to process
 
-sampledir = ["DoubleMuon" , "MuonEG", "DoubleEG", "SingleElectron", "SingleMuon"]
-sampledir = ["DoubleEG", "MuonEG", "SingleElectron"]
-sampledir = ["SingleMuon"]
+sampledir = ["MuonEG", "DoubleEG", "SingleElectron", "SingleMuon"]
+sampledir = ["MuonEG"]
 
 periods = ["B", "C", "D","E","F","G","H_v2","H_v3"]
-
+periods = ["B", "C", "D"]
 if not ALLSamples == True:
     sampledir = datasampledir
 
-sampledir = ["SingleMuon"]
 
 # njob set to 40: if n root files < 40 njobs = #rootfiles
 njob=100
@@ -417,7 +410,7 @@ for i in sampledir:
 
         print "CheckJobStatusAfterCrash = False"
 
-        runcommand="create-batch  --jobName " + jobname + " --fileList  /cms/scratch/SNU/datasets_" +version + "/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /xrootd/store/user/" + k_user + "/"
+        runcommand="./create-batch_snu  --jobName " + jobname + " --fileList  /cms/scratch/SNU/datasets_" +version + "/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest  --transferDest /store/user/"+k_user+"/flatcat/"+ jobname
         
         print runcommand
         os.system(runcommand)
@@ -440,13 +433,13 @@ for i in sampledir:
                         njobs_submitted = int(linesplit[0])
             print "Number of subjobs submitted = " + str(njobs_submitted)
     
-            if int(njobs_submitted) > 1000:
+            if int(njobs_submitted) > 300:
                 print "nsubjobs > 1000" 
                 print "waiting 1 minute before checking if #subjobs  < 1000. If this is true will submit more."
                 time.sleep(60.)
                 string_of_submitted=CheckJobStatus(string_of_submitted, version)
 
-            if int(njobs_submitted) < 1000:
+            if int(njobs_submitted) < 300:
                 print "Number of jobs < 1000. Will check if any jobs are finished"
                 check_njob_submitted = 1
                 string_of_submitted=CheckJobStatus(string_of_submitted, version)

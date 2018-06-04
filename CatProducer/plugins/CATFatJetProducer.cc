@@ -29,6 +29,9 @@
 
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
 
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
+
+
 using namespace edm;
 using namespace std;
 
@@ -43,6 +46,7 @@ namespace cat {
     void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&) override;
     std::string upperCase(std::string input);
 
+    boost::shared_ptr<FactorizedJetCorrector> jecAK8_;
 
   private:
     edm::EDGetTokenT<pat::JetCollection> src_;
@@ -58,7 +62,7 @@ namespace cat {
     //PFJetIDSelectionFunctor pfjetIDFunctor;
     JetCorrectionUncertainty *jecUnc;
     bool ispuppi;
-
+    const edm::EDGetTokenT<reco::VertexCollection> vertexLabel_;
     CLHEP::HepRandomEngine* rng_;
   };
 
@@ -68,17 +72,38 @@ cat::CATFatJetProducer::CATFatJetProducer(const edm::ParameterSet & iConfig) :
   src_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("src"))),
   inputTag (iConfig.getParameter<edm::InputTag>("src")),// to find if puppi                                                                                                                                                                                  
   rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
+ 
   btagNames_(iConfig.getParameter<std::vector<std::string> >("btagNames")),
   payloadName_(iConfig.getParameter<std::string>("payloadName")),
   jetResFilePath_(edm::FileInPath(iConfig.getParameter<std::string>("jetResFile")).fullPath()),
   jetResSFFilePath_(edm::FileInPath(iConfig.getParameter<std::string>("jetResSFFile")).fullPath()),
-  setGenParticle_(iConfig.getParameter<bool>("setGenParticle"))
+  setGenParticle_(iConfig.getParameter<bool>("setGenParticle")),
+  vertexLabel_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexLabel")))
 {
   produces<std::vector<cat::FatJet> >();
   ///  pfjetIDFunctor = PFJetIDSelectionFunctor(PFJetIDSelectionFunctor::FIRSTDATA,PFJetIDSelectionFunctor::LOOSE);
 
   if(upperCase(inputTag.label()).find(upperCase("PUPPI")) != std::string::npos)ispuppi=true;
   else ispuppi=false;
+  
+  std::vector<std::string> jecAK8PayloadNames_;
+  //jecAK8PayloadNames_.push_back("/cms/scratch/jalmond/Cattuples/806JEC/v806/src/CATTools/CatProducer/data/JEC/Summer16_23Sep2016V4_MC_L1FastJet_AK8PFchs.txt");
+  jecAK8PayloadNames_.push_back("/cms/scratch/jalmond/Cattuples/806JEC/v806/src/CATTools/CatProducer/data/JEC/Summer16_23Sep2016V4_MC_L2Relative_AK8PFchs.txt");
+  jecAK8PayloadNames_.push_back("/cms/scratch/jalmond/Cattuples/806JEC/v806/src/CATTools/CatProducer/data/JEC/Summer16_23Sep2016V4_MC_L3Absolute_AK8PFchs.txt");
+  //if(this_is_data)
+  //jecAK8PayloadNames_.push_back("Spring16_NotYetVailable_DATA_L2L3Residual_AK8PFCHS.txt");
+
+  std::vector<JetCorrectorParameters> vPar;
+  for ( std::vector<std::string>::const_iterator payloadBegin = jecAK8PayloadNames_.begin(), payloadEnd = jecAK8PayloadNames_.end(), ipayload = payloadBegin; ipayload != payloadEnd; ++ipayload ) {
+    JetCorrectorParameters pars(*ipayload);
+    vPar.push_back(pars);
+  }
+  
+  // Make the FactorizedJetCorrector
+  jecAK8_ = boost::shared_ptr<FactorizedJetCorrector> ( new FactorizedJetCorrector(vPar) );
+
+
+
 
 }
 std::string cat::CATFatJetProducer::upperCase(std::string input)
@@ -194,7 +219,7 @@ void cat::CATFatJetProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     if(!ispuppi){
       aJet.setL2relJEC( aPatJet.correctedJet("L2Relative").pt()/aPatJet.correctedJet("L1FastJet").pt() );
       aJet.setL1fastjetJEC( aPatJet.correctedJet("L1FastJet").pt()/aPatJet.correctedJet("Uncorrected").pt() );
-      //cout << aJet.pt()<< " " <<  aPatJet.correctedJet("Uncorrected").pt() <<  " " <<  aPatJet.correctedJet("L1FastJet").pt() << " " << aPatJet.correctedJet("L2Relative").pt()  << " " << aPatJet.correctedJet("L3Absolute").pt() << " " << aJet.pt() /  aPatJet.correctedJet("L3Absolute").pt() << " " << endl;
+      //    cout << aJet.pt()<< " " <<  aPatJet.correctedJet("Uncorrected").pt() <<  " " <<  aPatJet.correctedJet("L1FastJet").pt() << " " << aPatJet.correctedJet("L2Relative").pt()  << " " << aPatJet.correctedJet("L3Absolute").pt() << " " << aJet.pt() /  aPatJet.correctedJet("L3Absolute").pt() << " " << endl;
       if(iEvent.isRealData())aJet.setL2L3resJEC(aPatJet.correctedJet("L2L3Residual").pt()/aPatJet.correctedJet("L3Absolute").pt());
       else aJet.setL2L3resJEC(1.);
     }
@@ -256,8 +281,24 @@ void cat::CATFatJetProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     double tau2 = aPatJet.userFloat("NjettinessAK8:tau2");    //  Access the n-subjettiness variables
     double tau3 = aPatJet.userFloat("NjettinessAK8:tau3");    // 
 
-    double softdrop_mass = aPatJet.userFloat("ak8PFJetsCHSSoftDropMass"); // access to soft drop mass
     double pruned_mass = aPatJet.userFloat("ak8PFJetsCHSPrunedMass");     // access to pruned mass
+
+    edm::Handle<reco::VertexCollection> recVtxs;
+    iEvent.getByToken(vertexLabel_,recVtxs);
+
+
+    jecAK8_->setJetEta( aPatJet.eta() );
+    jecAK8_->setJetPt ( aPatJet.pt() );
+    jecAK8_->setJetE  ( aPatJet.energy() );
+    jecAK8_->setJetA  ( aPatJet.jetArea() );
+    jecAK8_->setRho   ( rho);
+    jecAK8_->setNPV   ( recVtxs->size() );
+    float corr = jecAK8_->getCorrection();
+
+    float pruned_masscorr = corr*pruned_mass;
+    //cout << "pruned mass= " <<  pruned_mass << " -->"  << pruned_masscorr<< "  " << aJet.pt()/aPatJet.correctedJet("Uncorrected").pt()  << " " << corr << " PM corr = " <<  corr/(aJet.pt()/aPatJet.correctedJet("Uncorrected").pt())<<endl;
+    
+
 
     double puppi_pt    = aPatJet.userFloat("ak8PFJetsPuppiValueMap:pt");
     double puppi_mass  = aPatJet.userFloat("ak8PFJetsPuppiValueMap:mass");
@@ -267,6 +308,26 @@ void cat::CATFatJetProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     double puppi_tau2  = aPatJet.userFloat("ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau2");
     double puppi_tau3  = aPatJet.userFloat("ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau3");
 
+    double softdrop_mass = 0.;
+    TLorentzVector puppi_softdrop, puppi_softdrop_subjet;
+    auto const & sdSubjetsPuppi = aPatJet.subjets("SoftDropPuppi");
+    for ( auto const & it : sdSubjetsPuppi ) {
+      puppi_softdrop_subjet.SetPtEtaPhiM(it->correctedP4(0).pt(),it->correctedP4(0).eta(),it->correctedP4(0).phi(),it->correctedP4(0).mass());
+      puppi_softdrop+=puppi_softdrop_subjet;
+    }
+
+    float puppi_softdrop_masscorr = puppi_softdrop.M();
+
+    if(puppi_pt < 0){
+      cout << "Pt = " <<  aPatJet.pt() << " uncorr= " << aPatJet.correctedJet("Uncorrected").pt() <<  endl;
+      cout << puppi_softdrop_masscorr << " " << softdrop_mass <<  " " << puppi_pt << " " << puppi_eta << endl;
+      auto const & sdSubjetsPuppi = aPatJet.subjets("SoftDropPuppi");
+      for ( auto const & it : sdSubjetsPuppi ) {
+	cout << "SUB " << it->correctedP4(0).pt() << " " << it->correctedP4(0).eta() << " " << it->correctedP4(0).phi() << endl;
+	
+      }
+      
+    }
     // set
     aJet.set_taus(tau1, tau2, tau3);
     aJet.set_prunedmass(pruned_mass);

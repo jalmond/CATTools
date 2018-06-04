@@ -8,13 +8,10 @@ catElectrons = cms.EDProducer("CATElectronProducer",
     vertexLabel = cms.InputTag('catVertex'),
     pfSrc  = cms.InputTag("packedPFCandidates"),
     beamLineSrc = cms.InputTag("offlineBeamSpot"),
-    rhoLabel = cms.InputTag("fixedGridRhoAll"),
+    rhoLabel = cms.InputTag("fixedGridRhoFastjetAll"),
     mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
     zzmvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
-
     electronsMiniAOD    = cms.InputTag("slimmedElectrons"),
-
-                              
     electronIDSources = cms.PSet(),
     electronIDs = cms.vstring(), ## Defined in CatProducer/python/patTools/egmVersionedID_cff.py
 )

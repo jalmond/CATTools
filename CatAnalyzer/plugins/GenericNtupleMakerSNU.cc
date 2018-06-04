@@ -355,13 +355,13 @@ private:
 
 //// double
   //// muon  15
-  std::vector<double>  muon_x,muon_y,muon_z, muon_relIso03,muon_relIso04,muon_minirelIso, muon_dxy,muon_sigdxy, muon_normchi, muon_dz, muon_shiftedEup,muon_shiftedEdown;
+  std::vector<double>  muon_x,muon_y,muon_z, muon_relIso03,muon_relIso04,muon_minirelIsoBeta,muon_minirelIsoRho, muon_dxy,muon_ip2D,muon_ip3D, muon_normchi, muon_dz, muon_shiftedEup,muon_shiftedEdown;
   
   std::vector<double> muon_pt, muon_eta,muon_phi, muon_m, muon_energy;
   std::vector<double> muon_roch_pt, muon_roch_eta,muon_roch_phi, muon_roch_m, muon_roch_energy;
 
   //// electrons  26
-  std::vector<double>   electrons_x,electrons_y,electrons_z, electrons_relIso03,electrons_relIso04, electrons_minirelIso, electrons_shiftedEnDown, electrons_shiftedEnUp, electrons_absIso03, electrons_absIso04,electrons_chIso03, electrons_nhIso03, electrons_phIso03, electrons_puChIso03, electrons_chIso04, electrons_nhIso04, electrons_phIso04, electrons_puChIso04, electrons_scEta, electrons_dxy,electrons_sigdxy, electrons_dz, electrons_isGsfCtfScPixChargeConsistent, electrons_mva, electrons_zzmva;
+  std::vector<double>   electrons_x,electrons_y,electrons_z, electrons_relIso03,electrons_relIso04, electrons_minirelIsoBeta,electrons_minirelIsoRho, electrons_shiftedEnDown, electrons_shiftedEnUp, electrons_absIso03, electrons_absIso04,electrons_chIso03, electrons_nhIso03, electrons_phIso03, electrons_puChIso03, electrons_chIso04, electrons_nhIso04, electrons_phIso04, electrons_puChIso04, electrons_scEta, electrons_dxy,electrons_ip2D, electrons_ip3D,electrons_dz, electrons_isGsfCtfScPixChargeConsistent, electrons_mva, electrons_zzmva;
   
   std::vector<double> electrons_pt, electrons_eta,electrons_phi, electrons_m, electrons_energy;
 
@@ -677,12 +677,14 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("muon_roch_m",  "std::vector<double>", &muon_roch_m);
   tree_->Branch("muon_roch_energy",  "std::vector<double>", &muon_roch_energy);
   tree_->Branch("muon_dxy",  "std::vector<double>", &muon_dxy);
-  tree_->Branch("muon_sigdxy",  "std::vector<double>", &muon_sigdxy);
+  tree_->Branch("muon_ip2D",  "std::vector<double>", &muon_ip2D);
+  tree_->Branch("muon_ip3D",  "std::vector<double>", &muon_ip3D);
   tree_->Branch("muon_dz",  "std::vector<double>", &muon_dz);
   tree_->Branch("muon_normchi" ,  "std::vector<double>", &muon_normchi);
   tree_->Branch("muon_relIso03",  "std::vector<double>", &muon_relIso03);
   tree_->Branch("muon_relIso04",  "std::vector<double>", &muon_relIso04);
-  tree_->Branch("muon_minirelIso",  "std::vector<double>", &muon_minirelIso);
+  tree_->Branch("muon_minirelIsoBeta",  "std::vector<double>", &muon_minirelIsoBeta);
+  tree_->Branch("muon_minirelIsoRho",  "std::vector<double>", &muon_minirelIsoRho);
   tree_->Branch("muon_shiftedEdown",  "std::vector<double>", &muon_shiftedEdown);
   tree_->Branch("muon_shiftedEup",  "std::vector<double>", &muon_shiftedEup);
 
@@ -698,7 +700,8 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("electrons_energy",  "std::vector<double>", &electrons_energy);
   tree_->Branch("electrons_relIso03",  "std::vector<double>", &electrons_relIso03);
   tree_->Branch("electrons_relIso04",  "std::vector<double>", &electrons_relIso04);
-  tree_->Branch("electrons_minirelIso",  "std::vector<double>", &electrons_minirelIso);
+  tree_->Branch("electrons_minirelIsoBeta",  "std::vector<double>", &electrons_minirelIsoBeta);
+  tree_->Branch("electrons_minirelIsoRho",  "std::vector<double>", &electrons_minirelIsoRho);
   tree_->Branch("electrons_shiftedEnDown",  "std::vector<double>", &electrons_shiftedEnDown);
   tree_->Branch("electrons_shiftedEnUp",  "std::vector<double>", &electrons_shiftedEnUp);
   tree_->Branch("electrons_absIso03",  "std::vector<double>", &electrons_absIso03);
@@ -711,7 +714,8 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("electrons_phIso04",  "std::vector<double>", &electrons_phIso04);
   tree_->Branch("electrons_scEta",  "std::vector<double>", &electrons_scEta);
   tree_->Branch("electrons_dxy",  "std::vector<double>", &electrons_dxy);
-  tree_->Branch("electrons_sigdxy",  "std::vector<double>", &electrons_sigdxy);
+  tree_->Branch("electrons_ip2D",  "std::vector<double>", &electrons_ip2D);
+  tree_->Branch("electrons_ip3D",  "std::vector<double>", &electrons_ip3D);
   tree_->Branch("electrons_dz",  "std::vector<double>", &electrons_dz);
   tree_->Branch("electrons_isGsfCtfScPixChargeConsistent",  "std::vector<double>", &electrons_isGsfCtfScPixChargeConsistent);
   tree_->Branch("electrons_mva",  "std::vector<double>", &electrons_mva);
@@ -1099,7 +1103,6 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	   || tname.Contains("MediumIso")
 	   || tname.Contains("Mass")
 	   || tname.Contains("Central")
-	   || tname.Contains("MW")
 	   || tname.Contains("EBOnly_VBF")
 	   || tname.Contains("dEta18"))) {
 	if(runFullTrig){
@@ -1186,6 +1189,24 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   vtrignames_tomatch_electron.push_back("HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v");
   //vtrignames_tomatch_muon.push_back(CatVersion_);  
 
+
+  //Filter Matching
+  std::vector<string> vfilternames_tomatch_muon;
+  vfilternames_tomatch_muon.push_back("hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered8");
+  vfilternames_tomatch_muon.push_back("hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZFilter");
+  vfilternames_tomatch_muon.push_back("hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4");
+  vfilternames_tomatch_muon.push_back("hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4DzFiltered0p2");
+  vfilternames_tomatch_muon.push_back("hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4");
+  vfilternames_tomatch_muon.push_back("hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4DzFiltered0p2");
+  vfilternames_tomatch_muon.push_back("hltL3fL1sDoubleMu114L1f0L2f10OneMuL3Filtered17");
+  vfilternames_tomatch_muon.push_back("hltL3fL1sDoubleMu114L1f0L2f10L3Filtered17");
+  std::vector<string> vfilternames_tomatch_electron;
+  vfilternames_tomatch_electron.push_back("hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter");
+  vfilternames_tomatch_electron.push_back("hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZFilter");
+  vfilternames_tomatch_electron.push_back("hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter");
+  vfilternames_tomatch_electron.push_back("hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter");
+  vfilternames_tomatch_electron.push_back("hltEle23Ele12CaloIdLTrackIdLIsoVLDZFilter");
+
   ////////// Fill MET/Muon/Electron variables
   edm::Handle<edm::View<cat::Muon> > muons;
   event.getByToken(muonToken_, muons);
@@ -1204,8 +1225,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   double el_eta_max= 3.;
   double mu_pt_min= 5.;
   double mu_eta_max= 3.;
-  double j_pt_min= 10.;
-  double j_eta_max= 5.;
+  double j_pt_min= 20.;
+  double j_eta_max= 3.;
   if(!makeSlim){
     el_pt_min= 0.;
     el_eta_max= 10.;
@@ -1214,8 +1235,28 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     j_pt_min= 0.;
     j_eta_max= 10.;
   }
+  
+  int il=0;
   for (auto el : *electrons) {
+    
+    if(el.pt() < 5) continue;
+    if(fabs(el.eta()) > el_eta_max) continue;
+    if(el.pt() != el.pt()) continue;
+    il++;
+  }
+  for (auto mu : *muons) {
 
+    if(mu.pt() < 5) continue;
+    if(fabs(mu.eta()) > mu_eta_max) continue;
+    if(mu.pt() != mu.pt()) continue;
+    il++;
+  }
+  
+  if(il< 2) return;
+
+  
+  for (auto el : *electrons) {
+    
     if(el.pt() < el_pt_min) continue;
     if(fabs(el.eta()) > el_eta_max) continue;
     if(el.pt() != el.pt()) continue;
@@ -1250,7 +1291,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     electrons_energy.push_back(el.energy()); 
     electrons_relIso03.push_back(el.relIso(0.3));
     electrons_relIso04.push_back(el.relIso(0.4));
-    electrons_minirelIso.push_back(el.miniRelIso());
+    electrons_minirelIsoBeta.push_back(el.miniRelIso(true));
+    electrons_minirelIsoRho.push_back(el.miniRelIso(false));
     electrons_shiftedEnDown.push_back(el.shiftedEnDown()); 
     electrons_shiftedEnUp.push_back(el.shiftedEnUp()); 
     electrons_absIso03.push_back(el.absIso(0.3)); 
@@ -1265,7 +1307,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     electrons_puChIso04.push_back(el.puChargedHadronIso(0.4)); 
     electrons_scEta.push_back(el.scEta()); 
     electrons_dxy.push_back(el.dxy()); 
-    electrons_sigdxy.push_back(el.ipsignificance());
+    electrons_ip2D.push_back(el.ip2Dsignificance());
+    electrons_ip3D.push_back(el.ip3Dsignificance());
     electrons_dz.push_back(el.dz());
     electrons_mva.push_back(el.mva());
     electrons_zzmva.push_back(el.zzmva());
@@ -1320,9 +1363,11 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     muon_energy.push_back(mu.energy()); 
     muon_relIso03.push_back(mu.relIso(0.3));
     muon_relIso04.push_back(mu.relIso(0.4));
-    muon_minirelIso.push_back(mu.miniRelIso());
+    muon_minirelIsoBeta.push_back(mu.miniRelIso(true));
+    muon_minirelIsoRho.push_back(mu.miniRelIso(false));
     muon_dxy.push_back(mu.dxy());
-    muon_sigdxy.push_back(mu.ipsignificance());
+    muon_ip2D.push_back(mu.ip2Dsignificance());
+    muon_ip3D.push_back(mu.ip3Dsignificance());
     muon_normchi.push_back(mu.normalizedChi2());
     muon_dz.push_back(mu.dz()); 
     muon_shiftedEup.push_back(mu.shiftedEnUp());
@@ -1453,7 +1498,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	  if ( pathNamesAll[h].find(vtrignames_tomatch_muon.at(i)) == 0 ){
 	    if (trigObj.hasPathName( pathNamesAll[h], true, true )){
 	      // found trigger
-	      if ( reco::deltaR(trigObj, mu) < 0.1){
+	      if ( reco::deltaR(trigObj, mu) < 0.3){
 		mutrig+= vtrignames_tomatch_muon.at(i);
 	      }
 	    }
@@ -1461,6 +1506,21 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	}
       }
     }
+    for(unsigned int it_filter=0; it_filter<vfilternames_tomatch_muon.size(); it_filter++){
+      for (pat::TriggerObjectStandAlone trigObj : *triggerObjects) {
+        trigObj.unpackPathNames(trigNames);
+
+        for(unsigned int it_Pfilter=0; it_Pfilter<trigObj.filterLabels().size(); it_Pfilter++){
+          if ( trigObj.filterLabels().at(it_Pfilter)==vfilternames_tomatch_muon.at(it_filter) ){
+            if( reco::deltaR(trigObj, mu) < 0.3 ){
+	      mutrig+= trigObj.filterLabels().at(it_Pfilter);
+	      break;
+            }
+          }
+        }
+      }
+    }
+
     muon_trigmatch.push_back(mutrig);
     px_muon += mu.px();
     py_muon += mu.py();
@@ -1482,7 +1542,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	  if ( pathNamesAll[h].find(vtrignames_tomatch_electron.at(i)) == 0 ){
 	    if (trigObj.hasPathName( pathNamesAll[h], true, true )){
 	      
-	      if ( reco::deltaR(trigObj, el) < 0.1){
+	      if ( reco::deltaR(trigObj, el) < 0.3){
 		eltrig+= vtrignames_tomatch_electron.at(i);
 	      }
 	    }
@@ -1490,6 +1550,20 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 	}
       }
     }
+    for(unsigned int it_filter=0; it_filter<vfilternames_tomatch_electron.size(); it_filter++){
+      for (pat::TriggerObjectStandAlone trigObj : *triggerObjects) {
+        trigObj.unpackPathNames(trigNames);
+
+        for(unsigned int it_Pfilter=0; it_Pfilter<trigObj.filterLabels().size(); it_Pfilter++){
+          if ( trigObj.filterLabels().at(it_Pfilter)==vfilternames_tomatch_electron.at(it_filter) ){
+            if( reco::deltaR(trigObj, el) < 0.3 ){
+	      eltrig+= trigObj.filterLabels().at(it_Pfilter);
+            }
+          }
+        }
+      }
+    }
+
     electron_trigmatch.push_back(eltrig);
     px_electron += el.px();
     py_electron += el.py();
@@ -1812,7 +1886,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
         }
     }
 
-  
+
   if ( nFailure == 0 or failureMode_ == FAILUREMODE::KEEP ) tree_->Fill();
   else if ( failureMode_ == FAILUREMODE::ERROR )
   {
@@ -1820,7 +1894,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     throw cms::Exception("DataError") << "Cannot get object from data";
   }
   //else if ( failureMode_ == FAILUREMODE::SKIP ); // don't fill and continue memory cleanup
-
+  
+  
   // Clear up after filling tree
   vboolCSet_.clear();
   vintCSet_.clear();
@@ -1970,9 +2045,11 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   muon_energy.clear();
   muon_relIso03.clear();
   muon_relIso04.clear();
-  muon_minirelIso.clear();
+  muon_minirelIsoBeta.clear();
+  muon_minirelIsoRho.clear();
   muon_dxy.clear();
-  muon_sigdxy.clear();
+  muon_ip2D.clear();
+  muon_ip3D.clear();
   muon_normchi.clear();
   muon_dz.clear();
   muon_shiftedEup.clear();
@@ -2005,7 +2082,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   electrons_energy.clear();
   electrons_relIso03.clear();
   electrons_relIso04.clear();
-  electrons_minirelIso.clear();
+  electrons_minirelIsoBeta.clear();
+  electrons_minirelIsoRho.clear();
   electrons_shiftedEnDown.clear();
   electrons_shiftedEnUp.clear();
   electrons_absIso03.clear();
@@ -2020,7 +2098,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   electrons_puChIso04.clear();
   electrons_scEta.clear();
   electrons_dxy.clear();
-  electrons_sigdxy.clear();
+  electrons_ip2D.clear();
+  electrons_ip3D.clear();
   electrons_dz.clear();
   electrons_mva.clear();
   electrons_zzmva.clear();

@@ -14,18 +14,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
 
-'root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v8-0-6_Run2016B-03Feb2017_ver2-v2/170303_095201/0001/catTuple_1185.root', 
-        'root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v8-0-6_Run2016B-03Feb2017_ver2-v2/170303_095201/0001/catTuple_1186.root', 
-        'root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v8-0-6_Run2016B-03Feb2017_ver2-v2/170303_095201/0001/catTuple_1187.root', 
-        'root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v8-0-6_Run2016B-03Feb2017_ver2-v2/170303_095201/0001/catTuple_1188.root', 
-        'root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v8-0-6_Run2016B-03Feb2017_ver2-v2/170303_095201/0001/catTuple_1189.root', 
-        'root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v8-0-6_Run2016B-03Feb2017_ver2-v2/170303_095201/0001/catTuple_1190.root', 
-        'root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v8-0-6_Run2016B-03Feb2017_ver2-v2/170303_095201/0001/catTuple_1191.root', 
-        'root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v8-0-6_Run2016B-03Feb2017_ver2-v2/170303_095201/0001/catTuple_1192.root', 
-        'root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v8-0-6_Run2016B-03Feb2017_ver2-v2/170303_095201/0001/catTuple_1193.root', 
-        'root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v8-0-6_Run2016B-03Feb2017_ver2-v2/170303_095201/0001/catTuple_1194.root', 
-        'root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v8-0-6_Run2016B-03Feb2017_ver2-v2/170303_095201/0001/catTuple_1195.root', 
-        'root://cms-xrdr.sdfarm.kr:1094///xrd/store/group/CAT/DoubleMuon/v8-0-6_Run2016B-03Feb2017_ver2-v2/170303_095201/0001/catTuple_1196.root')
+'root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/jalmond/DoubleEG/v8-0-7_Run2016B-03Feb2017_ver2-v2/170424_154812/0001/catTuple_1096.root')
+
 )
 
 

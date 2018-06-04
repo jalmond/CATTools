@@ -5,5 +5,7 @@ catMuons = cms.EDProducer("CATMuonProducer",
     mcLabel = cms.InputTag("prunedGenParticles"),
     vertexLabel = cms.InputTag("catVertex"),
     pfSrc  = cms.InputTag("packedPFCandidates"),
-    beamLineSrc = cms.InputTag("offlineBeamSpot")
+    beamLineSrc = cms.InputTag("offlineBeamSpot"), 
+    rhoLabel = cms.InputTag("fixedGridRhoFastjetAll")
+
 )

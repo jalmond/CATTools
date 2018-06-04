@@ -35,17 +35,22 @@ namespace cat {
 
     void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
+    float getEffArea( float dR, float Eta );
     bool mcMatch( const reco::Candidate::LorentzVector& lepton, Handle<reco::GenParticleCollection> genParticles );
     bool MatchObjects( const reco::Candidate::LorentzVector& pasObj, const reco::Candidate::LorentzVector& proObj, bool exact );
-    double getMiniRelIso(edm::Handle<pat::PackedCandidateCollection> pfcands,  const reco::Candidate::LorentzVector& ptcl, double  r_iso_min, double r_iso_max , double kt_scale);
+    double getMiniRelIso(edm::Handle<pat::PackedCandidateCollection> pfcands,  const reco::Candidate::LorentzVector& ptcl, double  r_iso_min, double r_iso_max , double kt_scale,double rhoIso, double AEff);
     
   private:
     edm::EDGetTokenT<pat::MuonCollection> src_;
     edm::EDGetTokenT<reco::GenParticleCollection> mcLabel_;
     edm::EDGetTokenT<reco::VertexCollection> vertexLabel_;
     edm::EDGetTokenT<pat::PackedCandidateCollection>        pfSrc_;
+    edm::EDGetTokenT<double> rhoLabel_;   
     edm::EDGetTokenT<reco::BeamSpot> beamLineSrc_;
     bool runOnMC_;
+
+   
+
 
     typedef math::XYZPoint Point;
   };
@@ -56,6 +61,7 @@ cat::CATMuonProducer::CATMuonProducer(const edm::ParameterSet & iConfig) :
   mcLabel_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("mcLabel"))),
   vertexLabel_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexLabel"))),
   pfSrc_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfSrc"))),
+  rhoLabel_(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoLabel"))),
   beamLineSrc_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc")))
 {
   produces<std::vector<cat::Muon> >();
@@ -65,7 +71,7 @@ cat::CATMuonProducer::CATMuonProducer(const edm::ParameterSet & iConfig) :
 
 double cat::CATMuonProducer::getMiniRelIso(edm::Handle<pat::PackedCandidateCollection> pfcands,
 					   const reco::Candidate::LorentzVector& ptcl,
-					   double r_iso_min, double r_iso_max, double kt_scale){
+					   double r_iso_min, double r_iso_max, double kt_scale,double rhoIso, double AEff){
 
   if (ptcl.pt()<5.) return 99999.;
 
@@ -115,7 +121,13 @@ double cat::CATMuonProducer::getMiniRelIso(edm::Handle<pat::PackedCandidateColle
   if (iso>0) iso += iso_ch;
   else iso = iso_ch;
   
-  iso = iso/ptcl.pt();
+
+  double conesize_correction= pow((r_iso/0.3),2.);
+  
+  if(rhoIso != -999.){
+    iso = ( iso_ch  + std::max(0.0, iso_nh + iso_ph - rhoIso*AEff*conesize_correction) )/ ptcl.pt();
+  }
+  else iso = iso/ptcl.pt();
 
   return iso;
 }
@@ -147,6 +159,11 @@ cat::CATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   reco::Vertex pv;
   if (recVtxs->size())
     pv = recVtxs->at(0);
+
+  Handle<double> rhoHandle;
+  iEvent.getByToken(rhoLabel_, rhoHandle);
+  double rhoIso = std::max(*(rhoHandle.product()), 0.0);
+
 
   reco::BeamSpot beamSpot = *beamSpotHandle;
   reco::TrackBase::Point beamPoint(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
@@ -180,7 +197,13 @@ cat::CATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     iEvent.getByToken(pfSrc_, pfcands);
 
 
-    aMuon.setMiniRelIso(getMiniRelIso( pfcands, aMuon.p4(), 0.05, 0.2, 10.));
+    double muEffArea03 = getEffArea( 0.3, aPatMuon.eta());
+
+    aMuon.setMiniRelIsoBeta(getMiniRelIso( pfcands, aMuon.p4(), 0.05, 0.2, 10.,-999,-999));
+    aMuon.setMiniRelIsoRho(getMiniRelIso( pfcands, aMuon.p4(), 0.05, 0.2, 10., rhoIso, muEffArea03));
+
+    aMuon.settrkIso(aPatMuon.trackIso());
+
     aMuon.setIsGlobalMuon( aPatMuon.isGlobalMuon() );
     aMuon.setIsPF( aPatMuon.isPFMuon() );
     aMuon.setIsTight( aPatMuon.isTightMuon(pv) );
@@ -212,13 +235,10 @@ cat::CATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     }
     reco::TransientTrack mutranstrack = trackBuilder->build( mutrack ) ;
 
-    TrajectoryStateOnSurface  muTSOS = IPTools::transverseExtrapolate(mutranstrack.impactPointState(), pVertex, mutranstrack.field());
-    
-    if (muTSOS.isValid()){
-      std::pair<bool,Measurement1D> muIPpair = IPTools::signedTransverseImpactParameter(mutranstrack, muTSOS.globalDirection(),pv);
-      float muSignificanceIP = muIPpair.second.significance();
-      aMuon.setIpSignficance(muSignificanceIP);
-    }
+    if(aPatMuon.edB(pat::Muon::PV3D) != 0)
+      aMuon.setIp3DSignficance(aPatMuon.dB(pat::Muon::PV3D)/aPatMuon.edB(pat::Muon::PV3D) );
+    if(aPatMuon.edB(pat::Muon::PV2D) !=0)
+      aMuon.setIp2DSignficance(aPatMuon.dB(pat::Muon::PV2D)/aPatMuon.edB(pat::Muon::PV2D) );
 
     out->push_back(aMuon);
   }
@@ -246,6 +266,20 @@ bool cat::CATMuonProducer::mcMatch( const reco::Candidate::LorentzVector& lepton
   }
   return out;
 }
+
+float
+cat::CATMuonProducer::getEffArea( float dR, float Eta)
+{
+
+  float absEta = std::abs(Eta);
+  if ( 0.0000 >= absEta && absEta < 0.8000 ) return  0.0735;
+  if ( 0.8000 >= absEta && absEta < 1.3 ) return 0.0619;
+  if ( 1.3 >= absEta && absEta < 2.0000 ) return 0.0465;
+  if ( 2.0000 >= absEta && absEta < 2.2000 ) return 0.0433;
+  if ( 2.2000 >= absEta && absEta < 2.4000 ) return 0.0577;
+  return 0;
+}
+
 
 bool cat::CATMuonProducer::MatchObjects( const reco::Candidate::LorentzVector& pasObj, const reco::Candidate::LorentzVector& proObj, bool exact ) {
   double proEta = proObj.eta();

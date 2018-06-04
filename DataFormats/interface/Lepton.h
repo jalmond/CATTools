@@ -47,8 +47,9 @@ namespace cat {
       else return photonIso04_;
     }
 
-    float miniRelIso()const{
-      return relMiniIso_;
+    float miniRelIso(bool beta)const{
+      if(beta)      return relMiniIso_beta_;
+      return relMiniIso_rho_;
     }
     
     float absIso(float dR=0.3, float dBetaFactor=0.5) const{
@@ -86,7 +87,8 @@ namespace cat {
     void setNeutralHadronIso04(float i) { neutralHadronIso04_ = i; }
     void setPhotonIso04(float i) { photonIso04_ = i; }
 
-    void setMiniRelIso(float i){relMiniIso_=i;}
+    void setMiniRelIsoBeta(float i){relMiniIso_beta_=i;}
+    void setMiniRelIsoRho(float i){relMiniIso_rho_=i;}
 
     void setMCMatched(bool m) { mcMatched_ = m; }
     
@@ -110,7 +112,8 @@ namespace cat {
     float neutralHadronIso04_;
     float photonIso04_;
 
-    float relMiniIso_;
+    float relMiniIso_beta_;
+    float relMiniIso_rho_;
 
     bool mcMatched_;
   };
