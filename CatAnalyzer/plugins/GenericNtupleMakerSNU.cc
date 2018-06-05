@@ -347,7 +347,7 @@ private:
   std::vector<int>  muon_numberOfValidHits, muon_numberOfValidMuonHits,muon_numberOfMatchedStations,muon_numberOfValidPixelHits,muon_trackerLayersWithMeasurement,muon_charge;
   
   /// electrons 2
-  std::vector<int>  electrons_snuID, electrons_charge;
+  std::vector<int>  electrons_snuID, electrons_charge, electrons_missinghits;
 
   /// jets 4
   std::vector<int>  jets_partonFlavour,jets_hadronFlavour,jets_partonPdgId,jets_vtxNtracks;
@@ -360,9 +360,11 @@ private:
   std::vector<double> muon_pt, muon_eta,muon_phi, muon_m, muon_energy;
   std::vector<double> muon_roch_pt, muon_roch_eta,muon_roch_phi, muon_roch_m, muon_roch_energy;
 
-  //// electrons  26
-  std::vector<double>   electrons_x,electrons_y,electrons_z, electrons_relIso03,electrons_relIso04, electrons_minirelIsoBeta,electrons_minirelIsoRho, electrons_shiftedEnDown, electrons_shiftedEnUp, electrons_absIso03, electrons_absIso04,electrons_chIso03, electrons_nhIso03, electrons_phIso03, electrons_puChIso03, electrons_chIso04, electrons_nhIso04, electrons_phIso04, electrons_puChIso04, electrons_scEta, electrons_dxy,electrons_ip2D, electrons_ip3D,electrons_dz, electrons_isGsfCtfScPixChargeConsistent, electrons_mva, electrons_zzmva;
+  //// electrons  27
   
+  std::vector<double>   electrons_x,electrons_y,electrons_z, electrons_relIso03,electrons_relIso04, electrons_minirelIsoBeta,electrons_minirelIsoRho, electrons_shiftedEnDown, electrons_shiftedEnUp, electrons_absIso03, electrons_absIso04,electrons_chIso03, electrons_nhIso03, electrons_phIso03, electrons_puChIso03, electrons_chIso04, electrons_nhIso04, electrons_phIso04, electrons_puChIso04, electrons_scEta, electrons_dxy,electrons_ip2D, electrons_ip3D,electrons_dz, electrons_isGsfCtfScPixChargeConsistent, electrons_mva, electrons_zzmva, electrons_smearedScale;
+
+
   std::vector<double> electrons_pt, electrons_eta,electrons_phi, electrons_m, electrons_energy;
 
   //// jets  21
@@ -373,7 +375,7 @@ private:
   std::vector<double> fatjets_pt, fatjets_eta,fatjets_phi, fatjets_m, fatjets_energy;
   std::vector<double> fatjets_puppi_pt, fatjets_puppi_eta,fatjets_puppi_phi, fatjets_puppi_m;
   std::vector<double> fatjets_puppi_tau1, fatjets_puppi_tau2,fatjets_puppi_tau3;;
-  std::vector<double> jets_L2L3resJEC,jets_L3absJEC,jets_L2relJEC, jets_L1fastjetJEC,jets_Rho,jets_JetArea;
+  std::vector<double> jets_L2L3resJEC,jets_L3absJEC,jets_L2relJEC, jets_L1fastjetJEC,jets_Rho,jets_JetArea, jets_rawpt, jets_rawenergy;
   std::vector<double> fatjets_L2L3resJEC,fatjets_L3absJEC,fatjets_L2relJEC, fatjets_L1fastjetJEC,fatjets_Rho,fatjets_JetArea;
 
   bool Flag_HBHENoiseIsoFilter, Flag_HBHENoiseFilter, Flag_CSCTightHaloFilter, Flag_goodVertices, Flag_eeBadScFilter, Flag_EcalDeadCellTriggerPrimitiveFilter,  Flag_globalTightHalo2016Filter;
@@ -638,6 +640,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   /// electrons                                                                                                                                                                     
   tree_->Branch("electrons_electronID_snu",  "std::vector<int>", &electrons_snuID);
   tree_->Branch("electrons_q",  "std::vector<int>", &electrons_charge);
+  tree_->Branch("electrons_missinghits",  "std::vector<int>", &electrons_missinghits);
 
   /// jets                                                                                                                                                                          
   
@@ -720,6 +723,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("electrons_isGsfCtfScPixChargeConsistent",  "std::vector<double>", &electrons_isGsfCtfScPixChargeConsistent);
   tree_->Branch("electrons_mva",  "std::vector<double>", &electrons_mva);
   tree_->Branch("electrons_zzmva",  "std::vector<double>", &electrons_zzmva);
+  tree_->Branch("electrons_smearedScale", "std::vector<double>", &electrons_smearedScale);
 
 
   tree_->Branch("electrons_puChIso03",  "std::vector<double>", &electrons_puChIso03);
@@ -754,7 +758,9 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("jets_L1fastjetJEC", "std::vector<double>", &jets_L1fastjetJEC);
   tree_->Branch("jets_Rho", "std::vector<double>", &jets_Rho);
   tree_->Branch("jets_JetArea", "std::vector<double>", &jets_JetArea);
-
+  tree_->Branch("jets_rawpt", "std::vector<double>", &jets_rawpt);
+  tree_->Branch("jets_rawenergy", "std::vector<double>", &jets_rawenergy);
+  
 
   tree_->Branch("fatjets_pt",  "std::vector<double>", &fatjets_pt);
   tree_->Branch("fatjets_eta",  "std::vector<double>", &fatjets_eta);
@@ -1221,12 +1227,12 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   event.getByToken(fatjetToken_, fatjets);
 
 
-  double el_pt_min= 5.;
+  double el_pt_min= 4.;
   double el_eta_max= 3.;
-  double mu_pt_min= 5.;
+  double mu_pt_min= 4.;
   double mu_eta_max= 3.;
-  double j_pt_min= 20.;
-  double j_eta_max= 3.;
+  double j_pt_min= 8.;
+  double j_eta_max= 5.5;
   if(!makeSlim){
     el_pt_min= 0.;
     el_eta_max= 10.;
@@ -1274,6 +1280,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
 
     electrons_electronID_heep.push_back(el.electronID("heepElectronID-HEEPV70"));
 
+    electrons_missinghits.push_back(el.MissingHits());
 
     electrons_mcMatched.push_back(el.mcMatched());
     electrons_isPF.push_back(el.isPF());
@@ -1313,6 +1320,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     electrons_mva.push_back(el.mva());
     electrons_zzmva.push_back(el.zzmva());
     electrons_isGsfCtfScPixChargeConsistent.push_back(el.isGsfCtfScPixChargeConsistent());
+    electrons_smearedScale.push_back(el.smearedScale());
+
     
   }
   
@@ -1417,7 +1426,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     jets_L1fastjetJEC.push_back(jt.L1fastjetJEC());
     jets_Rho.push_back(jt.Rho());
     jets_JetArea.push_back(jt.JetArea());
-
+    jets_rawpt.push_back(jt.RawPt());
+    jets_rawenergy.push_back(jt.RawE());
   }
   
   for (auto jt : *fatjets) {
@@ -1967,8 +1977,23 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   jets_smearedRes.clear();
   jets_smearedResDown.clear();
   jets_smearedResUp.clear();
-  jets_PileupJetId.clear();
-
+  jets_PileupJetId.clear(); 
+  jets_rawpt.clear();
+  jets_rawenergy.clear();
+  jets_L2L3resJEC.clear();
+  jets_L3absJEC.clear();
+  jets_L2relJEC.clear();
+  jets_L1fastjetJEC.clear();
+  jets_Rho.clear();
+  jets_JetArea.clear();
+  
+  fatjets_L2L3resJEC.clear();
+  fatjets_L3absJEC.clear();
+  fatjets_L2relJEC.clear();
+  fatjets_L1fastjetJEC.clear();
+  fatjets_Rho.clear();
+  fatjets_JetArea.clear();
+  
 
   fatjets_looseJetID.clear();
   fatjets_tightJetID.clear();
@@ -2103,6 +2128,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   electrons_dz.clear();
   electrons_mva.clear();
   electrons_zzmva.clear();
+  electrons_smearedScale.clear();
+  electrons_missinghits.clear();
   electrons_isGsfCtfScPixChargeConsistent.clear();
 
   //delete rmcor;

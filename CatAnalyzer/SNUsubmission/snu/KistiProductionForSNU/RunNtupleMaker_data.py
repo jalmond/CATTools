@@ -122,7 +122,7 @@ def CheckJobStatus(submitted_list, v):
             print "Quiting script cos a job failed"
             failedlist = open("faileddatasettmp_" + i + "_Run2016"+ period + ".txt", "w")
             for x in failed_jobs:
-                failedlist.write(x+"\n")
+                failedlist.write(str(x)+"\n")
             failedlist.close()
                            
 

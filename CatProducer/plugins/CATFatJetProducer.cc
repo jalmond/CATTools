@@ -86,24 +86,6 @@ cat::CATFatJetProducer::CATFatJetProducer(const edm::ParameterSet & iConfig) :
   if(upperCase(inputTag.label()).find(upperCase("PUPPI")) != std::string::npos)ispuppi=true;
   else ispuppi=false;
   
-  std::vector<std::string> jecAK8PayloadNames_;
-  //jecAK8PayloadNames_.push_back("/cms/scratch/jalmond/Cattuples/806JEC/v806/src/CATTools/CatProducer/data/JEC/Summer16_23Sep2016V4_MC_L1FastJet_AK8PFchs.txt");
-  jecAK8PayloadNames_.push_back("/cms/scratch/jalmond/Cattuples/806JEC/v806/src/CATTools/CatProducer/data/JEC/Summer16_23Sep2016V4_MC_L2Relative_AK8PFchs.txt");
-  jecAK8PayloadNames_.push_back("/cms/scratch/jalmond/Cattuples/806JEC/v806/src/CATTools/CatProducer/data/JEC/Summer16_23Sep2016V4_MC_L3Absolute_AK8PFchs.txt");
-  //if(this_is_data)
-  //jecAK8PayloadNames_.push_back("Spring16_NotYetVailable_DATA_L2L3Residual_AK8PFCHS.txt");
-
-  std::vector<JetCorrectorParameters> vPar;
-  for ( std::vector<std::string>::const_iterator payloadBegin = jecAK8PayloadNames_.begin(), payloadEnd = jecAK8PayloadNames_.end(), ipayload = payloadBegin; ipayload != payloadEnd; ++ipayload ) {
-    JetCorrectorParameters pars(*ipayload);
-    vPar.push_back(pars);
-  }
-  
-  // Make the FactorizedJetCorrector
-  jecAK8_ = boost::shared_ptr<FactorizedJetCorrector> ( new FactorizedJetCorrector(vPar) );
-
-
-
 
 }
 std::string cat::CATFatJetProducer::upperCase(std::string input)
@@ -318,16 +300,6 @@ void cat::CATFatJetProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
     float puppi_softdrop_masscorr = puppi_softdrop.M();
 
-    if(puppi_pt < 0){
-      cout << "Pt = " <<  aPatJet.pt() << " uncorr= " << aPatJet.correctedJet("Uncorrected").pt() <<  endl;
-      cout << puppi_softdrop_masscorr << " " << softdrop_mass <<  " " << puppi_pt << " " << puppi_eta << endl;
-      auto const & sdSubjetsPuppi = aPatJet.subjets("SoftDropPuppi");
-      for ( auto const & it : sdSubjetsPuppi ) {
-	cout << "SUB " << it->correctedP4(0).pt() << " " << it->correctedP4(0).eta() << " " << it->correctedP4(0).phi() << endl;
-	
-      }
-      
-    }
     // set
     aJet.set_taus(tau1, tau2, tau3);
     aJet.set_prunedmass(pruned_mass);
