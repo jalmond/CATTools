@@ -265,22 +265,7 @@ void cat::CATFatJetProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
     double pruned_mass = aPatJet.userFloat("ak8PFJetsCHSPrunedMass");     // access to pruned mass
 
-    edm::Handle<reco::VertexCollection> recVtxs;
-    iEvent.getByToken(vertexLabel_,recVtxs);
-
-
-    jecAK8_->setJetEta( aPatJet.eta() );
-    jecAK8_->setJetPt ( aPatJet.pt() );
-    jecAK8_->setJetE  ( aPatJet.energy() );
-    jecAK8_->setJetA  ( aPatJet.jetArea() );
-    jecAK8_->setRho   ( rho);
-    jecAK8_->setNPV   ( recVtxs->size() );
-    float corr = jecAK8_->getCorrection();
-
-    float pruned_masscorr = corr*pruned_mass;
-    //cout << "pruned mass= " <<  pruned_mass << " -->"  << pruned_masscorr<< "  " << aJet.pt()/aPatJet.correctedJet("Uncorrected").pt()  << " " << corr << " PM corr = " <<  corr/(aJet.pt()/aPatJet.correctedJet("Uncorrected").pt())<<endl;
-    
-
+    float pruned_masscorr = pruned_mass;
 
     double puppi_pt    = aPatJet.userFloat("ak8PFJetsPuppiValueMap:pt");
     double puppi_mass  = aPatJet.userFloat("ak8PFJetsPuppiValueMap:mass");
