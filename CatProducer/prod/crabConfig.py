@@ -20,5 +20,6 @@ config.Data.allowNonValidInputDataset = True
 config.section_("Site")
 # Where the output files will be transmitted to
 config.Site.storageSite = 'T3_KR_KISTI'
+#config.Data.inputDBS = 'phys03'
 config.Data.outLFNDirBase = '/store/user/%s/' % (getUsernameFromSiteDB())
 
