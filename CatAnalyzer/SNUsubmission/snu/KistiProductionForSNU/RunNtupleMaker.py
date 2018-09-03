@@ -232,7 +232,8 @@ def CheckJobStatus(submitted_list, v):
             outlogfile.write(new_submitted_list+"\n")
             outlogfile.write("Deleting directory SNU_" + v+ "_" +i +"/"+"\n")
             print "mv   SNU_" + v+ "_" +i +"/  SNU_" + v+ "_" +i + str(timestamp)+"/"
-            os.system("mv   SNU_" + v+ "_" +i +"/  SNU_" + v+ "_" +i + str(timestamp)+"/")
+            #os.system("mv   SNU_" + v+ "_" +i +"/  SNU_" + v+ "_" +i + str(timestamp)+"/")
+            os.system("rm -rf SNU_" + v+ "_" +i )
             outlogfile.close()    
             return new_submitted_list
                                       
@@ -327,6 +328,8 @@ if copy_cluster:
 ## Make a list of samples to process
 validation_sampledir=["DYJets" , "DYJets_10to50","TT_powheg", "TTLJ_powheg","TTLL_powheg","WW","WZ", "ZZ", "WWW","WZZ","WWZ","ZZZ", "SingleTbar_t","SingleTbar_tW",  "SingleTbar_tW_noHadron","SingleTop_tW_noHadron","ttH_nonbb", "ttH_bb","WJets",  "WJets_MG", "TTJets_aMC" , "WZTo3LNu_powheg", "WpWpEWK","WpWpQCD","ZZTo4L_powheg", "ttW","ttZ" ,"GG_HToMuMu","VBF_HToMuMu", "QCD_Pt-1000toInf_MuEnriched","QCD_Pt-120to170_EMEnriched","QCD_Pt-120to170_MuEnriched","QCD_Pt-15to20_MuEnriched",    "QCD_Pt-170to300_EMEnriched","QCD_Pt-170to300_MuEnriched","QCD_Pt-20to30_EMEnriched","QCD_Pt-20to30_MuEnriched","QCD_Pt-300to470_MuEnriched","QCD_Pt-300toInf_EMEnriched",     "QCD_Pt-30to50_EMEnriched","QCD_Pt-30to50_MuEnriched","QCD_Pt-470to600_MuEnriched","QCD_Pt-50to80_EMEnriched","QCD_Pt-50to80_MuEnriched","QCD_Pt-600to800_MuEnriched", "QCD_Pt-800to1000_MuEnriched","QCD_Pt-80to120_EMEnriched","QCD_Pt-80to120_MuEnriched",  "WWTo2L2Nu","WWToLNuQQ", "SingleTop_s", "SingleTop_t","SingleTop_tW", "WGtoLNuG", "ttZToLL_M-1to10","ttWToLNu","WgstarToLNuEE","WgstarToLNuMuMu","ZGto2LG" , "WZTo3LNu_amcatnlo", "DYJets_MG_10to50", "DYJets_MG","ttbb","TTJets_MG", "TTTT" ]
                       
+validation_sampledir=["WpWpEWK"]
+
 
 runSYSTsamples=False
 if runSYSTsamples:

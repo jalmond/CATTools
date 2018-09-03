@@ -12,14 +12,8 @@ def enableElectronSmearing(process, runOnMC=True):
     )
 
     process.calibratedPatElectrons.isMC = runOnMC
-    process.selectedElectrons = cms.EDFilter(
-        "PATElectronSelector",
-        src = cms.InputTag("slimmedElectrons"),
-        cut = cms.string("pt > 5 && abs(eta)<2.5")
-        )
     process.catElectrons.src = "calibratedPatElectrons"
-    process.calibratedPatElectrons.electrons = cms.InputTag('selectedElectrons')
-    
+
     return process
 
 def enablePhotonSmearing(process, runOnMC=True):

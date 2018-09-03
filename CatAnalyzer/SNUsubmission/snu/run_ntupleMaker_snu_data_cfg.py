@@ -14,7 +14,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
 
-'root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/jalmond/DoubleEG/v8-0-7_Run2016B-03Feb2017_ver2-v2/170424_154812/0001/catTuple_1096.root')
+'root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/jalmond/DoubleEG/v8-0-7_2018_v3_Run2016B-03Feb2017_ver2-v2/180610_062812/0001/catTuple_1111.root')
+#/xrd/store/user/jalmond/DoubleEG/v8-0-7_Run2016B-03Feb2017_ver2-v2/170424_154812/0001/catTuple_1096.root')
 
 )
 
