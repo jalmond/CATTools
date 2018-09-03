@@ -3,10 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ## for egamma pid https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2#Recipe_for_regular_users_for_8_0
 def enableElectronVID(process):
     from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, DataFormat, setupAllVIDIdsInModule, setupVIDElectronSelection
-    process.load("RecoEgamma.ElectronIdentification.ElectronIDValueMapProducer_cfi")
-
     switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
-
 
     electron_ids = [
         'cutBasedElectronHLTPreselecition_Summer16_V1_cff',
@@ -15,13 +12,9 @@ def enableElectronVID(process):
         'mvaElectronID_Spring16_GeneralPurpose_V1_cff',
         'mvaElectronID_Spring16_HZZ_V1_cff',
     ]
-
-
     for idmod in electron_ids:
         idmod = "RecoEgamma.ElectronIdentification.Identification."+idmod
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-
-
 
     electron_idNames = [
         "egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-veto",
@@ -34,7 +27,6 @@ def enableElectronVID(process):
         "egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80",
         "egmGsfElectronIDs:mvaEleID-Spring16-HZZ-V1-wpLoose",
     ]
-    electron_idNames =[]
     process.catElectrons.electronIDSources = cms.PSet()
     for idName in electron_idNames:
         setattr(process.catElectrons.electronIDSources,
@@ -42,15 +34,9 @@ def enableElectronVID(process):
                 cms.InputTag(idName))
         process.catElectrons.electronIDs.append(idName.split(':',1)[1])
 
-        #process.load("RecoEgamma.ElectronIdentification.ElectronIDValueMapProducer_cfi")
-    process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('calibratedPatElectrons')
-    process.electronIDValueMapProducer.srcMiniAOD = cms.InputTag('calibratedPatElectrons')
-    process.electronRegressionValueMapProducer.srcMiniAOD = cms.InputTag('calibratedPatElectrons')
-    process.electronMVAValueMapProducer.srcMiniAOD = cms.InputTag('calibratedPatElectrons')
-    process.catElectrons.src = cms.InputTag('calibratedPatElectrons')
-    process.catElectrons.electronsMiniAOD = cms.InputTag('calibratedPatElectrons')
-    process.catElectrons.unsmaredElectrons = cms.InputTag('calibratedPatElectrons')
-        
+    process.egmGsfElectronIDs.physicsObjectSrc = process.catElectrons.unsmaredElectrons
+    process.electronMVAValueMapProducer.srcMiniAOD = process.catElectrons.unsmaredElectrons
+
     return process
 
 def enablePhotonVID(process):

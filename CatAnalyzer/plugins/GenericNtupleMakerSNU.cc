@@ -362,7 +362,7 @@ private:
 
   //// electrons  27
   
-  std::vector<double>   electrons_x,electrons_y,electrons_z, electrons_relIso03,electrons_relIso04, electrons_minirelIsoBeta,electrons_minirelIsoRho, electrons_shiftedEnDown, electrons_shiftedEnUp, electrons_absIso03, electrons_absIso04,electrons_chIso03, electrons_nhIso03, electrons_phIso03, electrons_puChIso03, electrons_chIso04, electrons_nhIso04, electrons_phIso04, electrons_puChIso04, electrons_scEta, electrons_dxy,electrons_ip2D, electrons_ip3D,electrons_dz, electrons_isGsfCtfScPixChargeConsistent, electrons_mva, electrons_zzmva, electrons_smearedScale;
+  std::vector<double>   electrons_x,electrons_y,electrons_z, electrons_relIso03,electrons_relIso04, electrons_minirelIsoBeta,electrons_minirelIsoRho, electrons_shiftedEnDown, electrons_shiftedEnUp, electrons_absIso03, electrons_absIso04,electrons_chIso03, electrons_nhIso03, electrons_phIso03, electrons_puChIso03, electrons_chIso04, electrons_nhIso04, electrons_phIso04, electrons_puChIso04, electrons_scEta, electrons_dxy,electrons_ip2D, electrons_ip3D,electrons_dz, electrons_isGsfCtfScPixChargeConsistent,electrons_isGsfScPixChargeConsistent,electrons_isGsfCtfChargeConsistent, electrons_mva, electrons_zzmva, electrons_smearedScale;
 
 
   std::vector<double> electrons_pt, electrons_eta,electrons_phi, electrons_m, electrons_energy;
@@ -721,6 +721,8 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("electrons_ip3D",  "std::vector<double>", &electrons_ip3D);
   tree_->Branch("electrons_dz",  "std::vector<double>", &electrons_dz);
   tree_->Branch("electrons_isGsfCtfScPixChargeConsistent",  "std::vector<double>", &electrons_isGsfCtfScPixChargeConsistent);
+  tree_->Branch("electrons_isGsfScPixChargeConsistent",  "std::vector<double>", &electrons_isGsfScPixChargeConsistent);
+  tree_->Branch("electrons_isGsfCtfChargeConsistent",  "std::vector<double>", &electrons_isGsfCtfChargeConsistent);
   tree_->Branch("electrons_mva",  "std::vector<double>", &electrons_mva);
   tree_->Branch("electrons_zzmva",  "std::vector<double>", &electrons_zzmva);
   tree_->Branch("electrons_smearedScale", "std::vector<double>", &electrons_smearedScale);
@@ -1320,6 +1322,8 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     electrons_mva.push_back(el.mva());
     electrons_zzmva.push_back(el.zzmva());
     electrons_isGsfCtfScPixChargeConsistent.push_back(el.isGsfCtfScPixChargeConsistent());
+    electrons_isGsfScPixChargeConsistent.push_back(el.isGsfScPixChargeConsistent());
+    electrons_isGsfCtfChargeConsistent.push_back(el.isGsfCtfChargeConsistent());
     electrons_smearedScale.push_back(el.smearedScale());
 
     
@@ -2131,6 +2135,9 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   electrons_smearedScale.clear();
   electrons_missinghits.clear();
   electrons_isGsfCtfScPixChargeConsistent.clear();
+  electrons_isGsfScPixChargeConsistent.clear();
+  electrons_isGsfCtfChargeConsistent.clear();
+  
 
   //delete rmcor;
 

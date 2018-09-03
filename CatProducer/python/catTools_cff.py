@@ -166,7 +166,6 @@ def catTool(process, runOnMC=True, useMiniAOD=True):
         from CATTools.CatProducer.patTools.egmRegression_cff import enableElectronRegression
         process = enableElectronRegression(process)
 
-
         ## Energy/Photon smearing and scale correction
         from CATTools.CatProducer.patTools.egmSmearing_cff import enableElectronSmearing, enablePhotonSmearing
         process = enableElectronSmearing(process, runOnMC)
@@ -176,11 +175,7 @@ def catTool(process, runOnMC=True, useMiniAOD=True):
         from CATTools.CatProducer.patTools.egmVersionedID_cff import enableElectronVID, enablePhotonVID
         process = enableElectronVID(process)
         process = enablePhotonVID(process)
-        
-        process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag("selectedElectrons")
 
-
-        
         #from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
         #switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
 
@@ -193,8 +188,8 @@ def catTool(process, runOnMC=True, useMiniAOD=True):
         
 
         ## Electron ID without isolation cuts
-        #from CATTools.CatProducer.patTools.egmNoIsoID_cff import enableElectronNoIsoID
-        #process = enableElectronNoIsoID(process)
+        from CATTools.CatProducer.patTools.egmNoIsoID_cff import enableElectronNoIsoID
+        process = enableElectronNoIsoID(process)
        
         #######################################################################    
         # adding pfMVAMet https://twiki.cern.ch/twiki/bin/viewauth/CMS/MVAMet#Spring15_samples_with_25ns_50ns

@@ -221,7 +221,7 @@ ALLSamples= False
 periods = []
 if len(datasampledir) == 0:
     ALLSamples=True
-    periods = ["B" , "C", "D", "E","F","G","H_v2","H_v3"]
+    periods = ["B" , "C", "D", "E","F","G","H2","H3"]
 else:
     periods = data_periods
     
@@ -288,11 +288,12 @@ if connected_cms3 == False:
 
 ## Make a list of samples to process
 
-sampledir = ["MuonEG", "DoubleEG", "SingleElectron", "SingleMuon"]
-sampledir = ["MuonEG"]
+sampledir = ["SinglePhoton"]
+#"DoubleEG", "SingleElectron", "SingleMuon", "JetHT"]
+#sampledir = ["DoubleMuon"]
 
-periods = ["B", "C", "D","E","F","G","H_v2","H_v3"]
-periods = ["B", "C", "D"]
+periods = ["G"]
+
 if not ALLSamples == True:
     sampledir = datasampledir
 
@@ -410,7 +411,7 @@ for i in sampledir:
 
         print "CheckJobStatusAfterCrash = False"
 
-        runcommand="./create-batch_snu  --jobName " + jobname + " --fileList  /cms/scratch/SNU/datasets_" +version + "/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest  --transferDest /store/user/"+k_user+"/flatcat/"+ jobname
+        runcommand="./create-batch_snu  --jobName " + jobname + " --fileList  /cms/scratch/SNU/datasets_" +version + "/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6 --transferDest /store/user/"+k_user+"/flatcat/"+ jobname
         
         print runcommand
         os.system(runcommand)
