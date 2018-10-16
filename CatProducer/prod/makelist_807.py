@@ -667,10 +667,7 @@ datasetname = [
 ["ZprimetoNN_EEJJJJ_Zprime5000_N2100_WR5000_NLO", "ZprimetoNN_WR_EE_Z5000_N2100", 1.],
 ["ZprimetoNN_EEJJJJ_Zprime5000_N2200_WR5000_NLO", "ZprimetoNN_WR_EE_Z5000_N2200", 1.],
 ["ZprimetoNN_EEJJJJ_Zprime5000_N2300_WR5000_NLO", "ZprimetoNN_WR_EE_Z5000_N2300", 1.],
-["ZprimetoNN_EEJJJJ_Zprime5000_N2400_WR5000_NLO", "ZprimetoNN_WR_EE_Z5000_N2400", 1.]
-]
-
-datasetname = [
+["ZprimetoNN_EEJJJJ_Zprime5000_N2400_WR5000_NLO", "ZprimetoNN_WR_EE_Z5000_N2400", 1.],
 [ "/DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/MINIAODSIM","DY10to50",18610.],
 [ "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_HCALDebug_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM","DY50plus",5765.4],
 [ "/DYJetsToLL_Zpt-0To50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM","DY_pt_0to50",1.], 
@@ -680,6 +677,7 @@ datasetname = [
 [ "/DYJetsToLL_Pt-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext2-v1/MINIAODSIM","DY_pt_400to650",0.3921],
 [ "/DYJetsToLL_Pt-650ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext2-v1/MINIAODSIM","DY_pt_650toinf",0.03636]
 ]
+
 
 catversion="v8-0-8"
 
@@ -700,30 +698,37 @@ for m in range(0, len(datasetname)):
     name = datasetname[m][1]
     tag=""
 
+
     version=""
-    os.system("ls -lth  /xrootd/store/user/jalmond/"+pdataset + " >> log0.txt" )
-  
+    print "pdataset = "+pdataset
+    print "name = " + name
+    print "xsec = " + str(ixsec)
+
+    os.system("ls -lth  /xrootd_user/jalmond/xrootd/Catuple/"+pdataset + " > log0.txt" )
+
+
     readlog0 = open("log0.txt","r")
     for line in readlog0:
-        if "geonmo" in line:
+        if "geonmo" in line or "jalmond" in line:
             sline = line.split()
             if len(sline) == 9:
                 version=sline[8]
     readlog0.close()
 
 
-    os.system("ls -lth  /xrootd/store/user/jalmond/"+pdataset + "/"+version+"/>> log1.txt" )
+    os.system("ls -lth   /xrootd_user/jalmond/xrootd/Catuple/"+pdataset + "/"+version+"/> log1.txt" )
+
 
     readlog1 = open("log1.txt","r")
     for line in readlog1:
-        if "geonmo" in line:
+        if "geonmo" in line or "jalmond" in line:
             sline = line.split()
             if len(sline) == 9:
                 tag=sline[8]
     readlog1.close()
     
         
-    os.system("ls -lth  /xrootd/store/user/jalmond/"+pdataset + "/"+version+""+"/"+tag + "/ > log1b.txt")
+    os.system("ls -lth  /xrootd_user/jalmond/xrootd/Catuple/"+pdataset + "/"+version+""+"/"+tag + "/ > log1b.txt")
     
     readlog1b = open("log1b.txt","r")
     nlines=0
@@ -733,31 +738,47 @@ for m in range(0, len(datasetname)):
             nlines=nlines+1
     readlog1b.close()
                
-    os.system("ls -lth  /xrootd/store/user/jalmond/"+pdataset + "/"+version+"/"+tag + "/0000/ > log2.txt")
 
-    nlines_wrote=1
-    if nlines > nlines_wrote:
-        os.system("ls -lth  /xrootd/store/user/jalmond/"+pdataset + "/"+version+"/"+tag + "/000"+str(nlines_wrote)+"/ >> log2.txt")
+    nlines_wrote=0    
+    while nlines > nlines_wrote:
+        os.system("ls -lth  /xrootd_user/jalmond/xrootd/Catuple/"+pdataset + "/"+version+"/"+tag + "/000"+str(nlines_wrote)+"/ > log2"+str(nlines_wrote)+".txt")
+        
+        readlog2_list = []
+        readlog2 = open("log2"+str(nlines_wrote)+".txt","r")
+        for line in readlog2:
+            readlog2_list.append(line)
+        readlog2.close()
+
+        if nlines_wrote==0:
+            listfile = open("/cms/scratch/SNU/datasets_"+catversion+"/dataset_"+ name + ".txt","w")
+            listfile.write("# DataSetName = " + dataset + "\n") 
+            listfile.write("# xsec = "+str(ixsec)+"\n")
+            listfile.write("# catversion = " + catversion + "\n")
+            listfile.write("# name = " + name +  "\n")   
+            for line in readlog2_list:
+                if "geonmo" in line or "jalmond" in line:
+                    sline =line.split()
+                    if len(sline) == 9:
+                        filename=sline[8]
+                        listfile.write("root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/jalmond/Catuple/"+pdataset + "/"+version+"/"+tag + "/000"+str(nlines_wrote)+"/"+filename+"\n")
+            listfile.close()
+        else:
+            listfile = open("/cms/scratch/SNU/datasets_"+catversion+"/dataset_"+ name + ".txt","a")
+            for line in readlog2_list:
+                if "geonmo" in line or "jalmond" in line:
+                    sline =line.split()
+                    if len(sline) == 9:
+                        filename=sline[8]
+                        
+                        listfile.write("root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/jalmond/Catuple/"+pdataset + "/"+version+"/"+tag + "/000"+str(nlines_wrote)+"/"+filename+"\n") 
+            listfile.close()
+
         nlines_wrote=nlines_wrote+1
 
-    readlog2 = open("log2.txt","r")
-    listfile = open("/cms/scratch/SNU/datasets_"+catversion+"/dataset_"+ name + ".txt","w")
-    listfile.write("# DataSetName = " + dataset + "\n") 
-    listfile.write("# xsec = "+str(ixsec)+"\n")
-    listfile.write("# catversion = " + catversion + "\n")
-    listfile.write("# name = " + name +  "\n")   
-    for line in readlog2:
-        if "geonmo" in line:
-            sline =line.split()
-            if len(sline) == 9:
-                filename=sline[8]
-                
-                listfile.write("root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/jalmond//"+pdataset + "/"+version+"/"+tag + "/0000/"+filename+"\n") 
+        readlog2.close()
 
-    readlog2.close()
-    listfile.close()
     os.system("rm log1.txt")
-    os.system("rm log2.txt")
+    os.system("rm log2*.txt")
 
 
 print "["

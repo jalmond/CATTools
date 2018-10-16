@@ -191,7 +191,10 @@ cat::CATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     aMuon.setPUChargedHadronIso03( aPatMuon.pfIsolationR03().sumPUPt );
 
 
-
+    aMuon.setEcalIso( aPatMuon.ecalIso());
+    aMuon.setHcalIso( aPatMuon.hcalIso());
+    aMuon.setPtError( aPatMuon.muonBestTrack()->ptError());
+    
     //////////////// pfcands //////////////////         
     edm::Handle<pat::PackedCandidateCollection> pfcands;
     iEvent.getByToken(pfSrc_, pfcands);
@@ -210,6 +213,8 @@ cat::CATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     aMuon.setIsMedium( aPatMuon.isMediumMuon() );
     aMuon.setIsLoose( aPatMuon.isLooseMuon() );
     aMuon.setIsSoftMuon( aPatMuon.isSoftMuon(pv) );
+
+    aMuon.setisHighPtMuon(aPatMuon.isHighPtMuon(pv));
 
     aMuon.setNumberOfMatchedStations( aPatMuon.numberOfMatchedStations() );
     aMuon.setNumberOfValidHits( aPatMuon.numberOfValidHits() );

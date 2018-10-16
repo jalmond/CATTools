@@ -26,6 +26,7 @@ namespace cat {
     bool isSoftMuon() const { return isSoftMuon_; }
     bool isPFMuon() const { return this->isPF(); }
     bool isTightMuon() const { return this->isTight(); }
+    bool isHighPtMuon() const { return isHighPtMuon_; }
     bool isMediumMuon() const { return this->isMedium(); }
     bool isLooseMuon() const { return this->isLoose(); }
 
@@ -44,8 +45,17 @@ namespace cat {
     float shiftedEnDown() const {return 1-shiftedEn();}
     float shiftedEnUp() const {return  1+shiftedEn();}
 
+    float EcalIso() const {return ecalIso_;}
+    float HcalIso() const {return hcalIso_;}
+    float PtError() const {return pterror_;}
+    
     void setIsGlobalMuon(bool d) { isGlobalMuon_ = d; }
     void setIsSoftMuon(bool d) { isSoftMuon_ = d; }
+    void setisHighPtMuon(bool d) { isHighPtMuon_ = d;}
+
+    void  setEcalIso(float d) { ecalIso_ = d;}
+    void  setHcalIso(float d) { hcalIso_ = d;}
+    void  setPtError(float d) { pterror_ = d;}
 
     void setNormalizedChi2(float d) { normalizedChi2_ = d; }
     void setNumberOfValidHits(int i) { numberOfValidHits_ = i; }
@@ -63,11 +73,15 @@ namespace cat {
 
     bool isGlobalMuon_;
     bool isSoftMuon_;
+    bool isHighPtMuon_;
 
     float normalizedChi2_;
     float ip2Dsig_;
     float ip3Dsig_;
     float trkIso_;
+    float ecalIso_;
+    float hcalIso_;
+    float pterror_;
 
     int numberOfValidHits_;
     int numberOfValidMuonHits_;

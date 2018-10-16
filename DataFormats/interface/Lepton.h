@@ -98,7 +98,7 @@ namespace cat {
     bool isTight_;
     bool isMedium_;
     bool isLoose_;    
-
+    
     float dz_;
     float dxy_;
 

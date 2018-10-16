@@ -1244,24 +1244,6 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     j_eta_max= 10.;
   }
   
-  int il=0;
-  for (auto el : *electrons) {
-    
-    if(el.pt() < 5) continue;
-    if(fabs(el.eta()) > el_eta_max) continue;
-    if(el.pt() != el.pt()) continue;
-    il++;
-  }
-  for (auto mu : *muons) {
-
-    if(mu.pt() < 5) continue;
-    if(fabs(mu.eta()) > mu_eta_max) continue;
-    if(mu.pt() != mu.pt()) continue;
-    il++;
-  }
-  
-  if(il< 2) return;
-
   
   for (auto el : *electrons) {
     
