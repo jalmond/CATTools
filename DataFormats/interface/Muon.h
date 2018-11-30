@@ -30,6 +30,10 @@ namespace cat {
     bool isMediumMuon() const { return this->isMedium(); }
     bool isLooseMuon() const { return this->isLoose(); }
 
+    double TuneP_Pt()  const { return tunep_pt_;}
+    double TuneP_Eta()  const { return tunep_eta_;}
+    double TuneP_Phi()  const { return tunep_phi_;}
+
     float normalizedChi2() const { return normalizedChi2_; }
     int numberOfValidHits() const { return numberOfValidHits_; }
     int numberOfValidMuonHits() const { return numberOfValidMuonHits_; }
@@ -52,6 +56,10 @@ namespace cat {
     void setIsGlobalMuon(bool d) { isGlobalMuon_ = d; }
     void setIsSoftMuon(bool d) { isSoftMuon_ = d; }
     void setisHighPtMuon(bool d) { isHighPtMuon_ = d;}
+
+    void setTunePPt(double d) { tunep_pt_=d;}
+    void setTunePEta(double d) { tunep_eta_=d;}
+    void setTunePPhi(double d) { tunep_phi_=d;}
 
     void  setEcalIso(float d) { ecalIso_ = d;}
     void  setHcalIso(float d) { hcalIso_ = d;}
@@ -82,6 +90,11 @@ namespace cat {
     float ecalIso_;
     float hcalIso_;
     float pterror_;
+
+    double tunep_pt_;
+    double tunep_eta_;
+    double tunep_phi_;
+
 
     int numberOfValidHits_;
     int numberOfValidMuonHits_;

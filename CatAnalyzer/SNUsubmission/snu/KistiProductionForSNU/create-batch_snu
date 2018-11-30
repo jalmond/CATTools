@@ -316,10 +316,16 @@ SECTION=`printf %03d $1`
 if [ _$CMS_PATH == _ ]; then
   export CMS_PATH={2}
   source $CMS_PATH/cmsset_default.sh
+  export SCRAM_ARCH=slc6_amd64_gcc630
 fi
 
 tar xzf {0}/job.tar.gz
 cd {1}
+
+
+export CMS_PATH=/cvmfs/cms.cern.ch
+source $CMS_PATH/cmsset_default.sh
+export SCRAM_ARCH=slc6_amd64_gcc530
 
 scram build ProjectRename
 eval `scram runtime -sh`
@@ -495,7 +501,12 @@ cd {1}""".format(self.jobDir, self.jobBase, os.environ['CMS_PATH'],self.addition
 cp x509up_u8134 /tmp/x509up_u8134"""
 
         print>>fout,"""
-scram build ProjectRename
+
+
+export CMS_PATH=/cvmfs/cms.cern.ch                                                                                                                                                  
+source $CMS_PATH/cmsset_default.sh                                                                                                                                                  
+export SCRAM_ARCH=slc6_amd64_gcc530                                                                                                                                                 
+                                                                                                                                                                                   scram build ProjectRename
 eval `scram runtime -sh`
 echo BEGIN `date` cmsRun job_${{SECTION}}_cfg.py #>> {0}/submit.log
 ls -al
@@ -552,7 +563,10 @@ done""" % (' '.join(self.outFileNames), self.transferCmd, self.dest)
         print>>jdlOut, """executable = run.sh
 universe   = vanilla
 arguments  = $(Process)
-requirements = OpSysMajorVer == 6
+accounting_group=group_cms
++SingularityImage = "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6:latest"
++SingularityBind = "/cvmfs, /cms, /share"
+
 requirements = (Machine != "cms-t3-wn1005.sdfarm.kr")
 request_memory = 2944 
 request_disk = 2097000 

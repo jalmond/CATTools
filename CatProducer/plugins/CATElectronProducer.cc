@@ -29,6 +29,9 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
+#include "EgammaAnalysis/ElectronTools/interface/EnergyScaleCorrection_class.h"
+
+
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEffectiveArea.h"
 
@@ -64,6 +67,9 @@ namespace cat {
     edm::EDGetTokenT<edm::ValueMap<float> > mvaValuesMapToken_;
     edm::EDGetTokenT<edm::ValueMap<float> > zzmvaValuesMapToken_;
     bool runOnMC_;
+
+    EnergyScaleCorrection_class *egmScaler_;
+
 
     typedef std::pair<std::string, edm::InputTag> NameTag;
     typedef math::XYZPoint Point;
@@ -178,6 +184,9 @@ cat::CATElectronProducer::CATElectronProducer(const edm::ParameterSet & iConfig)
     }
     elecIDTokens_ = edm::vector_transform(elecIDSrcs_, [this](NameTag const & tag){return mayConsume<edm::ValueMap<bool> >(tag.second);});
   }
+
+  egmScaler_   = new EnergyScaleCorrection_class("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Moriond17_23Jan_ele");
+
 }
 
 void
@@ -255,6 +264,26 @@ cat::CATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
     // nan protection - smearing fails for soft electrons
     if ( std::isnan(std::abs(aElectron.p())) ) aElectron = *unsmearedElecRef;
+
+
+    float et = unsmearedElecRef.correctedEcalEnergy() / cosh(fabs(unsmearedElecRef.eta()));
+
+    int runNumber = iEvent.id().run();
+
+    double scale = egmScaler_->ScaleCorrection(runNumber, unsmearedElecRef->isEB(), unsmearedElecRef->full5x5_r9(), fabs(unsmearedElecRef->eta()), et, gainSeedSC);
+
+    float getSmearingSigma(int runNumber, bool isEBEle, float R9Ele, float etaSCEle, float EtEle, paramSmear_t par, float nSigma = 0.) const;
+    float getSmearingSigma(int runNumber, bool isEBEle, float R9Ele, float etaSCEle, float EtEle, float nSigma_rho, float nSigma_phi) const;
+
+    double smear = egmScaler_->getSmearingSigma(runNumber, unsmearedElecRef->isEB(), unsmearedElecRef->full5x5_r9(), fabs(unsmearedElecRef->eta()), et, 0., 0.);
+
+    float scale_unc = scale + egmScaler_->ScaleCorrectionUncertainty(runNumber, unsmearedElecRef->isEB(), unsmearedElecRef->full5x5_r9(), fabs(unsmearedElecRef->eta()), et);
+    float resol_rho_up  = egmScaler_->getSmearingSigma(runNumber, unsmearedElecRef->isEB(), unsmearedElecRef->full5x5_r9(), fabs(unsmearedElecRef->eta()), et, 1., 0.);
+    float resol_rho_dn  = egmScaler_->getSmearingSigma(runNumber, unsmearedElecRef->isEB(), unsmearedElecRef->full5x5_r9(), fabs(unsmearedElecRef->eta()), et, -1., 0.);
+    float resol_phi_up  = egmScaler_->getSmearingSigma(runNumber, unsmearedElecRef->isEB(), unsmearedElecRef->full5x5_r9(), fabs(unsmearedElecRef->eta()), et, 0., 1.);
+    float resol_phi_dn = egmScaler_->getSmearingSigma(runNumber, unsmearedElecRef->isEB(), unsmearedElecRef->full5x5_r9(), fabs(unsmearedElecRef->eta()), et, 0., -1.);
+
+
 
     if (runOnMC_){
       aElectron.setGenParticleRef(aPatElectron.genParticleRef());

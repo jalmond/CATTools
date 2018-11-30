@@ -335,7 +335,7 @@ private:
   
   //// Bools 
   /// Muons  8
-  vector<bool> muon_isTrackerMuon, muon_isGlobalMuon, muon_isLooseMuon, muon_isMediumMuon, muon_isTightMuon, muon_isSoftMuon, muon_mcMatched, muon_isPFMuon;
+  vector<bool> muon_isTrackerMuon, muon_isGlobalMuon, muon_isLooseMuon, muon_isMediumMuon, muon_isTightMuon,muon_isHighPtMuon, muon_isSoftMuon, muon_mcMatched, muon_isPFMuon;
   /// Electrons 13
   vector<bool>  electrons_electronID_loose,electrons_electronID_medium,electrons_electronID_tight,electrons_electronID_veto,electrons_electronID_mva_medium, electrons_electronID_mva_zz,electrons_electronID_mva_tight,electrons_electronID_mva_trig_medium,electrons_electronID_mva_trig_tight,electrons_electronID_heep,  electrons_mcMatched,electrons_isPF,electrons_passConversionVeto,electrons_isTrigMVAValid, electrons_electron_hlt;
   /// Jest 3
@@ -355,7 +355,7 @@ private:
 
 //// double
   //// muon  15
-  std::vector<double>  muon_x,muon_y,muon_z, muon_relIso03,muon_relIso04,muon_minirelIsoBeta,muon_minirelIsoRho, muon_dxy,muon_ip2D,muon_ip3D, muon_normchi, muon_dz, muon_shiftedEup,muon_shiftedEdown;
+  std::vector<double>  muon_x,muon_y,muon_z, muon_relIso03,muon_relIso04,muon_trkiso,muon_hcaliso, muon_ecaliso, muon_pterror,muon_minirelIsoBeta,muon_minirelIsoRho, muon_dxy,muon_ip2D,muon_ip3D, muon_normchi, muon_dz, muon_shiftedEup,muon_shiftedEdown;
   
   std::vector<double> muon_pt, muon_eta,muon_phi, muon_m, muon_energy;
   std::vector<double> muon_roch_pt, muon_roch_eta,muon_roch_phi, muon_roch_m, muon_roch_energy;
@@ -587,6 +587,7 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("muon_isLoose",  "std::vector<bool>", &muon_isLooseMuon);
   tree_->Branch("muon_isMedium",  "std::vector<bool>", &muon_isMediumMuon);
   tree_->Branch("muon_isTight",  "std::vector<bool>", &muon_isTightMuon);
+  tree_->Branch("muon_isHighPt",  "std::vector<bool>", &muon_isHighPtMuon);
   tree_->Branch("muon_isSoft",  "std::vector<bool>", &muon_isSoftMuon);
   tree_->Branch("muon_matched",  "std::vector<bool>", &muon_mcMatched);
   tree_->Branch("muon_isPF",  "std::vector<bool>", &muon_isPFMuon);
@@ -686,6 +687,10 @@ GenericNtupleMakerSNU::GenericNtupleMakerSNU(const edm::ParameterSet& pset)
   tree_->Branch("muon_normchi" ,  "std::vector<double>", &muon_normchi);
   tree_->Branch("muon_relIso03",  "std::vector<double>", &muon_relIso03);
   tree_->Branch("muon_relIso04",  "std::vector<double>", &muon_relIso04);
+  tree_->Branch("muon_trkiso",  "std::vector<double>", &muon_trkiso);
+  tree_->Branch("muon_ecaliso",  "std::vector<double>", &muon_ecaliso);
+  tree_->Branch("muon_hcaliso",  "std::vector<double>", &muon_hcaliso);
+  tree_->Branch("muon_pterror",  "std::vector<double>", &muon_pterror);
   tree_->Branch("muon_minirelIsoBeta",  "std::vector<double>", &muon_minirelIsoBeta);
   tree_->Branch("muon_minirelIsoRho",  "std::vector<double>", &muon_minirelIsoRho);
   tree_->Branch("muon_shiftedEdown",  "std::vector<double>", &muon_shiftedEdown);
@@ -1339,6 +1344,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     muon_isLooseMuon.push_back(mu.isLooseMuon()); 
     muon_isMediumMuon.push_back(mu.isMediumMuon());
     muon_isTightMuon.push_back(mu.isTightMuon());
+    muon_isHighPtMuon.push_back(mu.isHighPtMuon());
     muon_isSoftMuon.push_back(mu.isSoftMuon()); 
     muon_mcMatched.push_back(mu.mcMatched()); 
     muon_isPFMuon.push_back(mu.isPFMuon());
@@ -1358,6 +1364,10 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
     muon_energy.push_back(mu.energy()); 
     muon_relIso03.push_back(mu.relIso(0.3));
     muon_relIso04.push_back(mu.relIso(0.4));
+    muon_trkiso.push_back(mu.trackIso());
+    muon_hcaliso.push_back(mu.HcalIso());
+    muon_ecaliso.push_back(mu.EcalIso());
+    muon_pterror.push_back(mu.PtError());
     muon_minirelIsoBeta.push_back(mu.miniRelIso(true));
     muon_minirelIsoRho.push_back(mu.miniRelIso(false));
     muon_dxy.push_back(mu.dxy());
@@ -2031,6 +2041,7 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   muon_isLooseMuon.clear();
   muon_isMediumMuon.clear();
   muon_isTightMuon.clear();
+  muon_isHighPtMuon.clear();
   muon_isSoftMuon.clear();
   muon_mcMatched.clear();
   muon_isPFMuon.clear();
@@ -2056,6 +2067,10 @@ void GenericNtupleMakerSNU::analyze(const edm::Event& event, const edm::EventSet
   muon_energy.clear();
   muon_relIso03.clear();
   muon_relIso04.clear();
+  muon_trkiso.clear();
+  muon_hcaliso.clear();
+  muon_ecaliso.clear();
+  muon_pterror.clear();
   muon_minirelIsoBeta.clear();
   muon_minirelIsoRho.clear();
   muon_dxy.clear();

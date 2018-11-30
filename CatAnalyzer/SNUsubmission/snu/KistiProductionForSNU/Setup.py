@@ -35,116 +35,128 @@ datasampledir = []
                 
 #### For MC only
 
-tmpmcsampledir = ["WZG","WWG","ttZToLL_M-10","ggHtoWW","vbfHtoWW","qcd_15to20_bctoe","qcd_20to30_bctoe","qcd_30to80_bctoe" ,"qcd_80to170_bctoe","qcd_170to250_bctoe","qcd_250toinf_bctoe","ww_ds", "ggHtoZZ","TG","TTG","tZq","vbhHtoZZ", "ZZTo2L2Nu_Powheg","ZZTo2L2Q_Powheg","ggZZto2e2mu","ggZZto2e2nu","ggZZto2e2tau","ggZZto2mu2nu","ggZZto2mu2tau","ggZZto4e","ggZZto4mu","ggZZto4tau","ggWWto2L2Nu","WZto2L2Q_amcatnlo","QCD_DoubleEMEnriched_30-40_mgg80toinf","QCD_DoubleEMEnriched_30-inf_mgg40to80","QCD_DoubleEMEnriched_40-inf_mgg80toinf" ,"DYtoEE",
-"TT_powheg",
-"TTLL_powheg",
-"WJets",
-"SingleTop_s",
-"SingleTop_t",
-"SingleTbar_t",
-"SingleTop_tW",
-"SingleTbar_tW",
-"SingleTop_tW_noHadron",
-"SingleTbar_tW_noHadron",
-"ZZTo4L_powheg",
-"WWTo2L2Nu",
-"WWToLNuQQ",
-"WZTo3LNu_powheg",
-"WpWpQCD",
-"WpWpEWK",
-"WWW",
-"WWZ",
-"WZZ",
-"ZZZ",
-"ttZ",
-"ttZ",
-"WGtoLNuG",
-"ZGto2LG",
-"ttH_bb",
-"ttH_nonbb",
-"GG_HToMuMu",
-"VBF_HToMuMu",
-"QCD_Pt-15to20_MuEnriched",
-"QCD_Pt-20to30_MuEnriched",
-"QCD_Pt-30to50_MuEnriched",
-"QCD_Pt-50to80_MuEnriched",
-"QCD_Pt-80to120_MuEnriched",
-"QCD_Pt-120to170_MuEnriched",
-"QCD_Pt-170to300_MuEnriched",
-"QCD_Pt-300to470_MuEnriched",
-"QCD_Pt-470to600_MuEnriched",
-"QCD_Pt-600to800_MuEnriched",
-"QCD_Pt-800to1000_MuEnriched",
-"QCD_Pt-1000toInf_MuEnriched",
-"QCD_Pt-20to30_EMEnriched",
-"QCD_Pt-30to50_EMEnriched",
-"QCD_Pt-50to80_EMEnriched",
-"QCD_Pt-80to120_EMEnriched",
-"QCD_Pt-120to170_EMEnriched",
-"QCD_Pt-170to300_EMEnriched",
-"QCD_Pt-300toInf_EMEnriched",
-"ZToEE_M_120_200",
-"ZToEE_M_1400_2300",
-"ZToEE_M_200_400",
-"ZToEE_M_2300_3500",
-"ZToEE_M_3500_4500",
-"ZToEE_M_400_800",
-"ZToEE_M_4500_6000",
-"ZToEE_M_50_120",
-"ZToEE_M_6000_Inf",
-"ZToEE_M_800_1400",
-"ZToEE_M_120_200",
-"ZToMuMu_M_1400_2300",
-"ZToMuMu_M_200_400",
-"ZToMuMu_M_2300_3500",
-"ZToMuMu_M_3500_4500",
-"ZToMuMu_M_400_800",
-"ZToMuMu_M_4500_6000",
-"ZToMuMu_M_50_120",
-"ZToMuMu_M_6000_Inf",
-"ZToMuMu_M_800_1400",
-"DY_pt_0to50",                                                                                                                                                                                             
-"DY_pt_50to100",                                                                                                                                                                                           
-"DY_pt_100to250",                                                                                                                                                                                          
-"DY_pt_250to400",                                                                                                                                                                                        
-"DY_pt_400to650",                                                                                                                                                                                          
-"DY_pt_650toinf"   ]
+
+import os,sys
+import ROOT
+
+def GetListOfDataSets(catversion, sample_type):
+
+    dlist=[]
+
+    if sample_type == "mc":
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWct60gAWZoN7tmVAw_WJmQmDWdrpXluF1xz8cn4sL8NCll3Vb8ppN2254P10zmnZ_oqF1f8XSHuav/pub?gid=238920808&single=true&output=csv'
+    if sample_type == "signal":
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWct60gAWZoN7tmVAw_WJmQmDWdrpXluF1xz8cn4sL8NCll3Vb8ppN2254P10zmnZ_oqF1f8XSHuav/pub?gid=602011091&single=true&output=csv'
+
+    import csv
+
+    from urllib import urlopen
+
+    cr = csv.reader(urlopen(url).readlines())
+    for row in cr:
+        if row[0] == "END":
+            return dlist
+        if not row[0] == "User":
+            if len(row) > 3:
+                len_alias = len(row[1])
+                len_dn = len(row[2])
+                len_xsec = len(row[3])
+                len_1 = 30 - len_alias
+                len_2 = 180 - len_dn
+                len_3 = 10 - len_xsec
+                #print "[Alias,dataset,xsec]: " + row[1]+ " "*len_1+ row[2] +" "*len_2 +row[3]                                                                                                              
+
+                if row[0] == "":
+                    dlist.append([row[1],row[2],row[3],"jalmond"])
+                else:
+                    dlist.append([row[1],row[2],row[3],row[0]])
 
 
-flavours = ["MuMu"]
-zmasses = ["400", "600", "800", "1000", "1200", "1400", "1600", "1800", "2000", "2200", "2400", "2600", "2800", "3000", "3200", "3400", "3600", "3800", "4000", "4200", "4400", "4600", "4800", "5000"]
-nmasses  = ["100", "200", "300", "400", "500", "600", "700", "800", "900", "1000", "1100", "1200", "1300", "1400", "1500", "1600", "1700", "1800", "1900", "2000", "2100", "2200", "2300", "2400"]
 
-tmpmcsampledir = []                                                                                                                                                                                           
-for flavour in flavours:
-    for zmass in zmasses:
-        for nmass in nmasses:
-            if (((float)(zmass)/2. - 1) < ((float)(nmass))):
-                continue
-            tmpmcsampledir.append("ZprimetoNN_WR_"+flavour+"_Z"+zmass+"_N"+nmass)                                                                                                                             
 
-tmpmcsampledir  =["QCD_Pt-300toInf_EMEnriched"]
+    return dlist
+
+
+catversion="v8-0-8"
+datasetlist=GetListOfDataSets(catversion,"mc")
+datasetlist_signal=GetListOfDataSets(catversion,"signal")
+datasetlist=datasetlist+datasetlist_signal
+
+
+rerunALL=False
 
 mcsampledir=[]
-
-for x in tmpmcsampledir:    
-    sample_exists=False
-    if not os.path.exists("/cms/scratch/SNU/datasets_v8-0-8/dataset_"+x+".txt"):
-        print x + " does not exist"
+for x in datasetlist:    
+    if x == ['','','','']:
         continue
-
-    check_exists = open("/cms/scratch/SNU/datasets_v8-0-8/dataset_"+x+".txt","r")
-
-    for l in check_exists:
-        if ".root" in l:
-            sample_exists=True
-    check_exists.close()
     
-    if not sample_exists:
-        print x + " does not exist"
+    alias = x[0]
+    datasetname = x[1]
+    part_datasetname=  datasetname
+
+    if "/" in datasetname:
+        datasetname=datasetname.replace("/"," " )
+        datasetname_split= datasetname.split()
+        if len(datasetname_split) > 0:
+            part_datasetname= datasetname_split[0]
+
+
+    user_name= x[3]
+    if not os.path.exists("//xrootd/store/user/"+user_name+"/"+part_datasetname):
+        print part_datasetname + " missing fom cattool list, cannot make flatcat"
+        continue
+    sample_exists=False
+    if os.path.exists("/xrootd/store/user/"+user_name+"/cattoflat/MC/"+catversion+"/"+part_datasetname):
+        listOfFile = os.listdir("/xrootd/store/user/"+user_name+"/cattoflat/MC/"+catversion+"/"+part_datasetname)
+        for entry in listOfFile:
+            if ".root" in entry:
+                sample_exists=True    
+        continue
     else:
-        mcsampledir.append(x)
+        print "/xrootd/store/user/"+user_name+"/cattoflat/MC/"+catversion+"/"+part_datasetname + " missing"
+    if not sample_exists:
+        print alias+ " does not exist"
+        mcsampledir.append(alias)
         
+
+if rerunALL:
+    mcsampledir=[]
+
+    for x in datasetlist:
+        if x == ['','','','']:
+            continue
+    
+        alias = x[0]
+        datasetname = x[1]
+        part_datasetname=  datasetname
+
+        if "/" in datasetname:
+            datasetname=datasetname.replace("/"," " )
+            datasetname_split= datasetname.split()
+            if len(datasetname_split) > 0:
+                part_datasetname= datasetname_split[0]
+                
+        sample_exists=False
+        if not os.path.exists("/cms/scratch/SNU/datasets_v8-0-8/dataset_"+alias+".txt"):
+            print alias + " does not exist"
+            continue
+        
+        if not sample_exists:
+            print alias+ " does not exist"
+            mcsampledir.append(alias)
+
+        check_exists = open("/cms/scratch/SNU/datasets_v8-0-8/dataset_"+alias+".txt","r")
+        for l in check_exists:
+            if ".root" in l:
+                sample_exists=True
+        check_exists.close()
+        if  sample_exists:
+            mcsampledir.append(alias)
+
+    
+for x in mcsampledir:
+    print x
+    
 
 
 ### Loop to run multipl Signal MC

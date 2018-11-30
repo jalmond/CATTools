@@ -216,6 +216,12 @@ cat::CATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
     aMuon.setisHighPtMuon(aPatMuon.isHighPtMuon(pv));
 
+    if(aPatMuon.tunePMuonBestTrack().isNonnull() ){
+      aMuon.setTunePPt(aPatMuon.tunePMuonBestTrack()->pt());
+      aMuon.setTunePEta(aPatMuon.tunePMuonBestTrack()->eta());
+      aMuon.setTunePPhi(aPatMuon.tunePMuonBestTrack()->phi());
+    }
+
     aMuon.setNumberOfMatchedStations( aPatMuon.numberOfMatchedStations() );
     aMuon.setNumberOfValidHits( aPatMuon.numberOfValidHits() );
     

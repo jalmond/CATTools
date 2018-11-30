@@ -225,8 +225,10 @@ def CheckJobStatus(submitted_list, v):
                 os.system("ssh " + username_snu  + "@147.47.242.42 mkdir /data2/DATA/cattoflat/MC/" + v + "/" + i )
 
                 outlogfile.write("scp  /xrootd/store/user/" + k_user + "/flatcat/SNU_" + v+ "_" +i +"/*.root " + " " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/MC/" + v + "/"  +i+"\n")
-                os.system("scp  /xrootd/store/user/" + k_user + "/flatcat/SNU_" + v+ "_" +i +"/*.root " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/MC/"  + v + "/" +i) 
-             
+                os.system("scp  /xrootd/store/user/" + k_user + "/cattoflat/MC/SNU_"+v+"_"+i+"/*.root " + username_snu  + "@147.47.242.42:/data2/DATA/cattoflat/MC/"  + v + "/" +i) 
+                os.system("rm -r  /xrootd_user/" + k_user + "/xrootd/cattoflat/MC/"+v+"/"+i)
+                os.system("mv /xrootd_user/" + k_user + "/xrootd/cattoflat/MC/SNU_" + v+ "_" +i +" /xrootd_user/" + k_user + "/xrootd/cattoflat/MC/"+v+"/"+i)
+
             outlogfile.write("submitted_list = " + submitted_list + " is ammended to: "+"\n")
             new_submitted_list = string.replace(submitted_list, i+"!" , "")
             outlogfile.write(new_submitted_list+"\n")
@@ -252,7 +254,7 @@ if len(mcsampledir) == 0:
     
 
 host=os.getenv("HOSTNAME")
-if not "ui10" in host:
+if not "ui20" in host:
     quit()
 
 if os.path.exists("cat.txt"):
@@ -384,7 +386,8 @@ if False:
         if "jalmond" in username_snu:
             os.system("scp -r /cms/scratch/SNU/datasets_" +version + "/ " + username_snu  + "@147.47.242.42:/data1/LQAnalyzer_rootfiles_for_analysis/DataSetLists/")
             os.system("ssh " + username_snu  + "@147.47.242.42 chmod -R 777  /data1/LQAnalyzer_rootfiles_for_analysis/DataSetLists/datasets_" +version + "/")
-            
+
+print "RUNNING sampledir"            
             
 for i in sampledir:
     print i 
@@ -661,9 +664,18 @@ for i in sampledir:
 
     print "CheckJobStatusAfterCrash = False"
     
-    os.system("mkdir  /xrootd/store/user/" + k_user + "/flatcat/")
-    
-    runcommand="./create-batch_snu   --jobName " + jobname + " --fileList   /cms/scratch/SNU/datasets_" +version + "/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /store/user/"+k_user+"/flatcat/"+ jobname 
+    if not os.path.exists("/xrootd_user" + k_user + "/xrootd/cattoflat/"):
+        os.system("mkdir  /xrootd/store/user/" + k_user + "/cattoflat/")
+        os.system("mkdir  /xrootd/store/user/" + k_user + "/cattoflat/MC/")
+        os.system("mkdir  /xrootd/store/user/" + k_user + "/cattoflat/MC/"+version)
+
+    if  os.path.exists("/xrootd_user" + k_user + "/xrootd/cattoflat/MC/"+version+"/"+dataset_tag):
+        os.system("rm -rf  /xrootd_user" + k_user + "/xrootd/cattoflat/MC/"+version+"/"+dataset_tag)
+    if  os.path.exists("/xrootd_user" + k_user + "/xrootd/cattoflat/MC/SNU_" +version+"_"+dataset_tag):
+        os.system("rm -rf  /xrootd_user" + k_user + "/xrootd/cattoflat/MC/SNU_"+version+"_"+dataset_tag)
+
+
+    runcommand="./create-batch_snu   --jobName " + jobname + " --fileList   /cms/scratch/SNU/datasets_" +version + "/" + datasetlist +"  --maxFiles " + str(nfilesperjob) + "  --cfg ../" + cfgfile  + "   --queue batch6  --transferDest /store/user/"+k_user+"/cattoflat/MC/"+jobname
     print "Running:"
     print  runcommand
     os.system(runcommand)
